@@ -1,20 +1,41 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Heart, User, Search, ShoppingBag, Menu, X, ChevronDown, Globe } from 'lucide-react';
+import { Heart, User, Search, ShoppingBag, Menu, X, ChevronDown, Globe, Minus, Plus } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useCart } from '../contexts/CartContext';
 import { useWishlist } from '../contexts/WishlistContext';
 
 const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isCartOpen, setIsCartOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   const [isLanguageOpen, setIsLanguageOpen] = useState(false);
   const [currentLanguage, setCurrentLanguage] = useState('en');
   const { user, logout } = useAuth();
-  const { items } = useCart();
+  const { items, updateQuantity, removeFromCart, total } = useCart();
   const { items: wishlistItems } = useWishlist();
   const navigate = useNavigate();
 
   const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
+
+  // Mock search results
+  const searchResults = [
+    {
+      id: 1,
+      name: "Lip Butter",
+      price: 450,
+      image: "https://kyliecosmetics.com/cdn/shop/files/KJC_LIP_25_PeachMango_Stylized_Open.jpg?crop=center&height=100&v=1752094667&width=100"
+    },
+    {
+      id: 2,
+      name: "Condicionador Nutritivo",
+      price: 1200,
+      image: "https://fentybeauty.com/cdn/shop/files/FS_FALL25_T2PRODUCT_ECOMM_BODY-MILK_SALTED-CARAMEL_1200X1500_72DPI_900x1100.jpg?v=1754005575&width=100&height=100"
+    }
+  ].filter(product => 
+    product.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   const handleLanguageChange = (lang: string) => {
     setCurrentLanguage(lang);
@@ -117,18 +138,24 @@ const Header: React.FC = () => {
                 </Link>
               )}
 
-              <button className="hover:text-accent transition-colors">
+              <button 
+                onClick={() => setIsSearchOpen(!isSearchOpen)}
+                className="hover:text-accent transition-colors"
+              >
                 <Search size={20} />
               </button>
 
-              <Link to="/cart" className="relative hover:text-accent transition-colors">
+              <button 
+                onClick={() => setIsCartOpen(!isCartOpen)}
+                className="relative hover:text-accent transition-colors"
+              >
                 <ShoppingBag size={20} />
                 {totalItems > 0 && (
                   <span className="absolute -top-2 -right-2 bg-secondary text-xs rounded-full w-5 h-5 flex items-center justify-center font-medium">
                     {totalItems}
                   </span>
                 )}
-              </Link>
+              </button>
             </div>
           </div>
 
@@ -332,6 +359,141 @@ const Header: React.FC = () => {
                   </Link>
                 </div>
               </nav>
+            </div>
+          </div>
+        )}
+
+        {/* Search Overlay */}
+        {isSearchOpen && (
+          <div className="fixed inset-0 z-50 bg-black bg-opacity-50" onClick={() => setIsSearchOpen(false)}>
+            <div className="bg-white p-6 max-w-2xl mx-auto mt-20 rounded-lg shadow-xl" onClick={(e) => e.stopPropagation()}>
+              <div className="flex items-center gap-4 mb-6">
+                <Search size={20} className="text-gray-400" />
+                <input
+                  type="text"
+                  placeholder="Search products..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="flex-1 text-lg outline-none"
+                  autoFocus
+                />
+                <button onClick={() => setIsSearchOpen(false)}>
+                  <X size={20} />
+                </button>
+              </div>
+              
+              {searchQuery && (
+                <div className="space-y-4 max-h-96 overflow-y-auto">
+                  {searchResults.length > 0 ? (
+                    searchResults.map((product) => (
+                      <Link
+                        key={product.id}
+                        to={`/product/${product.id}`}
+                        className="flex items-center gap-4 p-3 hover:bg-gray-50 rounded-lg transition-colors"
+                        onClick={() => setIsSearchOpen(false)}
+                      >
+                        <img
+                          src={product.image}
+                          alt={product.name}
+                          className="w-12 h-12 object-cover rounded-md"
+                        />
+                        <div className="flex-1">
+                          <h3 className="font-medium">{product.name}</h3>
+                          <p className="text-sm text-gray-600">MT{product.price}</p>
+                        </div>
+                      </Link>
+                    ))
+                  ) : (
+                    <p className="text-gray-500 text-center py-8">No products found</p>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Cart Sidebar */}
+        {isCartOpen && (
+          <div className="fixed inset-0 z-50">
+            <div className="fixed inset-0 bg-black bg-opacity-50" onClick={() => setIsCartOpen(false)} />
+            <div className="fixed top-0 right-0 h-full w-96 max-w-full bg-white shadow-xl overflow-y-auto">
+              <div className="p-6 border-b">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-xl font-bold">Shopping Cart ({totalItems})</h2>
+                  <button onClick={() => setIsCartOpen(false)}>
+                    <X size={24} />
+                  </button>
+                </div>
+              </div>
+              
+              <div className="flex-1 p-6">
+                {items.length > 0 ? (
+                  <div className="space-y-4">
+                    {items.map((item) => (
+                      <div key={`${item.id}-${item.variant || ''}`} className="flex gap-4 p-4 border rounded-lg">
+                        <img
+                          src={item.image}
+                          alt={item.name}
+                          className="w-16 h-16 object-cover rounded-md"
+                        />
+                        <div className="flex-1">
+                          <h3 className="font-medium text-sm">{item.name}</h3>
+                          <p className="text-sm text-gray-600">MT{item.price}</p>
+                          <div className="flex items-center gap-2 mt-2">
+                            <button
+                              onClick={() => updateQuantity(item.id, Math.max(0, item.quantity - 1))}
+                              className="w-6 h-6 rounded-full border flex items-center justify-center hover:bg-gray-100"
+                            >
+                              <Minus size={12} />
+                            </button>
+                            <span className="text-sm font-medium">{item.quantity}</span>
+                            <button
+                              onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                              className="w-6 h-6 rounded-full border flex items-center justify-center hover:bg-gray-100"
+                            >
+                              <Plus size={12} />
+                            </button>
+                            <button
+                              onClick={() => removeFromCart(item.id)}
+                              className="ml-auto text-red-500 hover:text-red-700 text-sm"
+                            >
+                              Remove
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-12">
+                    <ShoppingBag size={48} className="mx-auto mb-4 text-gray-300" />
+                    <p className="text-gray-500">Your cart is empty</p>
+                  </div>
+                )}
+              </div>
+              
+              {items.length > 0 && (
+                <div className="border-t p-6 space-y-4">
+                  <div className="flex justify-between font-bold text-lg">
+                    <span>Total:</span>
+                    <span>MT{total.toFixed(2)}</span>
+                  </div>
+                  <Link
+                    to="/checkout"
+                    className="btn btn-primary w-full"
+                    onClick={() => setIsCartOpen(false)}
+                  >
+                    Checkout
+                  </Link>
+                  <Link
+                    to="/cart"
+                    className="btn btn-outline w-full"
+                    onClick={() => setIsCartOpen(false)}
+                  >
+                    View Cart
+                  </Link>
+                </div>
+              )}
             </div>
           </div>
         )}

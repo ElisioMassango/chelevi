@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ChevronLeft, ChevronRight, Star, Heart, ShoppingBag } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Star, Heart, ShoppingBag, Play } from 'lucide-react';
 import ProductCard from '../components/ProductCard';
 
 const Home: React.FC = () => {
@@ -36,21 +36,42 @@ const Home: React.FC = () => {
     }
   ];
   
-  const categories = [
+  const collections = [
     {
-      title: "CABELOS",
-      image: "https://crm.sparktech.pt/assets/shopfcc/shop1.jpg",
-      link: "/products/shampoo"
+      id: 1,
+      category: "Coleção",
+      title: "Red Chelevi Legacy 2023",
+      buttonText: "Compre agora",
+      image: "https://images.pexels.com/photos/1152077/pexels-photo-1152077.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop",
+      link: "/products/red-chelevi",
+      size: "large"
     },
     {
-      title: "MAQUIAGEM",
-      image: "https://crm.sparktech.pt/assets/shopfcc/shop2.jpg",
-      link: "/products/conditioner"
+      id: 2,
+      category: "Tendências",
+      title: "Couro de crocodilo",
+      buttonText: "",
+      image: "https://images.pexels.com/photos/1152077/pexels-photo-1152077.jpeg?auto=compress&cs=tinysrgb&w=400&h=400&fit=crop",
+      link: "/products/crocodile-leather",
+      size: "medium"
     },
     {
-      title: "PELE",
-      image: "https://crm.sparktech.pt/assets/shopfcc/shop3.jpg",
-      link: "/products/treatment"
+      id: 3,
+      category: "Novidade",
+      title: "Joias de Obsidiana",
+      buttonText: "",
+      image: "https://images.pexels.com/photos/1152077/pexels-photo-1152077.jpeg?auto=compress&cs=tinysrgb&w=400&h=400&fit=crop",
+      link: "/products/obsidian-jewelry",
+      size: "medium"
+    },
+    {
+      id: 4,
+      category: "Coleção",
+      title: "Tecido de couro de Crocodilo do nilo",
+      buttonText: "Compre agora",
+      image: "https://images.pexels.com/photos/1152077/pexels-photo-1152077.jpeg?auto=compress&cs=tinysrgb&w=600&h=400&fit=crop",
+      link: "/products/nile-crocodile",
+      size: "hero"
     }
   ];
   
@@ -104,8 +125,52 @@ const Home: React.FC = () => {
       colors: [],
       category: "cabelo"
     },
+    {
+      id: 5,
+      name: "Sérum Anti-Frizz",
+      price: 750,
+      image: "https://crm.sparktech.pt/assets/shopfcc/shop1.jpg",
+      secondImage: "https://crm.sparktech.pt/assets/shopfcc/shop2.jpg",
+      rating: 4.5,
+      reviews: 203,
+      badge: "MAIS VENDIDO",
+      colors: [],
+      category: "cabelo"
+    },
+    {
+      id: 6,
+      name: "Kit Reconstrutor",
+      price: 980,
+      image: "https://crm.sparktech.pt/assets/shopfcc/shop3.jpg",
+      secondImage: "https://crm.sparktech.pt/assets/shopfcc/shop4.jpg",
+      rating: 4.9,
+      reviews: 78,
+      badge: "EDIÇÃO LIMITADA",
+      colors: [],
+      category: "cabelo"
+    }
   ];
-  
+
+  const videos = [
+    {
+      id: 1,
+      title: "Tutorial de Aplicação",
+      thumbnail: "https://images.pexels.com/photos/3373746/pexels-photo-3373746.jpeg?auto=compress&cs=tinysrgb&w=400&h=600&fit=crop",
+      duration: "2:30"
+    },
+    {
+      id: 2,
+      title: "Rotina Capilar Completa",
+      thumbnail: "https://images.pexels.com/photos/3762806/pexels-photo-3762806.jpeg?auto=compress&cs=tinysrgb&w=400&h=600&fit=crop",
+      duration: "5:15"
+    },
+    {
+      id: 3,
+      title: "Antes e Depois",
+      thumbnail: "https://images.pexels.com/photos/3373745/pexels-photo-3373745.jpeg?auto=compress&cs=tinysrgb&w=400&h=600&fit=crop",
+      duration: "3:45"
+    }
+  ];
 
   const instagramPosts = [
     {
@@ -223,56 +288,141 @@ const Home: React.FC = () => {
         </div>
       </section>
 
-      {/* Shop by Category */}
-      <section className="py-20 bg-primary">
+      {/* New Collections Section - Replacing Shop by Category */}
+      <section className="py-20 bg-white">
         <div className="container">
-          <h2 className="text-4xl lg:text-5xl font-bold text-center mb-16 text-accent tracking-wide uppercase animate-slideUp">
-            SHOP BY CATEGORY
-          </h2>
-          
-          <div className="grid grid-3 gap-8">
-            {categories.map((category, index) => (
-              <Link
-                key={index}
-                to={category.link}
-                className="group relative h-96 overflow-hidden rounded-xl"
+          <div className="collections-grid">
+            {/* Large Featured Collection */}
+            <Link
+              to={collections[0].link}
+              className="collections-item collections-large group"
+            >
+              <div
+                className="w-full h-full bg-cover bg-center rounded-2xl overflow-hidden relative"
+                style={{ backgroundImage: `url(${collections[0].image})` }}
               >
-                <img
-                  src={category.image}
-                  alt={category.title}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                />
-                <div className="absolute inset-0 bg-black bg-opacity-30 group-hover:bg-opacity-20 transition-all duration-300" />
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <h3 className="text-3xl font-bold text-white tracking-widest uppercase group-hover:scale-110 transition-transform duration-300">
-                    {category.title}
+                <div className="absolute inset-0 bg-gradient-to-r from-black/20 to-transparent" />
+                <div className="absolute top-8 left-8 text-white">
+                  <p className="text-sm font-medium mb-2 opacity-90">{collections[0].category}</p>
+                  <h2 className="text-3xl lg:text-4xl font-bold mb-6 leading-tight max-w-xs">
+                    {collections[0].title}
+                  </h2>
+                  <div className="flex items-center gap-2 text-sm font-medium group-hover:gap-4 transition-all">
+                    <span>{collections[0].buttonText}</span>
+                    <ChevronRight size={16} />
+                  </div>
+                </div>
+              </div>
+            </Link>
+
+            {/* Medium Collections */}
+            <Link
+              to={collections[1].link}
+              className="collections-item collections-medium group"
+            >
+              <div
+                className="w-full h-full bg-cover bg-center rounded-2xl overflow-hidden relative"
+                style={{ backgroundImage: `url(${collections[1].image})` }}
+              >
+                <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+                <div className="absolute bottom-6 left-6 text-white">
+                  <p className="text-xs font-medium mb-1 opacity-90">{collections[1].category}</p>
+                  <h3 className="text-xl font-bold leading-tight">
+                    {collections[1].title}
                   </h3>
                 </div>
-              </Link>
-            ))}
+              </div>
+            </Link>
+
+            <Link
+              to={collections[2].link}
+              className="collections-item collections-medium group"
+            >
+              <div
+                className="w-full h-full bg-cover bg-center rounded-2xl overflow-hidden relative"
+                style={{ backgroundImage: `url(${collections[2].image})` }}
+              >
+                <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+                <div className="absolute bottom-6 left-6 text-white">
+                  <p className="text-xs font-medium mb-1 opacity-90">{collections[2].category}</p>
+                  <h3 className="text-xl font-bold leading-tight">
+                    {collections[2].title}
+                  </h3>
+                </div>
+              </div>
+            </Link>
+
+            {/* Hero Collection */}
+            <Link
+              to={collections[3].link}
+              className="collections-item collections-hero group"
+            >
+              <div
+                className="w-full h-full bg-cover bg-center rounded-2xl overflow-hidden relative"
+                style={{ backgroundImage: `url(${collections[3].image})` }}
+              >
+                <div className="absolute inset-0 bg-gradient-to-r from-black/30 to-transparent" />
+                <div className="absolute top-1/2 left-8 transform -translate-y-1/2 text-white max-w-md">
+                  <p className="text-sm font-medium mb-2 opacity-90">{collections[3].category}</p>
+                  <h2 className="text-2xl lg:text-3xl font-bold mb-6 leading-tight">
+                    {collections[3].title}
+                  </h2>
+                  <div className="flex items-center gap-2 text-sm font-medium group-hover:gap-4 transition-all">
+                    <span>{collections[3].buttonText}</span>
+                    <ChevronRight size={16} />
+                  </div>
+                </div>
+              </div>
+            </Link>
           </div>
         </div>
       </section>
 
-      {/* Featured Products */}
-      <section className="py-20">
+      {/* Modern Product Showcase */}
+      <section className="py-20 bg-gray-50">
         <div className="container">
-          <h2 className="text-4xl lg:text-5xl font-bold text-center mb-4 tracking-wide lowercase">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl lg:text-5xl font-bold mb-4 tracking-wide lowercase">
               ShopFCC 
-          </h2>
-          <p className="text-center text-text-secondary mb-16 text-lg">
-            Discover our latest collection of premium hair care products
-          </p>
+            </h2>
+            <p className="text-center text-text-secondary mb-8 text-lg">
+              Discover our latest collection of premium hair care products
+            </p>
+          </div>
           
-          {/* Horizontal Scroll Container */}
+          {/* Enhanced Horizontal Scroll Container */}
           <div className="relative">
-            <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide snap-x snap-mandatory">
+            <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide snap-x snap-mandatory scroll-smooth" id="products-scroll">
               {featuredProducts.map((product) => (
                 <div key={product.id} className="flex-none w-72 snap-start">
                   <ProductCard product={product} />
                 </div>
               ))}
             </div>
+            
+            {/* Navigation Arrows */}
+            <button
+              onClick={() => {
+                const container = document.getElementById('products-scroll');
+                if (container) {
+                  container.scrollBy({ left: -300, behavior: 'smooth' });
+                }
+              }}
+              className="absolute left-0 top-1/2 transform -translate-y-1/2 -translate-x-4 w-12 h-12 bg-white shadow-lg rounded-full flex items-center justify-center hover:shadow-xl transition-all z-10"
+            >
+              <ChevronLeft size={20} />
+            </button>
+            <button
+              onClick={() => {
+                const container = document.getElementById('products-scroll');
+                if (container) {
+                  container.scrollBy({ left: 300, behavior: 'smooth' });
+                }
+              }}
+              className="absolute right-0 top-1/2 transform -translate-y-1/2 translate-x-4 w-12 h-12 bg-white shadow-lg rounded-full flex items-center justify-center hover:shadow-xl transition-all z-10"
+            >
+              <ChevronRight size={20} />
+            </button>
             
             {/* Scroll indicators */}
             <div className="flex justify-center mt-6 gap-2">
@@ -286,6 +436,46 @@ const Home: React.FC = () => {
             <Link to="/products" className="btn btn-outline btn-lg uppercase tracking-widest">
               VIEW ALL PRODUCTS
             </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Video Section */}
+      <section className="py-20 bg-white">
+        <div className="container">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl lg:text-5xl font-bold mb-4 tracking-wide">
+              TUTORIALS & TIPS
+            </h2>
+            <p className="text-xl text-text-secondary max-w-3xl mx-auto">
+              Learn how to get the most out of your ShopFCC products with our expert tutorials
+            </p>
+          </div>
+
+          <div className="grid lg:grid-cols-3 gap-8">
+            {videos.map((video) => (
+              <div key={video.id} className="group cursor-pointer">
+                <div className="relative aspect-[9/16] rounded-2xl overflow-hidden mb-4">
+                  <img
+                    src={video.thumbnail}
+                    alt={video.title}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
+                  <div className="absolute inset-0 bg-black bg-opacity-30 group-hover:bg-opacity-20 transition-all duration-300" />
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="w-16 h-16 bg-white bg-opacity-90 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                      <Play size={24} className="text-text-primary ml-1" />
+                    </div>
+                  </div>
+                  <div className="absolute bottom-4 right-4 bg-black bg-opacity-70 text-white px-2 py-1 rounded text-sm">
+                    {video.duration}
+                  </div>
+                </div>
+                <h3 className="text-lg font-semibold group-hover:text-accent transition-colors">
+                  {video.title}
+                </h3>
+              </div>
+            ))}
           </div>
         </div>
       </section>
@@ -331,6 +521,7 @@ const Home: React.FC = () => {
           </div>
         </div>
       </section>
+
       {/* The Cosmic Universe */}
       <section className="py-20 bg-gray-900 text-white overflow-hidden">
         <div className="container">
@@ -362,7 +553,7 @@ const Home: React.FC = () => {
         </div>
       </section>
 
-      {/* Instagram Feed */}
+      {/* Instagram Feed - Bento Grid */}
       <section className="py-20">
         <div className="container">
           <h2 className="text-4xl lg:text-5xl font-bold text-center mb-16 uppercase tracking-wide text-rose-400">
