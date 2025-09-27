@@ -448,6 +448,68 @@ const Home: React.FC = () => {
         </div>
       </section>
 
+      {/* Best Sellers Section with Horizontal Scroll */}
+      <section className="py-20 bg-white">
+        <div className="container">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl lg:text-5xl font-bold mb-4 tracking-wide">
+              Mais Vendidos
+            </h2>
+            <p className="text-center text-text-secondary mb-8 text-lg">
+              Os produtos favoritos dos nossos clientes
+            </p>
+          </div>
+          
+          <div className="relative">
+            {/* Horizontal Scroll Container */}
+            <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide snap-x snap-mandatory scroll-smooth" id="bestsellers-scroll">
+              {featuredProducts.slice().reverse().map((product) => (
+                <div key={`bestseller-${product.id}`} className="flex-none w-72 snap-start">
+                  <ProductCard product={product} />
+                </div>
+              ))}
+            </div>
+            
+            {/* Navigation Arrows */}
+            <button
+              onClick={() => {
+                const container = document.getElementById('bestsellers-scroll');
+                if (container) {
+                  container.scrollBy({ left: -300, behavior: 'smooth' });
+                }
+              }}
+              className="absolute left-0 top-1/2 transform -translate-y-1/2 -translate-x-4 w-12 h-12 bg-white shadow-lg rounded-full flex items-center justify-center hover:shadow-xl transition-all z-10 hover:scale-110"
+            >
+              <ChevronLeft size={20} className="text-gray-600" />
+            </button>
+            <button
+              onClick={() => {
+                const container = document.getElementById('bestsellers-scroll');
+                if (container) {
+                  container.scrollBy({ left: 300, behavior: 'smooth' });
+                }
+              }}
+              className="absolute right-0 top-1/2 transform -translate-y-1/2 translate-x-4 w-12 h-12 bg-white shadow-lg rounded-full flex items-center justify-center hover:shadow-xl transition-all z-10 hover:scale-110"
+            >
+              <ChevronRight size={20} className="text-gray-600" />
+            </button>
+            
+            {/* Scroll Indicators */}
+            <div className="flex justify-center mt-6 gap-2">
+              {Array.from({ length: Math.ceil(featuredProducts.length / 3) }).map((_, index) => (
+                <div key={index} className="w-2 h-2 rounded-full bg-gray-300 hover:bg-secondary transition-colors cursor-pointer"></div>
+              ))}
+            </div>
+          </div>
+
+          <div className="text-center mt-12">
+            <Link to="/products" className="btn btn-primary btn-lg uppercase tracking-widest">
+              VER MAIS VENDIDOS
+            </Link>
+          </div>
+        </div>
+      </section>
+
       {/* Video Section */}
       <section className="py-20 bg-white">
         <div className="container">
