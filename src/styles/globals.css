@@ -513,3 +513,31 @@ a:hover {
     font-size: 1.25rem;
   }
 }
+
+/* Custom Scrollbar Styles */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Smooth scrolling for horizontal containers */
+.overflow-x-auto {
+  scroll-behavior: smooth;
+}
+
+/* Snap scrolling */
+.snap-x {
+  scroll-snap-type: x mandatory;
+}
+
+.snap-mandatory {
+  scroll-snap-type: x mandatory;
+}
+
+.snap-start {
+  scroll-snap-align: start;
+}

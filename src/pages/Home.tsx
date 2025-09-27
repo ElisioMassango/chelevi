@@ -264,10 +264,22 @@ const Home: React.FC = () => {
             Discover our latest collection of premium hair care products
           </p>
           
-          <div className="grid grid-4 gap-8">
-            {featuredProducts.map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
+          {/* Horizontal Scroll Container */}
+          <div className="relative">
+            <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide snap-x snap-mandatory">
+              {featuredProducts.map((product) => (
+                <div key={product.id} className="flex-none w-72 snap-start">
+                  <ProductCard product={product} />
+                </div>
+              ))}
+            </div>
+            
+            {/* Scroll indicators */}
+            <div className="flex justify-center mt-6 gap-2">
+              {Array.from({ length: Math.ceil(featuredProducts.length / 3) }).map((_, index) => (
+                <div key={index} className="w-2 h-2 rounded-full bg-gray-300"></div>
+              ))}
+            </div>
           </div>
 
           <div className="text-center mt-12">
@@ -278,6 +290,47 @@ const Home: React.FC = () => {
         </div>
       </section>
 
+      {/* Dessert in a Mist Section */}
+      <section className="py-20 bg-gradient-to-r from-pink-50 to-orange-50">
+        <div className="container">
+          <div className="grid lg:grid-cols-2 gap-16 items-center">
+            {/* Left side - Product Image */}
+            <div className="relative">
+              <div className="bg-gradient-to-br from-orange-100 to-pink-100 rounded-3xl p-8 h-96 flex items-center justify-center">
+                <img
+                  src="https://images.pexels.com/photos/3373736/pexels-photo-3373736.jpeg?auto=compress&cs=tinysrgb&w=400&h=400&fit=crop"
+                  alt="Hair & Body Mist Collection"
+                  className="w-full h-full object-cover rounded-2xl"
+                />
+              </div>
+            </div>
+
+            {/* Right side - Content */}
+            <div className="space-y-6">
+              <h2 className="text-4xl lg:text-5xl font-bold text-rose-400 uppercase tracking-wide">
+                DESSERT IN A MIST
+              </h2>
+              
+              <div className="space-y-4 text-gray-600">
+                <p className="text-lg leading-relaxed">
+                  from deep and smooth to creamy, milky blends, there's a{' '}
+                  <span className="font-semibold text-gray-800">hair & body mist</span>{' '}
+                  for every taste bud.
+                </p>
+                
+                <p className="leading-relaxed">
+                  each delicious fragrance is infused with vanilla and formulated with glycerin 
+                  for up to 24 hours of hydrated skin that doesn't feel sticky.
+                </p>
+              </div>
+
+              <button className="btn btn-outline border-gray-400 text-gray-700 hover:bg-gray-700 hover:text-white px-8 py-3 rounded-none uppercase tracking-wider">
+                shop now
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
       {/* The Cosmic Universe */}
       <section className="py-20 bg-gray-900 text-white overflow-hidden">
         <div className="container">
@@ -312,26 +365,27 @@ const Home: React.FC = () => {
       {/* Instagram Feed */}
       <section className="py-20">
         <div className="container">
-          <h2 className="text-4xl lg:text-5xl font-bold text-center mb-16 uppercase tracking-wide">
+          <h2 className="text-4xl lg:text-5xl font-bold text-center mb-16 uppercase tracking-wide text-rose-400">
             SHOP OUR IG
           </h2>
           
-          <div className="grid grid-3 lg:grid-6 gap-4">
+          {/* Instagram Grid Layout */}
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2">
             {instagramPosts.map((post) => (
               <Link
                 key={post.id}
                 to={`/product/${post.productId}`}
-                className="group relative aspect-square overflow-hidden rounded-lg"
+                className="group relative aspect-square overflow-hidden rounded-lg hover:scale-105 transition-transform duration-300"
               >
                 <img
                   src={post.image}
                   alt="Instagram post"
-                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                  className="w-full h-full object-cover"
                 />
-                <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-300 flex items-center justify-center">
+                <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all duration-300 flex items-center justify-center">
                   <ShoppingBag 
-                    size={32} 
-                    className="text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                    size={24} 
+                    className="text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300 transform group-hover:scale-110"
                   />
                 </div>
               </Link>
@@ -343,7 +397,7 @@ const Home: React.FC = () => {
               href="https://instagram.com/shopfcc"
               target="_blank"
               rel="noopener noreferrer"
-              className="btn btn-outline btn-lg uppercase tracking-widest"
+              className="btn btn-outline btn-lg uppercase tracking-widest border-rose-400 text-rose-400 hover:bg-rose-400 hover:text-white"
             >
               FOLLOW @SHOPFCC
             </a>
