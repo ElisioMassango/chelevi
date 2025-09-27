@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { User, MapPin, Package, Heart, Settings, LogOut, Phone, Mail, Edit, Save, X } from 'lucide-react';
+import { User, MapPin, Package, Heart, Settings, LogOut, Phone, Mail, CreditCard as Edit, Save, X } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useWishlist } from '../contexts/WishlistContext';
 
