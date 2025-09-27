@@ -541,3 +541,133 @@ a:hover {
 .snap-start {
   scroll-snap-align: start;
 }
+
+/* Bento Grid Styles */
+.bento-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  grid-template-rows: repeat(4, 200px);
+  gap: 12px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.bento-item {
+  position: relative;
+  overflow: hidden;
+  border-radius: 16px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.bento-item:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+}
+
+.bento-large {
+  grid-column: span 2;
+  grid-row: span 2;
+}
+
+.bento-medium {
+  grid-column: span 2;
+  grid-row: span 1;
+}
+
+.bento-small {
+  grid-column: span 1;
+  grid-row: span 1;
+}
+
+.bento-wide {
+  grid-column: span 3;
+  grid-row: span 1;
+}
+
+.bento-tall {
+  grid-column: span 1;
+  grid-row: span 2;
+}
+
+/* Responsive Bento Grid */
+@media (max-width: 1024px) {
+  .bento-grid {
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: repeat(5, 180px);
+  }
+  
+  .bento-large {
+    grid-column: span 2;
+    grid-row: span 2;
+  }
+  
+  .bento-medium {
+    grid-column: span 2;
+    grid-row: span 1;
+  }
+  
+  .bento-wide {
+    grid-column: span 2;
+    grid-row: span 1;
+  }
+  
+  .bento-tall {
+    grid-column: span 1;
+    grid-row: span 2;
+  }
+}
+
+@media (max-width: 768px) {
+  .bento-grid {
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(6, 160px);
+  }
+  
+  .bento-large {
+    grid-column: span 2;
+    grid-row: span 2;
+  }
+  
+  .bento-medium {
+    grid-column: span 2;
+    grid-row: span 1;
+  }
+  
+  .bento-wide {
+    grid-column: span 3;
+    grid-row: span 1;
+  }
+  
+  .bento-tall {
+    grid-column: span 1;
+    grid-row: span 2;
+  }
+}
+
+@media (max-width: 480px) {
+  .bento-grid {
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(8, 140px);
+    gap: 8px;
+  }
+  
+  .bento-large {
+    grid-column: span 2;
+    grid-row: span 2;
+  }
+  
+  .bento-medium {
+    grid-column: span 1;
+    grid-row: span 1;
+  }
+  
+  .bento-wide {
+    grid-column: span 2;
+    grid-row: span 1;
+  }
+  
+  .bento-tall {
+    grid-column: span 1;
+    grid-row: span 2;
+  }
+}

@@ -369,27 +369,148 @@ const Home: React.FC = () => {
             SHOP OUR IG
           </h2>
           
-          {/* Instagram Grid Layout */}
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2">
-            {instagramPosts.map((post) => (
-              <Link
-                key={post.id}
-                to={`/product/${post.productId}`}
-                className="group relative aspect-square overflow-hidden rounded-lg hover:scale-105 transition-transform duration-300"
-              >
-                <img
-                  src={post.image}
-                  alt="Instagram post"
-                  className="w-full h-full object-cover"
+          {/* Instagram Bento Grid Layout */}
+          <div className="bento-grid">
+            {/* Large featured post */}
+            <Link
+              to={`/product/${instagramPosts[0].productId}`}
+              className="bento-item bento-large group"
+            >
+              <img
+                src={instagramPosts[0].image}
+                alt="Instagram post"
+                className="w-full h-full object-cover"
+              />
+              <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all duration-300 flex items-center justify-center">
+                <ShoppingBag 
+                  size={32} 
+                  className="text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300 transform group-hover:scale-110"
                 />
-                <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all duration-300 flex items-center justify-center">
-                  <ShoppingBag 
-                    size={24} 
-                    className="text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300 transform group-hover:scale-110"
-                  />
-                </div>
-              </Link>
-            ))}
+              </div>
+            </Link>
+
+            {/* Medium posts */}
+            <Link
+              to={`/product/${instagramPosts[1].productId}`}
+              className="bento-item bento-medium group"
+            >
+              <img
+                src={instagramPosts[1].image}
+                alt="Instagram post"
+                className="w-full h-full object-cover"
+              />
+              <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all duration-300 flex items-center justify-center">
+                <ShoppingBag 
+                  size={24} 
+                  className="text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300 transform group-hover:scale-110"
+                />
+              </div>
+            </Link>
+
+            <Link
+              to={`/product/${instagramPosts[2].productId}`}
+              className="bento-item bento-medium group"
+            >
+              <img
+                src={instagramPosts[2].image}
+                alt="Instagram post"
+                className="w-full h-full object-cover"
+              />
+              <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all duration-300 flex items-center justify-center">
+                <ShoppingBag 
+                  size={24} 
+                  className="text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300 transform group-hover:scale-110"
+                />
+              </div>
+            </Link>
+
+            {/* Small posts */}
+            <Link
+              to={`/product/${instagramPosts[3].productId}`}
+              className="bento-item bento-small group"
+            >
+              <img
+                src={instagramPosts[3].image}
+                alt="Instagram post"
+                className="w-full h-full object-cover"
+              />
+              <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all duration-300 flex items-center justify-center">
+                <ShoppingBag 
+                  size={20} 
+                  className="text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300 transform group-hover:scale-110"
+                />
+              </div>
+            </Link>
+
+            <Link
+              to={`/product/${instagramPosts[4].productId}`}
+              className="bento-item bento-small group"
+            >
+              <img
+                src={instagramPosts[4].image}
+                alt="Instagram post"
+                className="w-full h-full object-cover"
+              />
+              <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all duration-300 flex items-center justify-center">
+                <ShoppingBag 
+                  size={20} 
+                  className="text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300 transform group-hover:scale-110"
+                />
+              </div>
+            </Link>
+
+            <Link
+              to={`/product/${instagramPosts[5].productId}`}
+              className="bento-item bento-small group"
+            >
+              <img
+                src={instagramPosts[5].image}
+                alt="Instagram post"
+                className="w-full h-full object-cover"
+              />
+              <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all duration-300 flex items-center justify-center">
+                <ShoppingBag 
+                  size={20} 
+                  className="text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300 transform group-hover:scale-110"
+                />
+              </div>
+            </Link>
+
+            {/* Wide post */}
+            <Link
+              to={`/product/${instagramPosts[0].productId}`}
+              className="bento-item bento-wide group"
+            >
+              <img
+                src={instagramPosts[1].image}
+                alt="Instagram post"
+                className="w-full h-full object-cover"
+              />
+              <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all duration-300 flex items-center justify-center">
+                <ShoppingBag 
+                  size={24} 
+                  className="text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300 transform group-hover:scale-110"
+                />
+              </div>
+            </Link>
+
+            {/* Tall post */}
+            <Link
+              to={`/product/${instagramPosts[2].productId}`}
+              className="bento-item bento-tall group"
+            >
+              <img
+                src={instagramPosts[2].image}
+                alt="Instagram post"
+                className="w-full h-full object-cover"
+              />
+              <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all duration-300 flex items-center justify-center">
+                <ShoppingBag 
+                  size={28} 
+                  className="text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300 transform group-hover:scale-110"
+                />
+              </div>
+            </Link>
           </div>
 
           <div className="text-center mt-12">
