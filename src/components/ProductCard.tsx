@@ -1,0 +1,186 @@
+import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { Heart, Star, ShoppingBag } from 'lucide-react';
+import { useWishlist } from '../contexts/WishlistContext';
+import { useCart } from '../contexts/CartContext';
+
+interface Product {
+  id: number;
+  name: string;
+  price: number;
+  originalPrice?: number;
+  image: string;
+  secondImage?: string;
+  rating: number;
+  reviews: number;
+  badge?: string;
+  colors: string[];
+}
+
+interface ProductCardProps {
+  product: Product;
+}
+
+const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
+  const [isHovered, setIsHovered] = useState(false);
+  const [currentImage, setCurrentImage] = useState(product.image);
+  const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
+  const { addToCart } = useCart();
+
+  const handleWishlistToggle = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    if (isInWishlist(product.id)) {
+      removeFromWishlist(product.id);
+    } else {
+      addToWishlist({
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        image: product.image
+      });
+    }
+  };
+
+  const handleAddToCart = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    addToCart({
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      image: product.image,
+      quantity: 1
+    });
+  };
+
+  const handleMouseEnter = () => {
+    setIsHovered(true);
+    if (product.secondImage) {
+      setCurrentImage(product.secondImage);
+    }
+  };
+
+  const handleMouseLeave = () => {
+    setIsHovered(false);
+    setCurrentImage(product.image);
+  };
+
+  return (
+    <Link to={`/product/${product.id}`} className="group">
+      <div 
+        className="card overflow-hidden"
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+      >
+        {/* Product Image */}
+        <div className="relative aspect-square overflow-hidden">
+          <img
+            src={currentImage}
+            alt={product.name}
+            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+          />
+          
+          {/* Badge */}
+          {product.badge && (
+            <div className="absolute top-3 left-3">
+              <span className="bg-secondary text-text-primary px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide">
+                {product.badge}
+              </span>
+            </div>
+          )}
+
+          {/* Wishlist Button */}
+          <button
+            onClick={handleWishlistToggle}
+            className={`absolute top-3 right-3 w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ${
+              isInWishlist(product.id)
+                ? 'bg-accent text-white'
+                : 'bg-white bg-opacity-80 hover:bg-opacity-100 text-text-primary hover:text-accent'
+            }`}
+          >
+            <Heart 
+              size={18} 
+              className={isInWishlist(product.id) ? 'fill-current' : ''} 
+            />
+          </button>
+
+          {/* Quick Add to Cart - Shows on Hover */}
+          <div className={`absolute bottom-3 left-3 right-3 transition-all duration-300 ${
+            isHovered ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+          }`}>
+            <button
+              onClick={handleAddToCart}
+              className="w-full bg-text-primary text-white py-2 rounded-md font-medium uppercase tracking-wide text-sm hover:bg-accent transition-colors duration-300 flex items-center justify-center gap-2"
+            >
+              <ShoppingBag size={16} />
+              ADD TO CART
+            </button>
+          </div>
+        </div>
+
+        {/* Product Info */}
+        <div className="card-body">
+          {/* Rating */}
+          <div className="flex items-center gap-2 mb-2">
+            <div className="flex items-center">
+              {[...Array(5)].map((_, i) => (
+                <Star
+                  key={i}
+                  size={12}
+                  className={`${
+                    i < Math.floor(product.rating)
+                      ? 'fill-current text-warning'
+                      : 'text-gray-300'
+                  }`}
+                />
+              ))}
+            </div>
+            <span className="text-xs text-text-secondary">
+              ({product.reviews})
+            </span>
+          </div>
+
+          {/* Product Name */}
+          <h3 className="font-semibold text-text-primary mb-2 group-hover:text-accent transition-colors duration-300">
+            {product.name}
+          </h3>
+
+          {/* Color Swatches */}
+          {product.colors.length > 0 && (
+            <div className="flex gap-1 mb-3">
+              {product.colors.slice(0, 4).map((color, index) => (
+                <div
+                  key={index}
+                  className="w-4 h-4 rounded-full border border-gray-300"
+                  style={{ backgroundColor: color }}
+                />
+              ))}
+              {product.colors.length > 4 && (
+                <span className="text-xs text-text-secondary ml-1">
+                  +{product.colors.length - 4}
+                </span>
+              )}
+            </div>
+          )}
+
+          {/* Price */}
+          <div className="flex items-center gap-2">
+            <span className="font-bold text-text-primary">
+              MT{product.price}
+            </span>
+            {product.originalPrice && (
+              <span className="text-sm text-text-secondary line-through">
+                MT{product.originalPrice}
+              </span>
+            )}
+          </div>
+        </div>
+      </div>
+    </Link>
+  );
+};
+
+export default ProductCard;
