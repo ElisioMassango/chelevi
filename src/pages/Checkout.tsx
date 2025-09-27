@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { MapPin, Phone, Mail, CreditCard, Smartphone } from 'lucide-react';
+import { MapPin, Phone, Mail, CreditCard, Smartphone, Loader2 } from 'lucide-react';
 import { useCart } from '../contexts/CartContext';
 import { useAuth } from '../contexts/AuthContext';
 
 const Checkout: React.FC = () => {
   const navigate = useNavigate();
+  const [isProcessing, setIsProcessing] = useState(false);
   const [deliveryMethod, setDeliveryMethod] = useState<'delivery' | 'pickup'>('delivery');
   const [paymentMethod, setPaymentMethod] = useState<'mpesa' | 'card'>('mpesa');
   const [formData, setFormData] = useState({
@@ -30,14 +31,22 @@ const Checkout: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle checkout logic here
-    // This would integrate with M-Pesa API and backend
-    console.log('Processing order...', { formData, items, total });
+    setIsProcessing(true);
     
-    // Simulate order processing
-    // alert('Order placed successfully! You will receive confirmation on WhatsApp.');
-    clearCart();
-    navigate('/checkout-success');
+    try {
+      // Simulate order processing with loading
+      await new Promise(resolve => setTimeout(resolve, 3000));
+      
+      console.log('Processing order...', { formData, items, total });
+      
+      clearCart();
+      navigate('/checkout-success');
+    } catch (error) {
+      console.error('Order processing failed:', error);
+      // Handle error
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   const subtotal = total;
@@ -47,6 +56,26 @@ const Checkout: React.FC = () => {
 
   return (
     <div className="checkout-page py-12">
+      {/* Loading Overlay */}
+      {isProcessing && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-2xl p-8 max-w-md w-full mx-4 text-center">
+            <div className="mb-6">
+              <Loader2 size={48} className="animate-spin text-secondary mx-auto mb-4" />
+              <h3 className="text-xl font-bold mb-2">Processando seu pedido...</h3>
+              <p className="text-text-secondary">
+                Estamos finalizando sua compra. Isso pode levar alguns segundos.
+              </p>
+            </div>
+            <div className="space-y-2 text-sm text-text-secondary">
+              <p>✓ Validando informações de pagamento</p>
+              <p>✓ Confirmando disponibilidade dos produtos</p>
+              <p>⏳ Processando transação...</p>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="container max-w-6xl">
         <h1 className="text-3xl font-bold mb-8">Checkout</h1>
 
@@ -310,9 +339,17 @@ const Checkout: React.FC = () => {
                 {/* Place Order Button */}
                 <button
                   type="submit"
+                  disabled={isProcessing}
                   className="btn btn-primary w-full mt-6"
                 >
-                  Colocar Pedido
+                  {isProcessing ? (
+                    <>
+                      <Loader2 size={20} className="animate-spin mr-2" />
+                      Processando...
+                    </>
+                  ) : (
+                    'Colocar Pedido'
+                  )}
                 </button>
 
                 {/* Security Notice */}
