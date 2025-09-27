@@ -15,6 +15,10 @@ import Profile from './pages/Profile';
 import Contact from './pages/Contact';
 import About from './pages/About';
 import Login from './pages/Login';
+import OrderTracking from './pages/OrderTracking';
+import CheckoutSuccess from './pages/CheckoutSuccess';
+import PrivacyPolicy from './pages/PrivacyPolicy';
+import LGPDPopup from './components/LGPDPopup';
 import './styles/globals.css';
 
 function App() {
@@ -33,14 +37,18 @@ function App() {
                   <Route path="/product/:id" element={<ProductDetail />} />
                   <Route path="/cart" element={<Cart />} />
                   <Route path="/checkout" element={<Checkout />} />
+                  <Route path="/checkout-success" element={<CheckoutSuccess />} />
                   <Route path="/profile" element={<Profile />} />
+                  <Route path="/order-tracking/:orderId" element={<OrderTracking />} />
                   <Route path="/contact" element={<Contact />} />
                   <Route path="/about" element={<About />} />
+                  <Route path="/privacy-policy" element={<PrivacyPolicy />} />
                   <Route path="/login" element={<Login />} />
                 </Routes>
               </main>
               <Footer />
               <ChatBot />
+              <LGPDPopup />
             </div>
           </Router>
         </WishlistProvider>

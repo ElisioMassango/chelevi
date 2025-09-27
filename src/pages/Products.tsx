@@ -165,7 +165,7 @@ const Products: React.FC = () => {
         </div>
 
         {/* Products Grid */}
-        <div className="grid grid-4 gap-8 mb-12">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-8 mb-12">
           {filteredProducts.map((product) => (
             <ProductCard key={product.id} product={product} />
           ))}
@@ -193,22 +193,22 @@ const Products: React.FC = () => {
               {/* Price Range */}
               <div className="mb-8">
                 <h3 className="font-semibold mb-4">Faixa de Preço</h3>
-                <div className="space-y-2">
-                  <label className="flex items-center">
-                    <input type="checkbox" className="mr-2" />
-                    <span className="text-sm">Under MT500</span>
+                <div className="space-y-3">
+                  <label className="flex items-center p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer">
+                    <input type="checkbox" className="mr-3 w-4 h-4 text-secondary rounded focus:ring-secondary" />
+                    <span className="text-sm font-medium">Até MT500</span>
                   </label>
-                  <label className="flex items-center">
-                    <input type="checkbox" className="mr-2" />
+                  <label className="flex items-center p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer">
+                    <input type="checkbox" className="mr-3 w-4 h-4 text-secondary rounded focus:ring-secondary" />
                     <span className="text-sm">MT500 - MT1000</span>
                   </label>
-                  <label className="flex items-center">
-                    <input type="checkbox" className="mr-2" />
+                  <label className="flex items-center p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer">
+                    <input type="checkbox" className="mr-3 w-4 h-4 text-secondary rounded focus:ring-secondary" />
                     <span className="text-sm">MT1000 - MT1500</span>
                   </label>
-                  <label className="flex items-center">
-                    <input type="checkbox" className="mr-2" />
-                    <span className="text-sm">Over MT1500</span>
+                  <label className="flex items-center p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer">
+                    <input type="checkbox" className="mr-3 w-4 h-4 text-secondary rounded focus:ring-secondary" />
+                    <span className="text-sm">Acima de MT1500</span>
                   </label>
                 </div>
               </div>
@@ -216,25 +216,25 @@ const Products: React.FC = () => {
               {/* Categories */}
               <div className="mb-8">
                 <h3 className="font-semibold mb-4">Categoria</h3>
-                <div className="space-y-2">
-                  <label className="flex items-center">
-                    <input type="checkbox" className="mr-2" />
-                    <span className="text-sm">Lips</span>
+                <div className="space-y-3">
+                  <label className="flex items-center p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer">
+                    <input type="checkbox" className="mr-3 w-4 h-4 text-secondary rounded focus:ring-secondary" />
+                    <span className="text-sm">Lábios</span>
                   </label>
-                  <label className="flex items-center">
-                    <input type="checkbox" className="mr-2" />
-                    <span className="text-sm">Face</span>
+                  <label className="flex items-center p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer">
+                    <input type="checkbox" className="mr-3 w-4 h-4 text-secondary rounded focus:ring-secondary" />
+                    <span className="text-sm">Rosto</span>
                   </label>
-                  <label className="flex items-center">
-                    <input type="checkbox" className="mr-2" />
-                    <span className="text-sm">Eyes</span>
+                  <label className="flex items-center p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer">
+                    <input type="checkbox" className="mr-3 w-4 h-4 text-secondary rounded focus:ring-secondary" />
+                    <span className="text-sm">Olhos</span>
                   </label>
-                  <label className="flex items-center">
-                    <input type="checkbox" className="mr-2" />
-                    <span className="text-sm">Fragrance</span>
+                  <label className="flex items-center p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer">
+                    <input type="checkbox" className="mr-3 w-4 h-4 text-secondary rounded focus:ring-secondary" />
+                    <span className="text-sm">Fragrâncias</span>
                   </label>
-                  <label className="flex items-center">
-                    <input type="checkbox" className="mr-2" />
+                  <label className="flex items-center p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer">
+                    <input type="checkbox" className="mr-3 w-4 h-4 text-secondary rounded focus:ring-secondary" />
                     <span className="text-sm">Skin Care</span>
                   </label>
                 </div>
@@ -243,13 +243,13 @@ const Products: React.FC = () => {
               {/* Brands */}
               <div className="mb-8">
                 <h3 className="font-semibold mb-4">Marca</h3>
-                <div className="space-y-2">
-                  <label className="flex items-center">
-                    <input type="checkbox" className="mr-2" />
-                    <span className="text-sm">SI Cosmetics</span>
+                <div className="space-y-3">
+                  <label className="flex items-center p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer">
+                    <input type="checkbox" className="mr-3 w-4 h-4 text-secondary rounded focus:ring-secondary" />
+                    <span className="text-sm">ShopFCC</span>
                   </label>
-                  <label className="flex items-center">
-                    <input type="checkbox" className="mr-2" />
+                  <label className="flex items-center p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer">
+                    <input type="checkbox" className="mr-3 w-4 h-4 text-secondary rounded focus:ring-secondary" />
                     <span className="text-sm">Premium Line</span>
                   </label>
                 </div>
@@ -258,9 +258,16 @@ const Products: React.FC = () => {
               {/* Apply Filters */}
               <button
                 onClick={() => setShowFilters(false)}
-                className="w-full btn btn-primary"
+                className="w-full btn btn-primary mb-4"
               >
-                Apply Filters
+                Aplicar Filtros
+              </button>
+              
+              <button
+                onClick={() => setShowFilters(false)}
+                className="w-full btn btn-outline"
+              >
+                Limpar Filtros
               </button>
             </div>
           </div>

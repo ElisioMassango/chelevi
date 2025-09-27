@@ -382,17 +382,18 @@ const Home: React.FC = () => {
       <section className="py-20 bg-gray-50">
         <div className="container">
           <div className="text-center mb-16">
-            <h2 className="text-4xl lg:text-5xl font-bold mb-4 tracking-wide lowercase">
-              ShopFCC 
+            <h2 className="text-4xl lg:text-5xl font-bold mb-4 tracking-wide">
+              Our Productions
             </h2>
             <p className="text-center text-text-secondary mb-8 text-lg">
-              Discover our latest collection of premium hair care products
+              Descubra nossa mais recente coleção de produtos premium para cabelo
             </p>
           </div>
           
-          {/* Enhanced Horizontal Scroll Container */}
+          {/* Responsive Product Grid */}
           <div className="relative">
-            <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide snap-x snap-mandatory scroll-smooth" id="products-scroll">
+            {/* Desktop: Horizontal Scroll */}
+            <div className="hidden lg:flex gap-6 overflow-x-auto pb-4 scrollbar-hide snap-x snap-mandatory scroll-smooth" id="products-scroll">
               {featuredProducts.map((product) => (
                 <div key={product.id} className="flex-none w-72 snap-start">
                   <ProductCard product={product} />
@@ -400,8 +401,15 @@ const Home: React.FC = () => {
               ))}
             </div>
             
-            {/* Navigation Arrows */}
-            <button
+            {/* Mobile: Grid 2x2 */}
+            <div className="grid grid-cols-2 gap-4 lg:hidden">
+              {featuredProducts.slice(0, 6).map((product) => (
+                <ProductCard key={product.id} product={product} />
+              ))}
+            </div>
+            
+            {/* Navigation Arrows - Desktop Only */}
+            <button className="hidden lg:block"
               onClick={() => {
                 const container = document.getElementById('products-scroll');
                 if (container) {
@@ -412,7 +420,7 @@ const Home: React.FC = () => {
             >
               <ChevronLeft size={20} />
             </button>
-            <button
+            <button className="hidden lg:block"
               onClick={() => {
                 const container = document.getElementById('products-scroll');
                 if (container) {
@@ -424,8 +432,8 @@ const Home: React.FC = () => {
               <ChevronRight size={20} />
             </button>
             
-            {/* Scroll indicators */}
-            <div className="flex justify-center mt-6 gap-2">
+            {/* Scroll indicators - Desktop Only */}
+            <div className="hidden lg:flex justify-center mt-6 gap-2">
               {Array.from({ length: Math.ceil(featuredProducts.length / 3) }).map((_, index) => (
                 <div key={index} className="w-2 h-2 rounded-full bg-gray-300"></div>
               ))}
@@ -434,7 +442,7 @@ const Home: React.FC = () => {
 
           <div className="text-center mt-12">
             <Link to="/products" className="btn btn-outline btn-lg uppercase tracking-widest">
-              VIEW ALL PRODUCTS
+              VER TODOS OS PRODUTOS
             </Link>
           </div>
         </div>

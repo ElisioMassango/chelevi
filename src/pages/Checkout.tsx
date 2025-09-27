@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { MapPin, Phone, Mail, CreditCard, Smartphone } from 'lucide-react';
 import { useCart } from '../contexts/CartContext';
 import { useAuth } from '../contexts/AuthContext';
 
 const Checkout: React.FC = () => {
+  const navigate = useNavigate();
   const [deliveryMethod, setDeliveryMethod] = useState<'delivery' | 'pickup'>('delivery');
   const [paymentMethod, setPaymentMethod] = useState<'mpesa' | 'card'>('mpesa');
   const [formData, setFormData] = useState({
@@ -33,8 +35,9 @@ const Checkout: React.FC = () => {
     console.log('Processing order...', { formData, items, total });
     
     // Simulate order processing
-    alert('Order placed successfully! You will receive confirmation on WhatsApp.');
+    // alert('Order placed successfully! You will receive confirmation on WhatsApp.');
     clearCart();
+    navigate('/checkout-success');
   };
 
   const subtotal = total;
