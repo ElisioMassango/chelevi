@@ -15,6 +15,7 @@ import Profile from './pages/Profile';
 import Contact from './pages/Contact';
 import About from './pages/About';
 import Login from './pages/Login';
+import Wishlist from './pages/Wishlist';
 import OrderTracking from './pages/OrderTracking';
 import CheckoutSuccess from './pages/CheckoutSuccess';
 import PrivacyPolicy from './pages/PrivacyPolicy';
@@ -44,6 +45,7 @@ function App() {
                   <Route path="/about" element={<About />} />
                   <Route path="/privacy-policy" element={<PrivacyPolicy />} />
                   <Route path="/login" element={<Login />} />
+                  <Route path="/wishlist" element={<Wishlist />} />
                 </Routes>
               </main>
               <Footer />
