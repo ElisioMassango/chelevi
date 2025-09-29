@@ -5,6 +5,7 @@ import ProductCard from '../components/ProductCard';
 
 const Home: React.FC = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
+  const recentLoading = false;
 
   const heroSlides = [
     {
