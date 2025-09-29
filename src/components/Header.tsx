@@ -240,34 +240,18 @@ const Header: React.FC = () => {
               
               <nav className="p-6">
               <ul className="space-y-6">
-  <li>
-    <Link
-      to="/products/bolsas"
-      className="block text-lg font-medium hover:text-accent transition-colors"
-      onClick={() => setIsMenuOpen(false)}
-    >
-      Bolsas
-    </Link>
-  </li>
-  <li>
-    <Link
-      to="/products/sapatos"
-      className="block text-lg font-medium hover:text-accent transition-colors"
-      onClick={() => setIsMenuOpen(false)}
-    >
-      Sapatos
-    </Link>
-  </li>
-  <li>
-    <Link
-      to="/products/carteiras"
-      className="block text-lg font-medium hover:text-accent transition-colors"
-      onClick={() => setIsMenuOpen(false)}
-    >
-      Carteiras
-    </Link>
-  </li>
-</ul>
+                {categories.map((category) => (
+                  <li key={category.id}>
+                    <Link
+                      to={`/products/category/${category.id}`}
+                      className="block text-lg font-medium hover:text-accent transition-colors"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      {category.name}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
 
 
                 <div className="mt-8 pt-8 border-t space-y-4">

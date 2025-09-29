@@ -238,12 +238,12 @@ const Home: React.FC = () => {
                     <Link
                       to={slide.link}
                       className="btn btn-primary btn-lg uppercase tracking-widest font-bold hover:scale-105 transition-transform"
-                    >
+          {categories.slice(0, 4).map((category) => (
                       {slide.buttonText}
-                    </Link>
+              key={category.id}
                   </div>
                 </div>
-              </div>
+              {category.name} ({category.total_product})
             </div>
           ))}
 

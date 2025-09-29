@@ -394,6 +394,84 @@ class ApiService {
       },
     });
   }
+
+  // Category APIs
+  
+  // Get categories with pagination
+  async getCategories(): Promise<ApiResponse<PaginatedResponse<Category>>> {
+    return this.request('/category', {
+      method: 'POST',
+      body: JSON.stringify({
+        theme_id: API_CONFIG.themeId,
+      }),
+    });
+  }
+
+  // Get main category list
+  async getMainCategoryList(): Promise<ApiResponse<Category[]>> {
+    return this.request('/category-list', {
+      method: 'POST',
+      body: JSON.stringify({
+        theme_id: API_CONFIG.themeId,
+      }),
+    });
+  }
+
+  // Get category products (authenticated)
+  async getCategoryProducts(categoryId: string, subcategoryId?: string): Promise<ApiResponse<PaginatedResponse<Product>>> {
+    return this.request('/categorys-product', {
+      method: 'POST',
+      body: JSON.stringify({
+        theme_id: API_CONFIG.themeId,
+        category_id: categoryId,
+        subcategory_id: subcategoryId || '',
+      }),
+    });
+  }
+
+  // Get category products (guest)
+  async getCategoryProductsGuest(categoryId: string, subcategoryId?: string): Promise<ApiResponse<PaginatedResponse<Product>>> {
+    return this.request('/categorys-product-guest', {
+      method: 'POST',
+      body: JSON.stringify({
+        theme_id: API_CONFIG.themeId,
+        category_id: categoryId,
+        subcategory_id: subcategoryId || '',
+      }),
+    });
+  }
+
+  // Get trending categories
+  async getTrendingCategories(): Promise<ApiResponse<Category[]>> {
+    return this.request('/tranding-category', {
+      method: 'POST',
+      body: JSON.stringify({
+        theme_id: API_CONFIG.themeId,
+      }),
+    });
+  }
+
+  // Get trending category products (authenticated)
+  async getTrendingCategoryProducts(mainCategoryId: string): Promise<ApiResponse<PaginatedResponse<Product>>> {
+    return this.request('/tranding-category-product', {
+      method: 'POST',
+      body: JSON.stringify({
+        theme_id: API_CONFIG.themeId,
+        main_category_id: mainCategoryId,
+      }),
+    });
+  }
+
+  // Get trending category products (guest)
+  async getTrendingCategoryProductsGuest(mainCategoryId: string): Promise<ApiResponse<PaginatedResponse<Product>>> {
+    return this.request('/tranding-category-product-guest', {
+      method: 'POST',
+      body: JSON.stringify({
+        theme_id: API_CONFIG.themeId,
+        main_category_id: mainCategoryId,
+      }),
+    });
+  }
 }
 
 // Export singleton instance
