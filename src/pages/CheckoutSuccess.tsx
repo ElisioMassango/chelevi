@@ -133,7 +133,7 @@ const CheckoutSuccess: React.FC = () => {
                 WhatsApp: +258 84 123 4567
               </button>
               <button className="text-accent hover:underline text-sm">
-                Email: suporte@shopfcc.store
+                Email: suporte@chelevi.com
               </button>
             </div>
           </div>

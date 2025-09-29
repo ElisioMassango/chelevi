@@ -18,109 +18,81 @@ const ProductDetail: React.FC = () => {
  // Dados mockados de produto
 const product = {
   id: parseInt(id || '1'),
-  name: "Shampoo Fortificante Keratin+",
-  price: 450,
-  originalPrice: 550,
+  name: "Edileyne Preta",
+  price: 7300,
   rating: 4.8,
   reviews: 245,
   images: [
-    "https://crm.sparktech.pt/assets/shopfcc/shop1.jpg",
-    "https://crm.sparktech.pt/assets/shopfcc/shop2.jpg",
-    "https://crm.sparktech.pt/assets/shopfcc/shop3.jpg"
+     "https://chelevi.sparktechnology.cloud/chelevi/Banners/IMG_1251.JPG",
+    "https://chelevi.sparktechnology.cloud/chelevi/Products/IMG_1277.PNG", 
+    "https://chelevi.sparktechnology.cloud/chelevi/Banners/IMG_1289.PNG"
   ],
   variants: [
-    { name: "Keratin+", color: "#d9c2a4" },
-    { name: "Argan Repair", color: "#deb887" },
-    { name: "Hydra Boost", color: "#a3d9d6" }
+    { name: "Preta", color: "#030302ff" },
+
   ],
-  description: "Shampoo fortificante profissional enriquecido com queratina biomimética. Repara danos, fortalece a fibra capilar e devolve brilho e suavidade aos fios desde a primeira lavagem.",
+  description: "A Edileyne é mais do que uma bolsa é uma afirmação. Feita para mulheres que sabem o que querem, ela mistura sofisticação atemporal com um design moderno e funcional.Com estrutura firme, acabamento impecável e um interior surpreendentemente espaçoso, é perfeita para o dia a dia de quem não abdica da elegância, mesmo nas rotinas mais intensas. Seja para um brunch de negócios ou um evento especial, a Edileyne adapta-se com graciosidade."
+,
   features: [
-    "Enriquecido com Queratina",
-    "Fórmula sem Sulfatos",
-    "Indicado para cabelos danificados",
-    "Uso diário",
-    "Fortalecimento e brilho imediato"
+    "Alça confortável, fecho seguro e detalhes metálicos com assinatura CheLev",
+
   ],
-  ingredients: "Queratina Biomimética, Óleo de Argan, Pantenol, Aminoácidos, Extrato de Aloe Vera"
+  ingredients: "Couro sintético premium de alta durabilidade"
 };
 
 const relatedProducts = [
   {
-    id: 2,
-    name: "Condicionador Nutritivo com Argan",
-    price: 1200,
-    image: "https://crm.sparktech.pt/assets/shopfcc/shop1.jpg",
-    secondImage: "https://placehold.co/300x300/ea580c/ffffff?text=Argan",
-    rating: 4.9,
-    reviews: 128,
-    badge: "MAIS VENDIDO",
-    colors: []
-  },
-  {
-    id: 3,
-    name: "Máscara Capilar Hidratante Profunda",
-    price: 890,
-    image: "https://crm.sparktech.pt/assets/shopfcc/shop2.jpg",
-    secondImage: "https://placehold.co/300x300/0d9488/ffffff?text=Hidratação",
-    rating: 4.7,
-    reviews: 89,
-    badge: "FAVORITO",
-    colors: []
-  },
-  {
-    id: 4,
-    name: "Óleo de Argan Puro 50ml",
-    price: 650,
-    image: "https://crm.sparktech.pt/assets/shopfcc/shop3.jpg",
-    secondImage: "https://placehold.co/300x300/eab308/000000?text=Nutrição",
-    rating: 4.6,
-    reviews: 156,
-    badge: "TOP",
-    colors: []
-  },
-  {
-    id: 5,
-    name: "Sérum Anti-Frizz 30ml",
-    price: 750,
-    image: "https://crm.sparktech.pt/assets/shopfcc/shop4.jpg",
-    secondImage: "https://placehold.co/300x300/4338ca/ffffff?text=Anti-Frizz",
-    rating: 4.5,
-    reviews: 203,
-    badge: "MAIS VENDIDO",
-    colors: []
-  }
+      id: 1,
+      name: "Liane Handbag",
+      price: 6500,
+      image: "https://chelevi.sparktechnology.cloud/chelevi/Products/IMG_1301.PNG",
+      secondImage: "https://chelevi.sparktechnology.cloud/chelevi/Products/IMG_1300.PNG",
+      rating: 4.8,
+      reviews: 245,
+      badge: "NOVIDADE",
+      colors: [],
+      category: "bolsas"
+    },
+    {
+      id: 2,
+      name: "Sapato Siena",
+      price: 7300,
+      image: "https://chelevi.sparktechnology.cloud/chelevi/Banners/IMG_6392.JPG",
+      secondImage: "https://chelevi.sparktechnology.cloud/chelevi/Banners/IMG_0646.JPG",
+      rating: 4.9,
+      reviews: 128,
+      badge: "MAIS VENDIDO",
+      colors: [],
+      category: "sapatos"
+    },
+    {
+      id: 3,
+      name: "Edileyne Preta",
+      price: 7300,
+      image: "https://chelevi.sparktechnology.cloud/chelevi/Products/IMG_1277.PNG",
+      secondImage: "https://chelevi.sparktechnology.cloud/chelevi/Banners/IMG_1251.JPG",
+      rating: 4.7,
+      reviews: 89,
+      badge: "FAVORITO",
+      colors: [],
+      category: "bolsas"
+    },
+    {
+      id: 4,
+      name: "Sapato Siena",
+      price: 7300,
+      image: "https://chelevi.sparktechnology.cloud/chelevi/Banners/IMG_6393.JPG",  
+      secondImage: "https://chelevi.sparktechnology.cloud/chelevi/Banners/IMG_0647.JPG",
+      rating: 4.6,
+      reviews: 156,
+      badge: "TOP",
+      colors: [],
+      category: "sapatos"
+    }
 ];
 
 const reviews = [
-  {
-    id: 1,
-    author: "Maria S.",
-    rating: 5,
-    date: "2024-01-15",
-    title: "Meu cabelo mudou!",
-    content: "Este shampoo é incrível! Fortaleceu os fios desde a primeira lavagem e o brilho voltou. O cheiro também é maravilhoso.",
-    hasVideo: true,
-    videoThumbnail: "https://crm.sparktech.pt/assets/shopfcc/shop5.jpg"
-  },
-  {
-    id: 2,
-    author: "Ana L.",
-    rating: 4,
-    date: "2024-01-10",
-    title: "Gostei bastante",
-    content: "A textura é ótima, faz bastante espuma mesmo sem sulfato. Senti meus cabelos mais macios e fortes.",
-    hasVideo: false
-  },
-  {
-    id: 3,
-    author: "Sofia R.",
-    rating: 5,
-    date: "2024-01-05",
-    title: "Indispensável na rotina",
-    content: "Uso todos os dias e o resultado é incrível. O cabelo fica hidratado, leve e sem frizz. Super recomendo!",
-    hasVideo: true,
-    videoThumbnail: "https://crm.sparktech.pt/assets/shopfcc/shop5.jpg"
-  }
+
 ];
 
 
@@ -245,7 +217,7 @@ const reviews = [
 
             {/* Quantity Selector */}
             <div>
-              <h3 className="font-semibold mb-3">Quantity</h3>
+              <h3 className="font-semibold mb-3">Quantidade</h3>
               <div className="flex items-center gap-4">
                 <div className="flex items-center border border-gray-300 rounded-md">
                   <button
@@ -275,7 +247,7 @@ const reviews = [
                 className="btn btn-primary btn-lg flex-1 flex items-center justify-center gap-2"
               >
                 <ShoppingBag size={20} />
-                ADD TO CART
+                ADICIONAR AO CARRINHO
               </button>
               <button
                 onClick={handleWishlistToggle}
@@ -294,7 +266,7 @@ const reviews = [
 
             {/* Product Features */}
             <div className="bg-primary p-4 rounded-lg">
-              <h3 className="font-semibold mb-3 text-text-primary">Why We Love It</h3>
+              <h3 className="font-semibold mb-3 text-text-primary">Por que amamos</h3>
               <ul className="space-y-2">
                 {product.features.map((feature, index) => (
                   <li key={index} className="flex items-center gap-2 text-sm text-text-secondary">
@@ -319,7 +291,7 @@ const reviews = [
                     : 'border-transparent text-text-secondary hover:text-text-primary'
                 }`}
               >
-                Details
+                Detalhes
               </button>
               <button
                 onClick={() => setActiveTab('ingredients')}
@@ -329,7 +301,7 @@ const reviews = [
                     : 'border-transparent text-text-secondary hover:text-text-primary'
                 }`}
               >
-                Ingredients
+                Material
               </button>
             </nav>
           </div>
@@ -354,7 +326,7 @@ const reviews = [
 
             {activeTab === 'ingredients' && (
               <div>
-                <h4 className="font-semibold mb-4">Full Ingredient List:</h4>
+                <h4 className="font-semibold mb-4">Lista Completa de Materiais:</h4>
                 <p className="text-text-secondary leading-relaxed">
                   {product.ingredients}
                 </p>
@@ -433,7 +405,7 @@ const reviews = [
 
         {/* You May Also Like */}
         <div>
-          <h2 className="text-2xl font-bold text-center mb-12">You May Also Like</h2>
+          <h2 className="text-2xl font-bold text-center mb-12">Você Também Pode Gostar</h2>
           <div className="grid grid-4 gap-8">
             {relatedProducts.map((product) => (
               <ProductCard key={product.id} product={product} />

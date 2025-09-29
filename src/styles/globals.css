@@ -8,8 +8,8 @@
 
 :root {
   /* SI Cosmetics Color Palette */
-  --color-primary: rgb(217, 216, 221);
-  --color-secondary: #EAE9EE;
+  --color-primary: rgba(199, 142, 125, 0.274);
+  --color-secondary: rgba(199, 142, 125, 0.555);
   --color-accent: #6666668b;
   --color-text-primary: #000000;
   --color-text-secondary: #241F20;
@@ -19,7 +19,7 @@
   --color-gray-dark: #666666;
   --color-success: #10B981;
   --color-warning: #F59E0B;
-  --color-error: #EF4444;
+  --color-error: #0f0e0e;
   
   /* Spacing System (8px base) */
   --space-xs: 8px;

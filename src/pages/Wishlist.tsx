@@ -18,6 +18,56 @@ const Wishlist: React.FC = () => {
     });
   };
 
+  const relatedProducts = [
+  {
+      id: 1,
+      name: "Liane Handbag",
+      price: 6500,
+      image: "https://chelevi.sparktechnology.cloud/chelevi/Products/IMG_1301.PNG",
+      secondImage: "https://chelevi.sparktechnology.cloud/chelevi/Products/IMG_1300.PNG",
+      rating: 4.8,
+      reviews: 245,
+      badge: "NOVIDADE",
+      colors: [],
+      category: "bolsas"
+    },
+    {
+      id: 2,
+      name: "Sapato Siena",
+      price: 7300,
+      image: "https://chelevi.sparktechnology.cloud/chelevi/Banners/IMG_6392.JPG",
+      secondImage: "https://chelevi.sparktechnology.cloud/chelevi/Banners/IMG_0646.JPG",
+      rating: 4.9,
+      reviews: 128,
+      badge: "MAIS VENDIDO",
+      colors: [],
+      category: "sapatos"
+    },
+    {
+      id: 3,
+      name: "Edileyne Preta",
+      price: 7300,
+      image: "https://chelevi.sparktechnology.cloud/chelevi/Products/IMG_1277.PNG",
+      secondImage: "https://chelevi.sparktechnology.cloud/chelevi/Banners/IMG_1251.JPG",
+      rating: 4.7,
+      reviews: 89,
+      badge: "FAVORITO",
+      colors: [],
+      category: "bolsas"
+    },
+    {
+      id: 4,
+      name: "Sapato Siena",
+      price: 7300,
+      image: "https://chelevi.sparktechnology.cloud/chelevi/Banners/IMG_6393.JPG",  
+      secondImage: "https://chelevi.sparktechnology.cloud/chelevi/Banners/IMG_0647.JPG",
+      rating: 4.6,
+      reviews: 156,
+      badge: "TOP",
+      colors: [],
+      category: "sapatos"
+    }
+];
   const handleRemoveFromWishlist = (id: number) => {
     removeFromWishlist(id);
   };
@@ -178,31 +228,9 @@ const Wishlist: React.FC = () => {
         </div>
 
         {/* Recommendations */}
-        {items.length > 0 && (
-          <div className="mt-16">
-            <h2 className="text-2xl font-bold text-center mb-8">Você Também Pode Gostar</h2>
-            <div className="bg-white rounded-xl p-6 shadow-sm border">
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {/* Mock recommended products */}
-                {[1, 2, 3, 4].map((id) => (
-                  <Link key={id} to={`/product/${id}`} className="group">
-                    <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden mb-3">
-                      <img
-                        src={`https://crm.sparktech.pt/assets/shopfcc/shop${id}.jpg`}
-                        alt={`Produto ${id}`}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                      />
-                    </div>
-                    <h4 className="font-medium text-sm mb-1 group-hover:text-accent transition-colors">
-                      Produto Recomendado {id}
-                    </h4>
-                    <p className="text-sm font-bold">MT{450 + id * 100}</p>
-                  </Link>
-                ))}
-              </div>
-            </div>
-          </div>
-        )}
+            {/* You May Also Like */}
+      
+     
       </div>
     </div>
   );

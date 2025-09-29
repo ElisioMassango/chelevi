@@ -85,7 +85,7 @@ const Login: React.FC = () => {
           {/* Header */}
           <div className="text-center mb-8">
             <Link to="/" className="inline-block mb-6">
-              <img src="https://crm.sparktech.pt/assets/shopfcc/shopfcclogo.png" alt="ShopFCC" className="w-30 h-20" />
+              <img src="https://chelevi.sparktechnology.cloud/chelevi/Logos/icon.png" alt="CheLevi" className="w-30 h-20" />
             </Link>
             <h2 className="text-2xl font-bold mb-2">
               {step === 'login' ? 'Bem-vindo de volta' : 

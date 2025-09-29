@@ -8,8 +8,8 @@ const Profile: React.FC = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [editingField, setEditingField] = useState<string | null>(null);
   const [formData, setFormData] = useState({
-    name: 'Fayra Coelho',
-    email: 'fayracoelho@shopfcc.store',
+    name: 'Chelevi',
+    email: 'Chelevi@gmail.com',
     phone: '+258 84 123 4567',
     address: 'Avenida Julius Nyerere, 1234',
     city: 'Maputo',
@@ -34,8 +34,8 @@ const Profile: React.FC = () => {
   const handleCancel = () => {
     // Reset form data to original values
     setFormData({
-      name: 'Fayra Coelho',
-      email: 'fayracoelho@shopfcc.store',
+      name: 'Chelevi',
+      email: 'Chelevi@gmail.com',
       phone: '+258 84 123 4567',
       address: 'Avenida Julius Nyerere, 1234',
       city: 'Maputo',
@@ -117,7 +117,7 @@ const Profile: React.FC = () => {
                   }`}
                 >
                   <Package size={18} />
-                  My Orders
+                  Pedidos
                 </button>
                 <button
                   onClick={() => setActiveTab('wishlist')}
@@ -139,7 +139,7 @@ const Profile: React.FC = () => {
                   }`}
                 >
                   <MapPin size={18} />
-                  Addresses
+                  Endereços
                 </button>
                 <button
                   onClick={() => setActiveTab('settings')}
@@ -150,7 +150,7 @@ const Profile: React.FC = () => {
                   }`}
                 >
                   <Settings size={18} />
-                  Settings
+                  Configurações
                 </button>
                 <button
                   onClick={logout}
@@ -167,14 +167,14 @@ const Profile: React.FC = () => {
           <div className="lg:col-span-3">
             {activeTab === 'overview' && (
               <div className="space-y-6">
-                <h1 className="text-3xl font-bold">Profile Overview</h1>
+                <h1 className="text-3xl font-bold">Visão Geral do Perfil</h1>
                 
                 {/* Stats Cards */}
                 <div className="grid grid-3 gap-6">
                   <div className="bg-white p-6 rounded-lg border">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-text-secondary text-sm">Total Orders</p>
+                        <p className="text-text-secondary text-sm">Total de Pedidos</p>
                         <p className="text-2xl font-bold">{orders.length}</p>
                       </div>
                       <Package size={32} className="text-secondary" />
@@ -183,7 +183,7 @@ const Profile: React.FC = () => {
                   <div className="bg-white p-6 rounded-lg border">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-text-secondary text-sm">Total Spent</p>
+                        <p className="text-text-secondary text-sm">Total Gasto</p>
                         <p className="text-2xl font-bold">MT{orders.reduce((sum, order) => sum + order.total, 0)}</p>
                       </div>
                       <div className="text-2xl">💳</div>
@@ -192,7 +192,7 @@ const Profile: React.FC = () => {
                   <div className="bg-white p-6 rounded-lg border">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-text-secondary text-sm">Wishlist Items</p>
+                        <p className="text-text-secondary text-sm">Itens na Wishlist</p>
                         <p className="text-2xl font-bold">{wishlistItems.length}</p>
                       </div>
                       <Heart size={32} className="text-secondary" />
@@ -202,7 +202,7 @@ const Profile: React.FC = () => {
 
                 {/* Recent Orders */}
                 <div className="bg-white p-6 rounded-lg border">
-                  <h2 className="text-xl font-semibold mb-4">Recent Orders</h2>
+                  <h2 className="text-xl font-semibold mb-4">Pedidos Recentes</h2>
                   <div className="space-y-4">
                     {orders.slice(0, 3).map((order) => (
                       <div key={order.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
@@ -225,7 +225,7 @@ const Profile: React.FC = () => {
 
             {activeTab === 'orders' && (
               <div className="space-y-6">
-                <h1 className="text-3xl font-bold">My Orders</h1>
+                <h1 className="text-3xl font-bold">Meus Pedidos</h1>
                 
                 <div className="space-y-4">
                   {orders.map((order) => (
@@ -268,7 +268,7 @@ const Profile: React.FC = () => {
 
             {activeTab === 'wishlist' && (
               <div className="space-y-6">
-                <h1 className="text-3xl font-bold">My Wishlist</h1>
+                <h1 className="text-3xl font-bold">Minha Wishlist</h1>
                 
                 {wishlistItems.length > 0 ? (
                   <div className="grid grid-2 gap-6">
@@ -285,10 +285,10 @@ const Profile: React.FC = () => {
                             <p className="text-lg font-bold mb-3">MT{item.price}</p>
                             <div className="flex gap-2">
                               <button className="btn btn-primary btn-sm flex-1">
-                                Add to Cart
+                                Adicionar ao Carrinho
                               </button>
                               <button className="btn btn-outline btn-sm">
-                                Remove
+                                Remover
                               </button>
                             </div>
                           </div>
@@ -299,7 +299,7 @@ const Profile: React.FC = () => {
                 ) : (
                   <div className="text-center py-12">
                     <Heart size={64} className="mx-auto mb-4 text-gray-300" />
-                    <p className="text-text-secondary">Your wishlist is empty</p>
+                    <p className="text-text-secondary">Sua wishlist está vazia</p>
                   </div>
                 )}
               </div>
@@ -308,13 +308,13 @@ const Profile: React.FC = () => {
             {activeTab === 'addresses' && (
               <div className="space-y-6">
                 <div className="flex items-center justify-between">
-                  <h1 className="text-3xl font-bold">Saved Addresses</h1>
-                  <button className="btn btn-primary">Add New Address</button>
+                  <h1 className="text-3xl font-bold">Endereços Salvos</h1>
+                  <button className="btn btn-primary">Adicionar Novo Endereço</button>
                 </div>
                 
                 <div className="bg-white p-6 rounded-lg border text-center">
                   <MapPin size={64} className="mx-auto mb-4 text-gray-300" />
-                  <p className="text-text-secondary">No saved addresses yet</p>
+                  <p className="text-text-secondary">Nenhum endereço salvo ainda</p>
                 </div>
               </div>
             )}
@@ -322,7 +322,7 @@ const Profile: React.FC = () => {
             {activeTab === 'settings' && (
               <div className="space-y-6">
                 <h1 className="text-3xl font-bold">Configurações da Conta</h1>
-                
+                <p className="text-text-secondary">Gerencie suas informações pessoais e preferências</p>
                 <div className="bg-white p-6 rounded-lg border">
                   <h2 className="text-xl font-semibold mb-6">Informações Pessoais</h2>
                   

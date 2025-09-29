@@ -50,7 +50,7 @@ const Header: React.FC = () => {
 
   return (
     <>
-      {/* Top Banner */}
+      {/* Top Banner 
       <div className="bg-secondary text-center py-2 px-4 relative">
         <p className="text-sm font-medium">
           💋 NEW ARRIVALS JUST DROPPED 💋 FREE SHIPPING ON ORDERS OVER MT500 💋
@@ -63,6 +63,7 @@ const Header: React.FC = () => {
         </button>
       </div>
 
+      */}
       {/* Main Header */}
       <header className="bg-white shadow-sm sticky top-0 z-50">
         <div className="container">
@@ -98,7 +99,7 @@ const Header: React.FC = () => {
 
             {/* Logo */}
             <Link to="/" className="flex flex-col items-center">
-              <img src='https://crm.sparktech.pt/assets/shopfcc/shopfcclogo.png' alt="ShopFCC" className="w-30 h-20" />
+              <img src='https://chelevi.sparktechnology.cloud/chelevi/Logos/CHE-LEVI-01.png' alt="CheLevi" className="w-30 h-20" />
             </Link>
 
             {/* Action Icons */}
@@ -164,52 +165,37 @@ const Header: React.FC = () => {
           <ul className="flex items-center justify-center gap-12 py-4">
   <li>
     <Link 
-      to="/products/cabelo" 
+      to="/products/bolsas" 
       className="text-sm font-medium uppercase tracking-wide hover:text-accent transition-colors"
     >
-      Pele
+      Bolsas
     </Link>
   </li>
   <li>
     <Link 
-      to="/products/cabelo" 
+      to="/products/sapatos" 
       className="text-sm font-medium uppercase tracking-wide hover:text-accent transition-colors"
     >
-      Cabelos
+      Sapatos
     </Link>
   </li>
   <li>
     <Link 
-      to="/products/cabelo" 
+      to="/products/carteiras" 
       className="text-sm font-medium uppercase tracking-wide hover:text-accent transition-colors"
     >
-      Maquiagem
+      Carteiras
     </Link>
   </li>
   <li>
     <Link 
-      to="/products/cabelo" 
+      to="/products/bolsas" 
       className="text-sm font-medium uppercase tracking-wide hover:text-accent transition-colors"
     >
-      Óleos & Séruns
+      Coleções
     </Link>
   </li>
-  <li>
-    <Link 
-      to="/products/cabelo" 
-      className="text-sm font-medium uppercase tracking-wide hover:text-accent transition-colors"
-    >
-      Descobrir
-    </Link>
-  </li>
-  <li>
-    <Link 
-      to="/products/cabelo" 
-      className="text-sm font-medium uppercase tracking-wide hover:text-accent transition-colors"
-    >
-      Recompensas
-    </Link>
-  </li>
+
 </ul>
 
           </nav>
@@ -224,8 +210,7 @@ const Header: React.FC = () => {
             </button>
 
             <Link to="/" className="flex flex-col items-center">
-              <h1 className="text-lg font-bold tracking-wider uppercase">SHOPFCC</h1>
-              <p className="text-xs font-medium tracking-widest">SHOPFCC.STORE</p>
+              <img src='https://chelevi.sparktechnology.cloud/chelevi/Logos/CHE-LEVI-01.png' alt="CheLevi" className="w-25 h-10" />
             </Link>
 
             <div className="flex items-center gap-4">
@@ -257,56 +242,29 @@ const Header: React.FC = () => {
               <ul className="space-y-6">
   <li>
     <Link
-      to="/products/shampoos"
+      to="/products/bolsas"
       className="block text-lg font-medium hover:text-accent transition-colors"
       onClick={() => setIsMenuOpen(false)}
     >
-      Shampoos
+      Bolsas
     </Link>
   </li>
   <li>
     <Link
-      to="/products/condicionadores"
+      to="/products/sapatos"
       className="block text-lg font-medium hover:text-accent transition-colors"
       onClick={() => setIsMenuOpen(false)}
     >
-      Condicionadores
+      Sapatos
     </Link>
   </li>
   <li>
     <Link
-      to="/products/mascaras"
+      to="/products/carteiras"
       className="block text-lg font-medium hover:text-accent transition-colors"
       onClick={() => setIsMenuOpen(false)}
     >
-      Máscaras & Tratamentos
-    </Link>
-  </li>
-  <li>
-    <Link
-      to="/products/oleos"
-      className="block text-lg font-medium hover:text-accent transition-colors"
-      onClick={() => setIsMenuOpen(false)}
-    >
-      Óleos & Séruns
-    </Link>
-  </li>
-  <li>
-    <Link
-      to="/discover"
-      className="block text-lg font-medium hover:text-accent transition-colors"
-      onClick={() => setIsMenuOpen(false)}
-    >
-      Descobrir
-    </Link>
-  </li>
-  <li>
-    <Link
-      to="/rewards"
-      className="block text-lg font-medium hover:text-accent transition-colors"
-      onClick={() => setIsMenuOpen(false)}
-    >
-      Recompensas
+      Carteiras
     </Link>
   </li>
 </ul>
@@ -320,14 +278,14 @@ const Header: React.FC = () => {
                         className="block text-lg font-medium hover:text-accent transition-colors"
                         onClick={() => setIsMenuOpen(false)}
                       >
-                        My Profile
+                       Perfil
                       </Link>
                       <Link
                         to="/orders"
                         className="block text-lg font-medium hover:text-accent transition-colors"
                         onClick={() => setIsMenuOpen(false)}
                       >
-                        My Orders
+                        Meus Pedidos
                       </Link>
                       <button
                         onClick={() => {
@@ -419,7 +377,7 @@ const Header: React.FC = () => {
             <div className="fixed top-0 right-0 h-full w-96 max-w-full bg-white shadow-xl overflow-y-auto">
               <div className="p-6 border-b">
                 <div className="flex items-center justify-between">
-                  <h2 className="text-xl font-bold">Shopping Cart ({totalItems})</h2>
+                  <h2 className="text-xl font-bold">Carrinho ({totalItems})</h2>
                   <button onClick={() => setIsCartOpen(false)}>
                     <X size={24} />
                   </button>
@@ -457,7 +415,7 @@ const Header: React.FC = () => {
                               onClick={() => removeFromCart(item.id)}
                               className="ml-auto text-red-500 hover:text-red-700 text-sm"
                             >
-                              Remove
+                              Remover
                             </button>
                           </div>
                         </div>
@@ -467,7 +425,7 @@ const Header: React.FC = () => {
                 ) : (
                   <div className="text-center py-12">
                     <ShoppingBag size={48} className="mx-auto mb-4 text-gray-300" />
-                    <p className="text-gray-500">Your cart is empty</p>
+                    <p className="text-gray-500">O seu carrinho está vazio</p>
                   </div>
                 )}
               </div>
@@ -490,7 +448,7 @@ const Header: React.FC = () => {
                     className="btn btn-outline w-full"
                     onClick={() => setIsCartOpen(false)}
                   >
-                    View Cart
+                    Ver Carrinho
                   </Link>
                 </div>
               )}

@@ -174,8 +174,8 @@ const Checkout: React.FC = () => {
                     />
                     <div className="mr-3 text-accent">🏪</div>
                     <div>
-                      <div className="font-semibold">Retirada na Loja</div>
-                      <div className="text-sm text-text-secondary">Retirada na loja</div>
+                      <div className="font-semibold">Levantar na Loja</div>
+                      <div className="text-sm text-text-secondary">Levantar na loja</div>
                     </div>
                   </label>
                 </div>

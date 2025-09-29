@@ -9,67 +9,49 @@ const Home: React.FC = () => {
   const heroSlides = [
     {
       id: 1,
-      title: "NOVA LINHA",
-      subtitle: "SHAMPOOS PREMIUM",
-      description: "fórmulas inovadoras para cabelos mais fortes, brilhantes e saudáveis desde a primeira lavagem.",
-      buttonText: "COMPRAR AGORA",
-      image: "https://images.pexels.com/photos/3373746/pexels-photo-3373746.jpeg?auto=compress&cs=tinysrgb&w=1200&h=800&fit",
-      link: "/products/shampoo"
-    },
-    {
-      id: 2,
-      title: "TRATAMENTO CAPILAR",
-      subtitle: "NUTRIÇÃO PROFUNDA",
-      description: "recupera a vitalidade do teu cabelo com máscaras e óleos nutritivos à base de argan e queratina.",
-      buttonText: "DESCOBRIR MAIS",
-      image: "https://images.pexels.com/photos/3373746/pexels-photo-3373746.jpeg?auto=compress&cs=tinysrgb&w=1200&h=800&fit",
-      link: "/products/treatment"
-    },
-    {
-      id: 3,
-      title: "BELEZA NATURAL",
-      subtitle: "COSMÉTICOS PARA PELE",
-      description: "maquilhagem leve e skincare para realçar a tua beleza natural e proteger a pele todos os dias.",
-      buttonText: "ENCONTRAR AGORA",
-      image: "https://images.pexels.com/photos/3373746/pexels-photo-3373746.jpeg?auto=compress&cs=tinysrgb&w=1200&h=800&fit=crop",
-      link: "/products/skincare"
+      title: "EDILEYNE ICONIC",
+      subtitle: "BOLSAS PREMIUM",
+      description: "Sofisticação, poder e conforto em cada detalhe.",
+      buttonText: "Saiba Mais",
+      image: "https://chelevi.sparktechnology.cloud/chelevi/Banners/IMG_1276.JPG",
+      link: "/products/bolsas"
     }
   ];
-  
+
   const collections = [
     {
       id: 1,
       category: "Coleção",
-      title: "Red Chelevi Legacy 2023",
+      title: "",
       buttonText: "Compre agora",
-      image: "https://images.pexels.com/photos/1152077/pexels-photo-1152077.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop",
+      image: "https://chelevi.sparktechnology.cloud/chelevi/Banners/IMG_2065.PNG",
       link: "/products/red-chelevi",
       size: "large"
     },
     {
       id: 2,
       category: "Tendências",
-      title: "Couro de crocodilo",
+      title: "",
       buttonText: "",
-      image: "https://images.pexels.com/photos/1152077/pexels-photo-1152077.jpeg?auto=compress&cs=tinysrgb&w=400&h=400&fit=crop",
+      image: "https://chelevi.sparktechnology.cloud/chelevi/Banners/IMG_6392.JPG",
       link: "/products/crocodile-leather",
       size: "medium"
     },
     {
       id: 3,
       category: "Novidade",
-      title: "Joias de Obsidiana",
+      title: "",
       buttonText: "",
-      image: "https://images.pexels.com/photos/1152077/pexels-photo-1152077.jpeg?auto=compress&cs=tinysrgb&w=400&h=400&fit=crop",
+      image: "https://chelevi.sparktechnology.cloud/chelevi/Banners/IMG_0647.JPG",
       link: "/products/obsidian-jewelry",
       size: "medium"
     },
     {
       id: 4,
       category: "Coleção",
-      title: "Tecido de couro de Crocodilo do nilo",
+      title: "",
       buttonText: "Compre agora",
-      image: "https://images.pexels.com/photos/1152077/pexels-photo-1152077.jpeg?auto=compress&cs=tinysrgb&w=600&h=400&fit=crop",
+      image: "https://chelevi.sparktechnology.cloud/chelevi/Banners/IMG_1276.JPG",
       link: "/products/nile-crocodile",
       size: "hero"
     }
@@ -78,71 +60,70 @@ const Home: React.FC = () => {
   const featuredProducts = [
     {
       id: 1,
-      name: "Lip Butter",
-      price: 450,
-      originalPrice: 550,
-      image: "https://kyliecosmetics.com/cdn/shop/files/KJC_LIP_25_PeachMango_Stylized_Open.jpg?crop=center&height=600&v=1752094667&width=600",
-      secondImage: "https://kyliecosmetics.com/cdn/shop/files/KJS_LIB_25_LipMacro_PeachMango_01_WS_800x.jpg?v=1752094667",
+      name: "Liane Handbag",
+      price: 6500,
+      image: "https://chelevi.sparktechnology.cloud/chelevi/Products/IMG_1301.PNG",
+      secondImage: "https://chelevi.sparktechnology.cloud/chelevi/Products/IMG_1300.PNG",
       rating: 4.8,
       reviews: 245,
       badge: "NOVIDADE",
-      colors: [],
-      category: "cabelo"
+      colors: ['green', 'black', 'beige'],
+      category: "bolsas"
     },
     {
       id: 2,
-      name: "Condicionador Nutritivo com Argan",
-      price: 1200,
-      image: "https://fentybeauty.com/cdn/shop/files/FS_FALL25_T2PRODUCT_ECOMM_BODY-MILK_SALTED-CARAMEL_1200X1500_72DPI_900x1100.jpg?v=1754005575",
-      secondImage: "https://cdn.shopify.com/s/files/1/0341/3458/9485/files/FS689758_GLOBAL_FALL_24_INFOGRAPHICS_1200x1500_BUTTA_DROP_BODY_MILK_BANDA_Mariam_OP1.jpg?v=1754005575&width=2048",
+      name: "Sapato Siena",
+      price: 7300,
+      image: "https://chelevi.sparktechnology.cloud/chelevi/Banners/IMG_6392.JPG",
+      secondImage: "https://chelevi.sparktechnology.cloud/chelevi/Banners/IMG_0646.JPG",
       rating: 4.9,
       reviews: 128,
       badge: "MAIS VENDIDO",
       colors: [],
-      category: "cabelo"
+      category: "sapatos"
     },
     {
       id: 3,
-      name: "Gloss Bomb",
-      price: 890,
-      image: "https://cdn.shopify.com/s/files/1/0341/3458/9485/files/FB_FALL24_T2PRODUCT_ECOMM_GBSTICK_BLACKRBERRY_OPEN_1200x1500_72DPI.jpg?v=1719531134&width=2048",
-      secondImage: "https://cdn.shopify.com/s/files/1/0341/3458/9485/files/FB_SMR24_T2BEAUTY_GB-STIX_BLACKRBERRY_PROFILTER-498_LEAH_1200X1500_72DPI_1.jpg?v=1719531134&width=2048",
+      name: "Edileyne Preta",
+      price: 7300,
+      image: "https://chelevi.sparktechnology.cloud/chelevi/Products/IMG_1277.PNG",
+      secondImage: "https://chelevi.sparktechnology.cloud/chelevi/Banners/IMG_1251.JPG",
       rating: 4.7,
       reviews: 89,
       badge: "FAVORITO",
       colors: [],
-      category: "cabelo"
+      category: "bolsas"
     },
     {
       id: 4,
-      name: "Pincel de Maquiagem",
-      price: 650,
-      image: "https://crm.sparktech.pt/assets/shopfcc/shop4.jpg",  
-      secondImage: "https://crm.sparktech.pt/assets/shopfcc/shop2.jpg",
+      name: "Sapato Siena",
+      price: 7300,
+      image: "https://chelevi.sparktechnology.cloud/chelevi/Banners/IMG_6393.JPG",  
+      secondImage: "https://chelevi.sparktechnology.cloud/chelevi/Banners/IMG_0647.JPG",
       rating: 4.6,
       reviews: 156,
       badge: "TOP",
       colors: [],
-      category: "cabelo"
+      category: "sapatos"
     },
     {
       id: 5,
-      name: "Sérum Anti-Frizz",
+      name: "Edileyne Mel",
       price: 750,
-      image: "https://crm.sparktech.pt/assets/shopfcc/shop1.jpg",
-      secondImage: "https://crm.sparktech.pt/assets/shopfcc/shop2.jpg",
+      image: "https://chelevi.sparktechnology.cloud/chelevi/Products/IMG_1278.PNG",
+      secondImage: "https://chelevi.sparktechnology.cloud/chelevi/Banners/IMG_1252.JPG",
       rating: 4.5,
       reviews: 203,
       badge: "MAIS VENDIDO",
       colors: [],
-      category: "cabelo"
+      category: "bolsas"
     },
     {
       id: 6,
-      name: "Kit Reconstrutor",
+      name: "Edileyne Vermelha",
       price: 980,
-      image: "https://crm.sparktech.pt/assets/shopfcc/shop3.jpg",
-      secondImage: "https://crm.sparktech.pt/assets/shopfcc/shop4.jpg",
+      image: "https://chelevi.sparktechnology.cloud/chelevi/Products/IMG_1280.PNG",
+      secondImage: "https://chelevi.sparktechnology.cloud/chelevi/Banners/IMG_6390.JPG",
       rating: 4.9,
       reviews: 78,
       badge: "EDIÇÃO LIMITADA",
@@ -151,56 +132,65 @@ const Home: React.FC = () => {
     }
   ];
 
-  const videos = [
-    {
-      id: 1,
-      title: "Tutorial de Aplicação",
-      thumbnail: "https://images.pexels.com/photos/3373746/pexels-photo-3373746.jpeg?auto=compress&cs=tinysrgb&w=400&h=600&fit=crop",
-      duration: "2:30"
-    },
-    {
-      id: 2,
-      title: "Rotina Capilar Completa",
-      thumbnail: "https://images.pexels.com/photos/3762806/pexels-photo-3762806.jpeg?auto=compress&cs=tinysrgb&w=400&h=600&fit=crop",
-      duration: "5:15"
-    },
-    {
-      id: 3,
-      title: "Antes e Depois",
-      thumbnail: "https://images.pexels.com/photos/3373745/pexels-photo-3373745.jpeg?auto=compress&cs=tinysrgb&w=400&h=600&fit=crop",
-      duration: "3:45"
-    }
-  ];
+ const videos = [
+  {
+    id: 1,
+    title: "",
+    src: "https://chelevi.sparktechnology.cloud/chelevi/Videos/v1.mp4",
+    thumbnail: "https://chelevi.sparktechnology.cloud/chelevi/Banners/IMG_1252.JPG",
+    duration: "",
+  },
+  {
+    id: 2,
+    title: "",
+    src: "https://chelevi.sparktechnology.cloud/chelevi/Videos/v2.mp4",
+    thumbnail: "https://chelevi.sparktechnology.cloud/chelevi/Banners/IMG_1251.JPG",
+    duration: "",
+  },
+  {
+    id: 3,
+    title: "",
+    src: "https://chelevi.sparktechnology.cloud/chelevi/Videos/v3.mp4",
+    thumbnail: "https://chelevi.sparktechnology.cloud/chelevi/Banners/IMG_2065.PNG",
+    duration: "",
+  },
+];
+
 
   const instagramPosts = [
     {
       id: 1,
-      image: "https://crm.sparktech.pt/assets/shopfcc/shop1.jpg",
+      image: "https://chelevi.sparktechnology.cloud/chelevi/Banners/IMG_2065.PNG",
       productId: 1
     },
     {
       id: 2,
-      image: "https://crm.sparktech.pt/assets/shopfcc/shop2.jpg",
+      image: "https://chelevi.sparktechnology.cloud/chelevi/Banners/IMG_1276.JPG",
       productId: 2
     },
     {
       id: 3,
-      image: "https://crm.sparktech.pt/assets/shopfcc/shop3.jpg",
+      image: "https://chelevi.sparktechnology.cloud/chelevi/Banners/IMG_6392.JPG",
       productId: 3
     },
     {
       id: 4,
-      image: "https://crm.sparktech.pt/assets/shopfcc/shop4.jpg",
+      image: "https://chelevi.sparktechnology.cloud/chelevi/Banners/IMG_1251.JPG",
       productId: 4
     },
     {
       id: 5,
-      image: "https://crm.sparktech.pt/assets/shopfcc/shop5.jpg",
+      image: "https://chelevi.sparktechnology.cloud/chelevi/Banners/IMG_0646.JPG",
       productId: 2
     },
     {
       id: 6,
-      image: "https://crm.sparktech.pt/assets/shopfcc/shop1.jpg",
+      image: "https://chelevi.sparktechnology.cloud/chelevi/Banners/IMG_2065.PNG",
+      productId: 1
+    }
+    , {
+      id: 7,
+      image: "https://chelevi.sparktechnology.cloud/chelevi/Banners/IMG_2065.PNG",
       productId: 1
     }
   ];
@@ -289,7 +279,7 @@ const Home: React.FC = () => {
       </section>
 
       {/* New Collections Section - Replacing Shop by Category */}
-      <section className="py-20 bg-white">
+      <section className="py-20 bg-white margin bottom ">
         <div className="container">
           <div className="collections-grid">
             {/* Large Featured Collection */}
@@ -383,10 +373,10 @@ const Home: React.FC = () => {
         <div className="container">
           <div className="text-center mb-16">
             <h2 className="text-4xl lg:text-5xl font-bold mb-4 tracking-wide">
-              Our Productions
+              As Nossas Produções
             </h2>
             <p className="text-center text-text-secondary mb-8 text-lg">
-              Descubra nossa mais recente coleção de produtos premium para cabelo
+              Explore a mais recente coleção CheLevi — bolsas e sapatos premium, criados para mulheres que sabem o que querem.
             </p>
           </div>
           
@@ -448,7 +438,53 @@ const Home: React.FC = () => {
         </div>
       </section>
 
-      {/* Best Sellers Section with Horizontal Scroll */}
+
+      {/* Video Section */}
+      <section className="py-20 bg-white">
+        <div className="container">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl lg:text-5xl font-bold mb-4 tracking-wide">
+            CheLevi em Movimento
+            </h2>
+            <p className="text-xl text-text-secondary max-w-3xl mx-auto">
+             Explore cada detalhe em vídeo ,sofisticação, textura e design que ganham vida.
+            </p>
+          </div>
+
+         <div className="grid lg:grid-cols-3 gap-8">
+  {videos.map((video) => (
+    <div key={video.id} className="group cursor-pointer">
+      <div className="relative h-[460px] sm:h-[520px] lg:h-[560px] rounded-2xl overflow-hidden mb-4">
+        {/* TROCA AQUI */}
+        <video
+          src={video.src}
+          poster={video.thumbnail}          // usa o mesmo thumbnail como poster
+          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+          autoPlay
+          loop
+          muted
+          playsInline
+          preload="metadata"
+        />
+        {/* resto fica exatamente como já tens */}
+        <div className="absolute inset-0 bg-black bg-opacity-30 group-hover:bg-opacity-20 transition-all duration-300" />
+        <div className="absolute inset-0 flex items-center justify-center">
+         
+        </div>
+        <div className="absolute bottom-4 right-4 bg-black bg-opacity-70 text-white px-2 py-1 rounded text-sm">
+          {video.duration}
+        </div>
+      </div>
+      <h3 className="text-lg font-semibold group-hover:text-accent transition-colors">
+        {video.title}
+      </h3>
+    </div>
+  ))}
+</div>
+
+        </div>
+      </section>
+     {/* Best Sellers Section with Horizontal Scroll */}
       <section className="py-20 bg-white">
         <div className="container">
           <div className="text-center mb-16">
@@ -510,56 +546,16 @@ const Home: React.FC = () => {
         </div>
       </section>
 
-      {/* Video Section */}
-      <section className="py-20 bg-white">
-        <div className="container">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl lg:text-5xl font-bold mb-4 tracking-wide">
-              TUTORIALS & TIPS
-            </h2>
-            <p className="text-xl text-text-secondary max-w-3xl mx-auto">
-              Learn how to get the most out of your ShopFCC products with our expert tutorials
-            </p>
-          </div>
-
-          <div className="grid lg:grid-cols-3 gap-8">
-            {videos.map((video) => (
-              <div key={video.id} className="group cursor-pointer">
-                <div className="relative aspect-[9/16] rounded-2xl overflow-hidden mb-4">
-                  <img
-                    src={video.thumbnail}
-                    alt={video.title}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                  />
-                  <div className="absolute inset-0 bg-black bg-opacity-30 group-hover:bg-opacity-20 transition-all duration-300" />
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="w-16 h-16 bg-white bg-opacity-90 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                      <Play size={24} className="text-text-primary ml-1" />
-                    </div>
-                  </div>
-                  <div className="absolute bottom-4 right-4 bg-black bg-opacity-70 text-white px-2 py-1 rounded text-sm">
-                    {video.duration}
-                  </div>
-                </div>
-                <h3 className="text-lg font-semibold group-hover:text-accent transition-colors">
-                  {video.title}
-                </h3>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* Dessert in a Mist Section */}
       <section className="py-20 bg-gradient-to-r from-pink-50 to-orange-50">
         <div className="container">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             {/* Left side - Product Image */}
             <div className="relative">
-              <div className="bg-gradient-to-br from-orange-100 to-pink-100 rounded-3xl p-8 h-96 flex items-center justify-center">
+              <div className="bg-gradient-to-br from-orange-100 to-pink-100 rounded-3xl p-8 h-106 flex items-center justify-center">
                 <img
-                  src="https://images.pexels.com/photos/3373736/pexels-photo-3373736.jpeg?auto=compress&cs=tinysrgb&w=400&h=400&fit=crop"
-                  alt="Hair & Body Mist Collection"
+                  src="https://chelevi.sparktechnology.cloud/chelevi/Banners/IMG_2065.PNG"
+                  alt="poder, elegância e identidade"
                   className="w-full h-full object-cover rounded-2xl"
                 />
               </div>
@@ -568,19 +564,18 @@ const Home: React.FC = () => {
             {/* Right side - Content */}
             <div className="space-y-6">
               <h2 className="text-4xl lg:text-5xl font-bold text-rose-400 uppercase tracking-wide">
-                DESSERT IN A MIST
+                UMA MARCA, MIL HISTÓRIAS
               </h2>
               
               <div className="space-y-4 text-gray-600">
                 <p className="text-lg leading-relaxed">
-                  from deep and smooth to creamy, milky blends, there's a{' '}
-                  <span className="font-semibold text-gray-800">hair & body mist</span>{' '}
-                  for every taste bud.
+                  Cada detalhe da CheLevi traduz{' '}
+                  <span className="font-semibold text-gray-800">poder, elegância e identidade.</span>{' '}
+                 
                 </p>
                 
                 <p className="leading-relaxed">
-                  each delicious fragrance is infused with vanilla and formulated with glycerin 
-                  for up to 24 hours of hydrated skin that doesn't feel sticky.
+                  Escolha a peça que vai marcar o seu próximo momento.
                 </p>
               </div>
 
@@ -591,6 +586,7 @@ const Home: React.FC = () => {
           </div>
         </div>
       </section>
+      
 
       {/* The Cosmic Universe */}
       <section className="py-20 bg-gray-900 text-white overflow-hidden">
@@ -598,12 +594,13 @@ const Home: React.FC = () => {
           <div className="grid grid-2 gap-16 items-center">
             <div className="space-y-8 animate-slideUp">
               <h2 className="text-4xl lg:text-5xl font-bold tracking-wide uppercase">
-                THE
+                O
                 <br />
-                <span className="text-secondary">COSMIC UNIVERSE</span>
+                <span className="text-secondary">UNIVERSO CHELEVI</span>
               </h2>
               <p className="text-xl opacity-90 leading-relaxed">
-                go on a cosmic journey this summer with our out of this world, captivating scents.
+                Em cada peça, um cosmos de estilo e poder.
+                Bolsas icónicas criadas para brilhar em qualquer ocasião.
               </p>
               <Link
                 to="/products/fragrance"
@@ -614,7 +611,7 @@ const Home: React.FC = () => {
             </div>
             <div className="relative">
               <img
-                src="https://crm.sparktech.pt/assets/images/13.jpg"
+                src="https://chelevi.sparktechnology.cloud/chelevi/Banners/IMG_1276.JPG"
                 alt="Cosmic Universe Collection"
                 className="w-full h-96 object-cover rounded-2xl"
               />
@@ -776,12 +773,12 @@ const Home: React.FC = () => {
 
           <div className="text-center mt-12">
             <a
-              href="https://instagram.com/shopfcc"
+              href="https://instagram.com"
               target="_blank"
               rel="noopener noreferrer"
               className="btn btn-outline btn-lg uppercase tracking-widest border-rose-400 text-rose-400 hover:bg-rose-400 hover:text-white"
             >
-              FOLLOW @SHOPFCC
+              FOLLOW @CheLevi
             </a>
           </div>
         </div>

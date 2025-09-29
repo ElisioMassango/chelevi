@@ -11,86 +11,84 @@ const Products: React.FC = () => {
   const products = [
     {
       id: 1,
-      name: "Lip Butter",
-      price: 450,
-      originalPrice: 550,
-      image: "https://kyliecosmetics.com/cdn/shop/files/KJC_LIP_25_PeachMango_Stylized_Open.jpg?crop=center&height=600&v=1752094667&width=600",
-      secondImage: "https://kyliecosmetics.com/cdn/shop/files/KJS_LIB_25_LipMacro_PeachMango_01_WS_800x.jpg?v=1752094667",
+      name: "Liane Handbag",
+      price: 6500,
+      image: "https://chelevi.sparktechnology.cloud/chelevi/Products/IMG_1301.PNG",
+      secondImage: "https://chelevi.sparktechnology.cloud/chelevi/Products/IMG_1300.PNG",
       rating: 4.8,
       reviews: 245,
       badge: "NOVIDADE",
       colors: [],
-      category: "cabelo"
+      category: "bolsas"
     },
     {
       id: 2,
-      name: "Condicionador Nutritivo com Argan",
-      price: 1200,
-      image: "https://fentybeauty.com/cdn/shop/files/FS_FALL25_T2PRODUCT_ECOMM_BODY-MILK_SALTED-CARAMEL_1200X1500_72DPI_900x1100.jpg?v=1754005575",
-      secondImage: "https://cdn.shopify.com/s/files/1/0341/3458/9485/files/FS689758_GLOBAL_FALL_24_INFOGRAPHICS_1200x1500_BUTTA_DROP_BODY_MILK_BANDA_Mariam_OP1.jpg?v=1754005575&width=2048",
+      name: "Sapato Siena",
+      price: 7300,
+      image: "https://chelevi.sparktechnology.cloud/chelevi/Banners/IMG_6392.JPG",
+      secondImage: "https://chelevi.sparktechnology.cloud/chelevi/Banners/IMG_0646.JPG",
       rating: 4.9,
       reviews: 128,
       badge: "MAIS VENDIDO",
       colors: [],
-      category: "cabelo"
+      category: "sapatos"
     },
     {
       id: 3,
-      name: "Gloss Bomb",
-      price: 890,
-      image: "https://cdn.shopify.com/s/files/1/0341/3458/9485/files/FB_FALL24_T2PRODUCT_ECOMM_GBSTICK_BLACKRBERRY_OPEN_1200x1500_72DPI.jpg?v=1719531134&width=2048",
-      secondImage: "https://cdn.shopify.com/s/files/1/0341/3458/9485/files/FB_SMR24_T2BEAUTY_GB-STIX_BLACKRBERRY_PROFILTER-498_LEAH_1200X1500_72DPI_1.jpg?v=1719531134&width=2048",
+      name: "Edileyne Preta",
+      price: 7300,
+      image: "https://chelevi.sparktechnology.cloud/chelevi/Products/IMG_1277.PNG",
+      secondImage: "https://chelevi.sparktechnology.cloud/chelevi/Banners/IMG_1251.JPG",
       rating: 4.7,
       reviews: 89,
       badge: "FAVORITO",
       colors: [],
-      category: "cabelo"
+      category: "bolsas"
     },
     {
       id: 4,
-      name: "Óleo de Argan Puro 50ml",
-      price: 650,
-      image: "https://crm.sparktech.pt/assets/shopfcc/shop2.jpg",  
-      secondImage: "https://crm.sparktech.pt/assets/shopfcc/shop4.jpg",
+      name: "Sapato Siena",
+      price: 7300,
+      image: "https://chelevi.sparktechnology.cloud/chelevi/Banners/IMG_6393.JPG",  
+      secondImage: "https://chelevi.sparktechnology.cloud/chelevi/Banners/IMG_0647.JPG",
       rating: 4.6,
       reviews: 156,
       badge: "TOP",
       colors: [],
-      category: "cabelo"
+      category: "sapatos"
     },
     {
       id: 5,
-      name: "Sérum Anti-Frizz 30ml",
-      price: 750,
-      image: "https://crm.sparktech.pt/assets/shopfcc/sho12.jpg",
-      secondImage: "https://crm.sparktech.pt/assets/shopfcc/shop13.jpg",
+      name: "Edileyne Mel",
+      price: 7300,
+      image: "https://chelevi.sparktechnology.cloud/chelevi/Products/IMG_1278.PNG",
+      secondImage: "https://chelevi.sparktechnology.cloud/chelevi/Banners/IMG_1252.JPG",
       rating: 4.5,
       reviews: 203,
       badge: "MAIS VENDIDO",
       colors: [],
-      category: "cabelo"
+      category: "bolsas"
     },
     {
       id: 6,
-      name: "Kit Reconstrutor 3 Passos",
+      name: "Edileyne Vermelha",
       price: 980,
-      image: "https://crm.sparktech.pt/assets/shopfcc/shop14.jpg",
-      secondImage: "https://crm.sparktech.pt/assets/shopfcc/shop15.jpg",
+      image: "https://chelevi.sparktechnology.cloud/chelevi/Products/IMG_1280.PNG",
+      secondImage: "https://chelevi.sparktechnology.cloud/chelevi/Banners/IMG_6390.JPG",
       rating: 4.9,
       reviews: 78,
       badge: "EDIÇÃO LIMITADA",
       colors: [],
-      category: "cabelo"
+      category: "bolsas"
     }
   ];
   
   const categories = [
-    { name: 'cabelo', count: 12 },
-    { name: 'Mais Vendidos', count: 8 },
-    { name: 'Shampoos', count: 24 },
-    { name: 'Condicionadores', count: 18 },
-    { name: 'Tratamentos & Máscaras', count: 16 },
-    { name: 'Óleos & Séruns', count: 6 }
+    { name: 'Bolsas', count: 12 },
+    { name: 'Sapatos', count: 8 },
+    { name: 'Carteiras', count: 24 },
+    { name: 'Coleções', count: 18 },
+
   ];
   
   const filteredProducts = category 
@@ -112,7 +110,8 @@ const Products: React.FC = () => {
             {categoryTitle}
           </h1>
           <p className="text-text-secondary text-lg">
-            Descubra nossa coleção premium de cosméticos e produtos de beleza
+            Descubra nossa coleção premium de bolsas e sapatos feitos à mão com
+            materiais de alta qualidade. Elegância e durabilidade em cada peça.
           </p>
         </div>
 
@@ -219,23 +218,19 @@ const Products: React.FC = () => {
                 <div className="space-y-3">
                   <label className="flex items-center p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer">
                     <input type="checkbox" className="mr-3 w-4 h-4 text-secondary rounded focus:ring-secondary" />
-                    <span className="text-sm">Lábios</span>
+                    <span className="text-sm">Bolsas</span>
                   </label>
                   <label className="flex items-center p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer">
                     <input type="checkbox" className="mr-3 w-4 h-4 text-secondary rounded focus:ring-secondary" />
-                    <span className="text-sm">Rosto</span>
+                    <span className="text-sm">Sapatos</span>
                   </label>
                   <label className="flex items-center p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer">
                     <input type="checkbox" className="mr-3 w-4 h-4 text-secondary rounded focus:ring-secondary" />
-                    <span className="text-sm">Olhos</span>
+                    <span className="text-sm">Carteiras</span>
                   </label>
                   <label className="flex items-center p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer">
                     <input type="checkbox" className="mr-3 w-4 h-4 text-secondary rounded focus:ring-secondary" />
-                    <span className="text-sm">Fragrâncias</span>
-                  </label>
-                  <label className="flex items-center p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer">
-                    <input type="checkbox" className="mr-3 w-4 h-4 text-secondary rounded focus:ring-secondary" />
-                    <span className="text-sm">Skin Care</span>
+                    <span className="text-sm">Coleções</span>
                   </label>
                 </div>
               </div>
@@ -246,7 +241,7 @@ const Products: React.FC = () => {
                 <div className="space-y-3">
                   <label className="flex items-center p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer">
                     <input type="checkbox" className="mr-3 w-4 h-4 text-secondary rounded focus:ring-secondary" />
-                    <span className="text-sm">ShopFCC</span>
+                    <span className="text-sm">CheLevi</span>
                   </label>
                   <label className="flex items-center p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer">
                     <input type="checkbox" className="mr-3 w-4 h-4 text-secondary rounded focus:ring-secondary" />

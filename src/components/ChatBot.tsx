@@ -134,7 +134,7 @@ const ChatBot: React.FC = () => {
                 <User size={16} className="text-text-primary" />
                   </div>
               <div>
-                    <h3 className="font-semibold text-text-primary">ShopFCC</h3>
+                    <h3 className="font-semibold text-text-primary">CheLevi</h3>
                 <p className="text-xs text-text-secondary">Online agora</p>
               </div>
             </div>

@@ -85,8 +85,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         const user: User = {
           id: '1',
           phone,
-          email: 'fayracoelho@shopfcc.store',
-          name: 'Fayra Coelho'
+          email: 'info@chelevi.com',
+          name: 'CheLevi User'
         };
         dispatch({ type: 'SET_USER', payload: user });
         

@@ -8,27 +8,27 @@ const OrderTracking: React.FC = () => {
   // Mock order data
   const order = {
     id: orderId || 'ORD-001',
-    date: '2024-01-20',
+    date: '2025-01-20',
     status: 'shipped',
     total: 1250,
     items: [
       {
         id: 1,
-        name: 'Shampoo Fortificante Keratin+',
-        price: 450,
+        name: 'Edileyne Preta',
+        price: 7300,
         quantity: 2,
-        image: 'https://crm.sparktech.pt/assets/shopfcc/shop1.jpg'
+        image: 'https://chelevi.sparktechnology.cloud/chelevi/Products/IMG_1277.PNG'
       },
       {
         id: 2,
-        name: 'Condicionador Nutritivo',
+        name: 'Edileyne Mel',
         price: 350,
         quantity: 1,
-        image: 'https://crm.sparktech.pt/assets/shopfcc/shop2.jpg'
+        image: 'https://chelevi.sparktechnology.cloud/chelevi/Products/IMG_1278.PNG'
       }
     ],
     deliveryAddress: {
-      name: 'Fayra Coelho',
+      name: 'Chelevi',
       address: 'Avenida Julius Nyerere, 1234',
       city: 'Maputo',
       phone: '+258 84 123 4567'
@@ -38,7 +38,7 @@ const OrderTracking: React.FC = () => {
         id: 1,
         title: 'Pedido Confirmado',
         description: 'Seu pedido foi confirmado e está sendo preparado',
-        date: '2024-01-20 10:30',
+        date: '2025-01-20 10:30',
         completed: true,
         icon: <CheckCircle size={20} />
       },
@@ -54,7 +54,7 @@ const OrderTracking: React.FC = () => {
         id: 3,
         title: 'Enviado',
         description: 'Seu pedido foi enviado e está a caminho',
-        date: '2024-01-21 09:00',
+        date: '2025-01-21 09:00',
         completed: true,
         current: true,
         icon: <Truck size={20} />
@@ -63,7 +63,7 @@ const OrderTracking: React.FC = () => {
         id: 4,
         title: 'Em Trânsito',
         description: 'Seu pedido está sendo transportado para o endereço de entrega',
-        date: 'Estimado: 2024-01-22 16:00',
+        date: 'Estimado: 2025-01-22 16:00',
         completed: false,
         icon: <MapPin size={20} />
       },
@@ -71,7 +71,7 @@ const OrderTracking: React.FC = () => {
         id: 5,
         title: 'Entregue',
         description: 'Seu pedido foi entregue com sucesso',
-        date: 'Estimado: 2024-01-23 18:00',
+        date: 'Estimado: 2025-01-23 18:00',
         completed: false,
         icon: <CheckCircle size={20} />
       }
