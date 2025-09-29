@@ -272,7 +272,7 @@ const Login: React.FC = () => {
 
               <button
                 type="submit"
-                disabled={isLoading || !email || !password || !confirmPassword}
+                disabled={isLoading || !firstName || !lastName || !email || !password || !confirmPassword}
                 className="btn btn-primary w-full"
               >
                 {isLoading ? (

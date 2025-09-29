@@ -180,24 +180,18 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const register = async (phone: string, email?: string) => {
     dispatch({ type: 'SET_LOADING', payload: true });
     try {
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      const user: User = {
-        id: Date.now().toString(),
-        phone,
-        email,
-        name: 'New User'
-      };
-      dispatch({ type: 'SET_USER', payload: user });
-      
-      // Send welcome message via Venombot API (in real implementation)
-      // await sendWelcomeMessage(phone);
+      // This is for phone-based registration, redirect to OTP verification
+      await sendOTP(phone);
     } catch (error) {
       dispatch({ type: 'SET_ERROR', payload: 'Registration failed. Please try again.' });
     }
   };
 
   const logout = () => {
+    if (state.user?.id) {
+      // Call logout API
+      apiService.logout(state.user.id).catch(console.error);
+    }
     // Clear API token
     apiService.clearToken();
     dispatch({ type: 'LOGOUT' });
@@ -213,6 +207,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         ...state,
         login,
         loginWithEmail,
+        registerWithEmail,
         register,
         logout,
         sendOTP,
