@@ -238,12 +238,12 @@ const Home: React.FC = () => {
                     <Link
                       to={slide.link}
                       className="btn btn-primary btn-lg uppercase tracking-widest font-bold hover:scale-105 transition-transform"
-          {categories.slice(0, 4).map((category) => (
+                    >
                       {slide.buttonText}
-              key={category.id}
+                    </Link>
                   </div>
                 </div>
-              {category.name} ({category.total_product})
+              </div>
             </div>
           ))}
 
@@ -399,25 +399,25 @@ const Home: React.FC = () => {
             </div>
             
             {/* Navigation Arrows - Desktop Only */}
-            <button className="hidden lg:block"
+            <button
               onClick={() => {
                 const container = document.getElementById('products-scroll');
                 if (container) {
                   container.scrollBy({ left: -300, behavior: 'smooth' });
                 }
               }}
-              className="absolute left-0 top-1/2 transform -translate-y-1/2 -translate-x-4 w-12 h-12 bg-white shadow-lg rounded-full flex items-center justify-center hover:shadow-xl transition-all z-10"
+              className="hidden lg:block absolute left-0 top-1/2 transform -translate-y-1/2 -translate-x-4 w-12 h-12 bg-white shadow-lg rounded-full flex items-center justify-center hover:shadow-xl transition-all z-10"
             >
               <ChevronLeft size={20} />
             </button>
-            <button className="hidden lg:block"
+            <button
               onClick={() => {
                 const container = document.getElementById('products-scroll');
                 if (container) {
                   container.scrollBy({ left: 300, behavior: 'smooth' });
                 }
               }}
-              className="absolute right-0 top-1/2 transform -translate-y-1/2 translate-x-4 w-12 h-12 bg-white shadow-lg rounded-full flex items-center justify-center hover:shadow-xl transition-all z-10"
+              className="hidden lg:block absolute right-0 top-1/2 transform -translate-y-1/2 translate-x-4 w-12 h-12 bg-white shadow-lg rounded-full flex items-center justify-center hover:shadow-xl transition-all z-10"
             >
               <ChevronRight size={20} />
             </button>
@@ -591,7 +591,7 @@ const Home: React.FC = () => {
       {/* The Cosmic Universe */}
       <section className="py-20 bg-gray-900 text-white overflow-hidden">
         <div className="container">
-          <div className="grid grid-2 gap-16 items-center">
+          <div className="grid grid-cols-2 gap-16 items-center">
             <div className="space-y-8 animate-slideUp">
               <h2 className="text-4xl lg:text-5xl font-bold tracking-wide uppercase">
                 O
