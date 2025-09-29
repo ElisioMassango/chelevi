@@ -6,6 +6,10 @@ interface User {
   phone: string;
   email?: string;
   name?: string;
+  first_name?: string;
+  last_name?: string;
+  image?: string;
+  token?: string;
 }
 
 interface AuthState {
@@ -16,9 +20,20 @@ interface AuthState {
 
 interface AuthContextType extends AuthState {
   login: (phone: string, otp: string) => Promise<void>;
+  loginWithEmail: (email: string, password: string) => Promise<void>;
   register: (phone: string, email?: string) => Promise<void>;
+  registerWithEmail: (data: {
+    first_name: string;
+    last_name: string;
+    email: string;
+    password: string;
+    mobile: string;
+  }) => Promise<void>;
   logout: () => void;
   sendOTP: (phone: string) => Promise<void>;
+  forgotPassword: (email: string) => Promise<any>;
+  verifyForgotPasswordOtp: (email: string, otp: string) => Promise<any>;
+  resetPassword: (email: string, password: string) => Promise<any>;
   clearError: () => void;
 }
 

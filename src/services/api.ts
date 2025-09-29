@@ -121,6 +121,75 @@ class ApiService {
     localStorage.removeItem('auth_token');
   }
 
+  // Customer login with email/password
+  async login(email: string, password: string): Promise<ApiResponse<User>> {
+    const response = await this.request<User>('/login', {
+      method: 'POST',
+      body: JSON.stringify({ email, password }),
+    });
+    
+    // Set token if login successful
+    if (response.status === 1 && response.data.token) {
+      this.setToken(response.data.token);
+    }
+    
+    return response;
+  }
+
+  // Customer registration
+  async register(data: {
+    first_name: string;
+    last_name: string;
+    email: string;
+    password: string;
+    mobile: string;
+  }): Promise<ApiResponse<User>> {
+    const response = await this.request<User>('/register', {
+      method: 'POST',
+      body: JSON.stringify({
+        theme_id: API_CONFIG.themeId,
+        ...data,
+      }),
+    });
+    
+    // Set token if registration successful
+    if (response.status === 1 && response.data.token) {
+      this.setToken(response.data.token);
+    }
+    
+    return response;
+  }
+
+  // Send OTP for phone verification
+  async sendOTP(mobile: string): Promise<ApiResponse<{ message: string; otp_sent: boolean }>> {
+    return this.request('/send-otp', {
+      method: 'POST',
+      body: JSON.stringify({
+        theme_id: API_CONFIG.themeId,
+        mobile,
+      }),
+    });
+  }
+
+  // Verify OTP and login
+  async verifyOTP(mobile: string, otp: string): Promise<ApiResponse<User>> {
+    const response = await this.request<User>('/verify-otp', {
+      method: 'POST',
+      body: JSON.stringify({
+        theme_id: API_CONFIG.themeId,
+        mobile,
+        otp,
+      }),
+    });
+    
+    // Set token if verification successful
+    if (response.status === 1 && response.data.token) {
+      this.setToken(response.data.token);
+    }
+    
+    return response;
+  }
+
   // Theme base URL
   async getBaseUrl(): Promise<ApiResponse<BaseUrlData>> {
     return this.request<BaseUrlData>('/', {
