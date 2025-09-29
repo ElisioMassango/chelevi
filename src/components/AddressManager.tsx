@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { MapPin, Plus, Edit, Trash2, Save, X } from 'lucide-react';
+import { MapPin, Plus, CreditCard as Edit, Trash2, Save, X } from 'lucide-react';
 import { useAddresses } from '../hooks/useApi';
 import { Address } from '../services/api';
 
