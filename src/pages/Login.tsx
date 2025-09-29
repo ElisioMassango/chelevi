@@ -211,6 +211,31 @@ const Login: React.FC = () => {
           {/* Email Register Form */}
           {step === 'register' && loginMethod === 'email' && (
             <form onSubmit={handleEmailRegister} className="space-y-6">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="form-group">
+                  <label className="form-label">Nome</label>
+                  <input
+                    type="text"
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                    placeholder="Seu nome"
+                    className="form-input"
+                    required
+                  />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Sobrenome</label>
+                  <input
+                    type="text"
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
+                    placeholder="Seu sobrenome"
+                    className="form-input"
+                    required
+                  />
+                </div>
+              </div>
+
               <div className="form-group">
                 <label className="form-label">Email</label>
                 <div className="relative">
@@ -220,6 +245,21 @@ const Login: React.FC = () => {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="seu.email@exemplo.com"
+                    className="form-input pl-12"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">Telefone</label>
+                <div className="relative">
+                  <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+                  <input
+                    type="tel"
+                    value={mobile}
+                    onChange={(e) => setMobile(e.target.value)}
+                    placeholder="+258 XX XXX XXXX"
                     className="form-input pl-12"
                     required
                   />
@@ -272,7 +312,7 @@ const Login: React.FC = () => {
 
               <button
                 type="submit"
-                disabled={isLoading || !firstName || !lastName || !email || !password || !confirmPassword}
+                disabled={isLoading || !firstName || !lastName || !email || !password || !confirmPassword || !mobile}
                 className="btn btn-primary w-full"
               >
                 {isLoading ? (

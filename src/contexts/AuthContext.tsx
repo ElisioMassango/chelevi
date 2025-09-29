@@ -177,6 +177,42 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
+  const registerWithEmail = async (data: {
+    first_name: string;
+    last_name: string;
+    email: string;
+    password: string;
+    mobile: string;
+  }) => {
+    dispatch({ type: 'SET_LOADING', payload: true });
+    try {
+      const response = await apiService.register(data);
+      if (response.status === 1) {
+        const user: User = {
+          id: response.data.id.toString(),
+          phone: data.mobile,
+          email: data.email,
+          name: `${data.first_name} ${data.last_name}`,
+          first_name: data.first_name,
+          last_name: data.last_name,
+          token: response.data.token
+        };
+        
+        // Set API token for future requests
+        if (response.data.token) {
+          apiService.setToken(response.data.token);
+        }
+        
+        dispatch({ type: 'SET_USER', payload: user });
+      } else {
+        throw new Error(response.message);
+      }
+    } catch (error) {
+      dispatch({ type: 'SET_ERROR', payload: 'Registration failed. Please try again.' });
+      throw error;
+    }
+  };
+
   const register = async (phone: string, email?: string) => {
     dispatch({ type: 'SET_LOADING', payload: true });
     try {
