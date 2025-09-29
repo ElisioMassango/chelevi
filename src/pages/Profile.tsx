@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { User, MapPin, Package, Heart, Settings, LogOut, Phone, Mail, CreditCard as Edit, Save, X } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useWishlist } from '../contexts/WishlistContext';
+import { apiService } from '../services/api';
+import AddressManager from '../components/AddressManager';
 
 const Profile: React.FC = () => {
   const [activeTab, setActiveTab] = useState('overview');
@@ -26,8 +28,45 @@ const Profile: React.FC = () => {
   };
 
   const handleSave = (field: string) => {
-    // Here you would save to backend
-    console.log(`Saving ${field}:`, formData[field as keyof typeof formData]);
+    // Save to backend using API service
+    if (user?.id) {
+      switch (field) {
+        case 'name':
+          // Split name into first and last name
+          const [firstName, ...lastNameParts] = formData.name.split(' ');
+          const lastName = lastNameParts.join(' ');
+          apiService.updateProfile({
+            customer_id: user.id,
+            first_name: firstName,
+            last_name: lastName,
+            email: formData.email,
+            telephone: formData.phone,
+          }).then(() => {
+            console.log('Profile updated successfully');
+          }).catch(error => {
+            console.error('Failed to update profile:', error);
+          });
+          break;
+        case 'email':
+        case 'phone':
+          apiService.updateProfile({
+            customer_id: user.id,
+            first_name: formData.name.split(' ')[0],
+            last_name: formData.name.split(' ').slice(1).join(' '),
+            email: formData.email,
+            telephone: formData.phone,
+          }).then(() => {
+            console.log('Profile updated successfully');
+          }).catch(error => {
+            console.error('Failed to update profile:', error);
+          });
+          break;
+        case 'address':
+          // Handle address update separately if needed
+          console.log('Address update:', formData);
+          break;
+      }
+    }
     setEditingField(null);
   };
 
@@ -306,17 +345,7 @@ const Profile: React.FC = () => {
             )}
 
             {activeTab === 'addresses' && (
-              <div className="space-y-6">
-                <div className="flex items-center justify-between">
-                  <h1 className="text-3xl font-bold">Endereços Salvos</h1>
-                  <button className="btn btn-primary">Adicionar Novo Endereço</button>
-                </div>
-                
-                <div className="bg-white p-6 rounded-lg border text-center">
-                  <MapPin size={64} className="mx-auto mb-4 text-gray-300" />
-                  <p className="text-text-secondary">Nenhum endereço salvo ainda</p>
-                </div>
-              </div>
+              <AddressManager customerId={user?.id || '1'} />
             )}
 
             {activeTab === 'settings' && (

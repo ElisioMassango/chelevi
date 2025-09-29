@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useReducer, ReactNode } from 'react';
+import { apiService, User as ApiUser } from '../services/api';
 
 interface User {
   id: string;
@@ -59,15 +60,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const sendOTP = async (phone: string) => {
     dispatch({ type: 'SET_LOADING', payload: true });
     try {
-      // Simulate API call to Venombot API
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      // In real implementation, this would call the Venombot API
-      // const response = await fetch('/api/auth/send-otp', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({ phone })
-      // });
+      // For phone-based OTP, we'll simulate for now
+      // In production, integrate with WhatsApp/SMS service
+      await new Promise(resolve => setTimeout(resolve, 1500));
       
       dispatch({ type: 'SET_LOADING', payload: false });
     } catch (error) {
@@ -78,8 +73,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const login = async (phone: string, otp: string) => {
     dispatch({ type: 'SET_LOADING', payload: true });
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // For phone-based login, simulate for now
+      await new Promise(resolve => setTimeout(resolve, 1500));
       
       if (otp === '123456') {
         const user: User = {
@@ -100,11 +95,77 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
+  const loginWithEmail = async (email: string, password: string) => {
+    dispatch({ type: 'SET_LOADING', payload: true });
+    try {
+      // For now, simulate email login
+      // In production, implement proper email/password authentication
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      const user: User = {
+        id: '1',
+        phone: '+258 84 123 4567',
+        email,
+        name: 'CheLevi User'
+      };
+      dispatch({ type: 'SET_USER', payload: user });
+    } catch (error) {
+      dispatch({ type: 'SET_ERROR', payload: 'Login failed. Please try again.' });
+    }
+  };
+
+  const forgotPassword = async (email: string) => {
+    dispatch({ type: 'SET_LOADING', payload: true });
+    try {
+      const response = await apiService.forgotPasswordSendOtp(email);
+      if (response.status === 1) {
+        dispatch({ type: 'SET_LOADING', payload: false });
+        return response.data;
+      } else {
+        throw new Error(response.message);
+      }
+    } catch (error) {
+      dispatch({ type: 'SET_ERROR', payload: 'Failed to send OTP. Please try again.' });
+      throw error;
+    }
+  };
+
+  const verifyForgotPasswordOtp = async (email: string, otp: string) => {
+    dispatch({ type: 'SET_LOADING', payload: true });
+    try {
+      const response = await apiService.forgotPasswordVerifyOtp(email, otp);
+      if (response.status === 1) {
+        dispatch({ type: 'SET_LOADING', payload: false });
+        return response.data;
+      } else {
+        throw new Error(response.message);
+      }
+    } catch (error) {
+      dispatch({ type: 'SET_ERROR', payload: 'Invalid OTP. Please try again.' });
+      throw error;
+    }
+  };
+
+  const resetPassword = async (email: string, password: string) => {
+    dispatch({ type: 'SET_LOADING', payload: true });
+    try {
+      const response = await apiService.forgotPasswordSave(email, password);
+      if (response.status === 1) {
+        dispatch({ type: 'SET_LOADING', payload: false });
+        return response.data;
+      } else {
+        throw new Error(response.message);
+      }
+    } catch (error) {
+      dispatch({ type: 'SET_ERROR', payload: 'Failed to reset password. Please try again.' });
+      throw error;
+    }
+  };
+
   const register = async (phone: string, email?: string) => {
     dispatch({ type: 'SET_LOADING', payload: true });
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      await new Promise(resolve => setTimeout(resolve, 1500));
       
       const user: User = {
         id: Date.now().toString(),
@@ -122,6 +183,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   const logout = () => {
+    // Clear API token
+    apiService.clearToken();
     dispatch({ type: 'LOGOUT' });
   };
 
@@ -134,9 +197,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       value={{
         ...state,
         login,
+        loginWithEmail,
         register,
         logout,
         sendOTP,
+        forgotPassword,
+        verifyForgotPasswordOtp,
+        resetPassword,
         clearError,
       }}
     >

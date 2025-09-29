@@ -13,7 +13,7 @@ const Login: React.FC = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const { login, register, sendOTP, isLoading, error, clearError } = useAuth();
+  const { login, loginWithEmail, register, sendOTP, forgotPassword, verifyForgotPasswordOtp, resetPassword, isLoading, error, clearError } = useAuth();
   const navigate = useNavigate();
 
   const handleEmailLogin = async (e: React.FormEvent) => {
@@ -23,8 +23,7 @@ const Login: React.FC = () => {
     if (!email || !password) return;
 
     try {
-      // Simulate email login
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      await loginWithEmail(email, password);
       navigate('/');
     } catch (error) {
       // Error handled in context
@@ -43,7 +42,7 @@ const Login: React.FC = () => {
     }
 
     try {
-      await register(email, password);
+      await register(email, email);
       navigate('/');
     } catch (error) {
       // Error handled in context
