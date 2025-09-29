@@ -384,11 +384,17 @@ const Home: React.FC = () => {
           <div className="relative">
             {/* Desktop: Horizontal Scroll */}
             <div className="hidden lg:flex gap-6 overflow-x-auto pb-4 scrollbar-hide snap-x snap-mandatory scroll-smooth" id="products-scroll">
-              {featuredProducts.map((product) => (
+              {recentLoading ? (
+                <div className="flex items-center justify-center w-full py-8">
+                  <div className="animate-spin w-6 h-6 border-2 border-secondary border-t-transparent rounded-full"></div>
+                </div>
+              ) : (
+                featuredProducts.map((product) => (
                 <div key={product.id} className="flex-none w-72 snap-start">
                   <ProductCard product={product} />
                 </div>
-              ))}
+                ))
+              )}
             </div>
             
             {/* Mobile: Grid 2x2 */}

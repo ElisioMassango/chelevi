@@ -36,6 +36,94 @@ export interface User {
   defaulte_address_id?: number;
 }
 
+export interface ProductImage {
+  id: number;
+  product_id: number;
+  image_path: string;
+  store_id: number;
+  created_at: string;
+  updated_at: string;
+  demo_field: string;
+  image_path_full_url: string;
+}
+
+export interface ProductReview {
+  product_image: string;
+  title: string;
+  sub_title: string;
+  rating: number;
+  review: string;
+  user_image: string;
+  user_name: string;
+  user_email: string;
+}
+
+export interface ProductDetailResponse {
+  product_info: Product;
+  product_image: ProductImage[];
+  product_Review: ProductReview[];
+  releted_products: Product[];
+  product_instruction: any[];
+}
+
+export interface ProductVariant {
+  id: number;
+  variant: string;
+  stock: number;
+  original_price: string;
+  discount_price: string;
+  final_price: string;
+}
+
+export interface CartItem {
+  cart_id: number;
+  cart_created: string;
+  product_id: number;
+  image: string;
+  name: string;
+  orignal_price: string;
+  total_orignal_price: string;
+  per_product_discount_price: string;
+  discount_price: string;
+  final_price: string;
+  qty: number;
+  variant_id: number;
+  variant_name: string;
+  return: number;
+  shipping_price: string;
+}
+
+export interface CouponInfo {
+  coupon_id: number;
+  coupon_name: string;
+  coupon_code: string;
+  coupon_discount_type: string;
+  coupon_discount_number: string;
+  coupon_discount_amount: string;
+  coupon_final_amount: string;
+}
+
+export interface CartResponse {
+  product_list: CartItem[];
+  product_discount_price: number;
+  sub_total: number;
+  coupon_info: CouponInfo;
+  tax_price: string;
+  total_tax_price: string;
+  tax_id: string;
+  tax_rate: string;
+  tax_type: string;
+  tax_name: string;
+  cart_total_product: number;
+  cart_total_qty: number;
+  original_price: string;
+  total_final_price: string;
+  final_price: string;
+  total_sub_price: string;
+  total_coupon_price: number;
+  shipping_original_price: number;
+  coupon_code: string | null;
+}
 export interface Address {
   id: number;
   customer_id: number;
@@ -395,6 +483,260 @@ class ApiService {
     });
   }
 
+  // Product APIs
+  
+  // Get product detail (authenticated)
+  async getProductDetail(productId: string): Promise<ApiResponse<ProductDetailResponse>> {
+    return this.request('/product-detail', {
+      method: 'POST',
+      body: JSON.stringify({
+        theme_id: API_CONFIG.themeId,
+        id: productId,
+      }),
+    });
+  }
+
+  // Get product detail (guest)
+  async getProductDetailGuest(productId: string): Promise<ApiResponse<ProductDetailResponse>> {
+    return this.request('/product-detail-guest', {
+      method: 'POST',
+      body: JSON.stringify({
+        theme_id: API_CONFIG.themeId,
+        id: productId,
+      }),
+    });
+  }
+
+  // Get product variant list
+  async getProductVariantList(data: {
+    productId: string;
+    customerId: string;
+    variant: string;
+    quantity: string;
+  }): Promise<ApiResponse<ProductVariant>> {
+    return this.request('/variant-list', {
+      method: 'POST',
+      body: JSON.stringify({
+        theme_id: API_CONFIG.themeId,
+        customer_id: data.customerId,
+        product_id: data.productId,
+        variant: data.variant,
+        quantity: data.quantity,
+      }),
+    });
+  }
+
+  // Add product rating
+  async addProductRating(data: {
+    productId: string;
+    userId: string;
+    rating: number;
+    title: string;
+    description: string;
+  }): Promise<ApiResponse<{ message: string }>> {
+    return this.request('/product-rating', {
+      method: 'POST',
+      body: JSON.stringify({
+        theme_id: API_CONFIG.themeId,
+        id: data.productId,
+        user_id: data.userId,
+        rating_no: data.rating.toString(),
+        title: data.title,
+        description: data.description,
+      }),
+    });
+  }
+
+  // Get bestseller products (authenticated)
+  async getBestsellerProducts(categoryId?: string): Promise<ApiResponse<PaginatedResponse<Product>>> {
+    return this.request('/bestseller', {
+      method: 'POST',
+      body: JSON.stringify({
+        theme_id: API_CONFIG.themeId,
+        category_id: categoryId || '',
+      }),
+    });
+  }
+
+  // Get bestseller products (guest)
+  async getBestsellerProductsGuest(categoryId?: string): Promise<ApiResponse<PaginatedResponse<Product>>> {
+    return this.request('/bestseller-guest', {
+      method: 'POST',
+      body: JSON.stringify({
+        theme_id: API_CONFIG.themeId,
+        category_id: categoryId || '',
+      }),
+    });
+  }
+
+  // Get featured products (authenticated)
+  async getFeaturedProducts(): Promise<ApiResponse<Category[]>> {
+    return this.request('/featured-products', {
+      method: 'POST',
+      body: JSON.stringify({
+        theme_id: API_CONFIG.themeId,
+      }),
+    });
+  }
+
+  // Get featured products (guest)
+  async getFeaturedProductsGuest(): Promise<ApiResponse<Category[]>> {
+    return this.request('/featured-products-guest', {
+      method: 'POST',
+      body: JSON.stringify({
+        theme_id: API_CONFIG.themeId,
+      }),
+    });
+  }
+
+  // Check variant stock
+  async checkVariantStock(productId: string, variantSku: string): Promise<ApiResponse<ProductVariant>> {
+    return this.request('/check-variant-stock', {
+      method: 'POST',
+      body: JSON.stringify({
+        product_id: productId,
+        variant_sku: variantSku,
+      }),
+    });
+  }
+
+  // Get recent products (authenticated)
+  async getRecentProducts(): Promise<ApiResponse<PaginatedResponse<Product>>> {
+    return this.request('/recent-product', {
+      method: 'POST',
+      body: JSON.stringify({
+        theme_id: API_CONFIG.themeId,
+      }),
+    });
+  }
+
+  // Get recent products (guest)
+  async getRecentProductsGuest(): Promise<ApiResponse<PaginatedResponse<Product>>> {
+    return this.request('/recent-product-guest', {
+      method: 'POST',
+      body: JSON.stringify({
+        theme_id: API_CONFIG.themeId,
+      }),
+    });
+  }
+
+  // Get related products (authenticated)
+  async getRelatedProducts(productId: string): Promise<ApiResponse<PaginatedResponse<Product>>> {
+    return this.request('/releted-product', {
+      method: 'POST',
+      body: JSON.stringify({
+        product_id: productId,
+      }),
+    });
+  }
+
+  // Get related products (guest)
+  async getRelatedProductsGuest(productId: string): Promise<ApiResponse<PaginatedResponse<Product>>> {
+    return this.request('/releted-product-guest', {
+      method: 'POST',
+      body: JSON.stringify({
+        product_id: productId,
+      }),
+    });
+  }
+
+  // Get discount products
+  async getDiscountProducts(): Promise<ApiResponse<PaginatedResponse<Product>>> {
+    return this.request('/discount-products', {
+      method: 'POST',
+      body: JSON.stringify({
+        theme_id: API_CONFIG.themeId,
+      }),
+    });
+  }
+
+  // Cart APIs
+  
+  // Add to cart
+  async addToCart(data: {
+    customerId: string;
+    productId: string;
+    quantity: number;
+    variantId?: string;
+  }): Promise<ApiResponse<{ message: string; count: number }>> {
+    return this.request('/add-cart', {
+      method: 'POST',
+      body: JSON.stringify({
+        theme_id: API_CONFIG.themeId,
+        customer_id: data.customerId,
+        product_id: data.productId,
+        qty: data.quantity.toString(),
+        variant_id: data.variantId || '0',
+      }),
+    });
+  }
+
+  // Update cart quantity
+  async updateCartQuantity(data: {
+    customerId: string;
+    productId: string;
+    quantityType: 'increase' | 'decrease';
+    variantId?: string;
+  }): Promise<ApiResponse<{ message: string }>> {
+    return this.request('/cart-qty', {
+      method: 'POST',
+      body: JSON.stringify({
+        theme_id: API_CONFIG.themeId,
+        customer_id: data.customerId,
+        product_id: data.productId,
+        quantity_type: data.quantityType,
+        variant_id: data.variantId || '0',
+      }),
+    });
+  }
+
+  // Get cart list
+  async getCartList(customerId: string): Promise<ApiResponse<CartResponse>> {
+    return this.request('/cart-list', {
+      method: 'POST',
+      body: JSON.stringify({
+        theme_id: API_CONFIG.themeId,
+        customer_id: customerId,
+      }),
+    });
+  }
+
+  // Check cart
+  async checkCart(customerId: string): Promise<ApiResponse<{ message: string }>> {
+    return this.request('/cart-check', {
+      method: 'POST',
+      body: JSON.stringify({
+        theme_id: API_CONFIG.themeId,
+        customer_id: customerId,
+      }),
+    });
+  }
+
+  // Check cart (guest)
+  async checkCartGuest(data: {
+    productId: string;
+    variantId: string;
+    quantity: string;
+  }): Promise<ApiResponse<{
+    cart: Array<{
+      product_id: number;
+      varient_id: number;
+      qty: number;
+      status: boolean;
+      message: string;
+      product_qty: number;
+    }>;
+  }>> {
+    return this.request('/cart-check-guest', {
+      method: 'POST',
+      body: JSON.stringify({
+        theme_id: API_CONFIG.themeId,
+        product_id: data.productId,
+        variant_id: data.variantId,
+        qty: data.quantity,
+      }),
+    });
+  }
   // Category APIs
   
   // Get categories with pagination

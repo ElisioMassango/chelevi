@@ -406,11 +406,17 @@ const reviews = [
         {/* You May Also Like */}
         <div>
           <h2 className="text-2xl font-bold text-center mb-12">Você Também Pode Gostar</h2>
-          <div className="grid grid-4 gap-8">
-            {relatedProducts.map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
-          </div>
+          {relatedLoading ? (
+            <div className="flex items-center justify-center py-8">
+              <div className="animate-spin w-6 h-6 border-2 border-secondary border-t-transparent rounded-full"></div>
+            </div>
+          ) : (
+            <div className="grid grid-4 gap-8">
+              {convertedRelatedProducts.map((product) => (
+                <ProductCard key={product.id} product={product} />
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>
