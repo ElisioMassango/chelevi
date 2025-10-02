@@ -1488,6 +1488,124 @@ class ApiService {
       }),
     });
   }
+
+  // Search products (using bestseller products as base for search)
+  async searchProducts(query: string): Promise<ApiResponse<Product[]>> {
+    try {
+      // Use bestseller products for search as they're more likely to be actual products
+      const response = await this.getBestsellerProducts();
+      
+      if (response.status === 1) {
+        let products: Product[] = [];
+        
+        // Handle different response structures
+        if (Array.isArray(response.data)) {
+          // Validate that items are products, not categories
+          const validProducts = response.data.filter((item: any) => 
+            item && typeof item === 'object' && 
+            'final_price' in item && 
+            'cover_image_url' in item
+          );
+          products = validProducts as Product[];
+        } else if (response.data.data && Array.isArray(response.data.data)) {
+          const validProducts = response.data.data.filter((item: any) => 
+            item && typeof item === 'object' && 
+            'final_price' in item && 
+            'cover_image_url' in item
+          );
+          products = validProducts as Product[];
+        }
+        
+        // Filter products based on search query
+        const filteredProducts = products.filter(product =>
+          product.name?.toLowerCase().includes(query.toLowerCase()) ||
+          product.description?.toLowerCase().includes(query.toLowerCase()) ||
+          product.category_name?.toLowerCase().includes(query.toLowerCase()) ||
+          product.sub_category_name?.toLowerCase().includes(query.toLowerCase())
+        );
+        
+        return {
+          status: 1,
+          message: 'Search completed',
+          max_price: 0,
+          data: filteredProducts.slice(0, 10) // Limit to 10 results
+        };
+      }
+      
+      return {
+        status: 0,
+        message: 'Search failed',
+        max_price: 0,
+        data: []
+      };
+    } catch (error) {
+      return {
+        status: 0,
+        message: 'Search failed',
+        max_price: 0,
+        data: []
+      };
+    }
+  }
+
+  // Search products for guests
+  async searchProductsGuest(query: string): Promise<ApiResponse<Product[]>> {
+    try {
+      // Use bestseller products for search as they're more likely to be actual products
+      const response = await this.getBestsellerProductsGuest();
+      
+      if (response.status === 1) {
+        let products: Product[] = [];
+        
+        // Handle different response structures
+        if (Array.isArray(response.data)) {
+          // Validate that items are products, not categories
+          const validProducts = response.data.filter((item: any) => 
+            item && typeof item === 'object' && 
+            'final_price' in item && 
+            'cover_image_url' in item
+          );
+          products = validProducts as Product[];
+        } else if (response.data.data && Array.isArray(response.data.data)) {
+          const validProducts = response.data.data.filter((item: any) => 
+            item && typeof item === 'object' && 
+            'final_price' in item && 
+            'cover_image_url' in item
+          );
+          products = validProducts as Product[];
+        }
+        
+        // Filter products based on search query
+        const filteredProducts = products.filter(product =>
+          product.name?.toLowerCase().includes(query.toLowerCase()) ||
+          product.description?.toLowerCase().includes(query.toLowerCase()) ||
+          product.category_name?.toLowerCase().includes(query.toLowerCase()) ||
+          product.sub_category_name?.toLowerCase().includes(query.toLowerCase())
+        );
+        
+        return {
+          status: 1,
+          message: 'Search completed',
+          max_price: 0,
+          data: filteredProducts.slice(0, 10) // Limit to 10 results
+        };
+      }
+      
+      return {
+        status: 0,
+        message: 'Search failed',
+        max_price: 0,
+        data: []
+      };
+    } catch (error) {
+      return {
+        status: 0,
+        message: 'Search failed',
+        max_price: 0,
+        data: []
+      };
+    }
+  }
   
 }
 

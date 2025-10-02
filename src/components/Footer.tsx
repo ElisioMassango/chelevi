@@ -38,7 +38,7 @@ return (
         Entre no Círculo Íntimo
         </h3>
         <p className="text-gray-600 text-sm">
-        : As melhores histórias são as que se contam em privado. Deixe o seu contacto ou e-mail e receba acesso antecipado às coleções, convites exclusivos da CheLevi.
+        As melhores histórias são as que se contam em privado. Deixe o seu contacto ou e-mail e receba acesso antecipado às coleções, convites exclusivos da CheLevi.
         </p>
         <form onSubmit={handleNewsletterSubmit} className="space-y-3">
           <input

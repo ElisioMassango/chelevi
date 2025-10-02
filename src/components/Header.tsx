@@ -4,6 +4,7 @@ import { Heart, User, Search, ShoppingBag, Menu, X, ChevronDown, Globe, Minus, P
 import { useAuth } from '../contexts/AuthContext';
 import { useCart } from '../contexts/CartContext';
 import { useWishlist } from '../contexts/WishlistContext';
+import { useSearchDebounced } from '../hooks/useSearch';
 
 const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -16,6 +17,16 @@ const Header: React.FC = () => {
   const { items, updateQuantity, removeFromCart, total } = useCart();
   const { items: wishlistItems } = useWishlist();
   const navigate = useNavigate();
+  
+  // Search functionality
+  const { 
+    results: searchResults, 
+    isSearching, 
+    error: searchError,
+    searchProducts, 
+    clearResults,
+    hasSearched 
+  } = useSearchDebounced(300);
 
   const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
 
@@ -24,23 +35,24 @@ const Header: React.FC = () => {
     console.log('Menu state changed:', isMenuOpen);
   }, [isMenuOpen]);
 
-  // Mock search results
-  const searchResults = [
-    {
-      id: 1,
-      name: "Lip Butter",
-      price: 450,
-      image: "https://kyliecosmetics.com/cdn/shop/files/KJC_LIP_25_PeachMango_Stylized_Open.jpg?crop=center&height=100&v=1752094667&width=100"
-    },
-    {
-      id: 2,
-      name: "Condicionador Nutritivo",
-      price: 1200,
-      image: "https://fentybeauty.com/cdn/shop/files/FS_FALL25_T2PRODUCT_ECOMM_BODY-MILK_SALTED-CARAMEL_1200X1500_72DPI_900x1100.jpg?v=1754005575&width=100&height=100"
+  // Handle search input change
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const query = e.target.value;
+    setSearchQuery(query);
+    
+    if (query.trim()) {
+      searchProducts(query);
+    } else {
+      clearResults();
     }
-  ].filter(product =>
-    product.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  };
+
+  // Clear search when closing
+  const handleCloseSearch = () => {
+    setIsSearchOpen(false);
+    setSearchQuery('');
+    clearResults();
+  };
 
   const handleLanguageChange = (lang: string) => {
     setCurrentLanguage(lang);
@@ -357,47 +369,66 @@ const Header: React.FC = () => {
 
         {/* Search Overlay */}
         {isSearchOpen && (
-          <div className="fixed inset-0 z-50 bg-black bg-opacity-50" onClick={() => setIsSearchOpen(false)}>
+          <div className="fixed inset-0 z-50 bg-black bg-opacity-50" onClick={handleCloseSearch}>
             <div className="bg-white p-6 max-w-2xl mx-auto mt-20 rounded-lg shadow-xl" onClick={(e) => e.stopPropagation()}>
               <div className="flex items-center gap-4 mb-6">
                 <Search size={20} className="text-gray-400" />
                 <input
                   type="text"
-                  placeholder="Search products..."
+                  placeholder="Buscar produtos..."
                   value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onChange={handleSearchChange}
                   className="flex-1 text-lg outline-none"
                   autoFocus
                 />
-                <button onClick={() => setIsSearchOpen(false)}>
+                <button onClick={handleCloseSearch}>
                   <X size={20} />
                 </button>
               </div>
 
-              {searchQuery && (
+              {(searchQuery || hasSearched) && (
                 <div className="space-y-4 max-h-96 overflow-y-auto">
-                  {searchResults.length > 0 ? (
+                  {isSearching ? (
+                    <div className="flex items-center justify-center py-8">
+                      <div className="animate-spin w-6 h-6 border-2 border-secondary border-t-transparent rounded-full"></div>
+                      <span className="ml-2 text-gray-500">Buscando...</span>
+                    </div>
+                  ) : searchError ? (
+                    <div className="text-center py-8">
+                      <p className="text-red-500 mb-2">Erro na busca</p>
+                      <p className="text-sm text-gray-500">{searchError}</p>
+                    </div>
+                  ) : searchResults.length > 0 ? (
                     searchResults.map((product) => (
                       <Link
                         key={product.id}
                         to={`/product/${product.id}`}
                         className="flex items-center gap-4 p-3 hover:bg-gray-50 rounded-lg transition-colors"
-                        onClick={() => setIsSearchOpen(false)}
+                        onClick={handleCloseSearch}
                       >
                         <img
-                          src={product.image}
+                          src={product.cover_image_url}
                           alt={product.name}
                           className="w-12 h-12 object-cover rounded-md"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).src = 'https://via.placeholder.com/48x48?text=No+Image';
+                          }}
                         />
                         <div className="flex-1">
                           <h3 className="font-medium">{product.name}</h3>
-                          <p className="text-sm text-gray-600">MT{product.price}</p>
+                          <p className="text-sm text-gray-600">MT{product.final_price}</p>
+                          {product.category_name && (
+                            <p className="text-xs text-gray-400">{product.category_name}</p>
+                          )}
                         </div>
                       </Link>
                     ))
-                  ) : (
-                    <p className="text-gray-500 text-center py-8">No products found</p>
-                  )}
+                  ) : hasSearched ? (
+                    <div className="text-center py-8">
+                      <p className="text-gray-500">Nenhum produto encontrado</p>
+                      <p className="text-sm text-gray-400 mt-1">Tente usar palavras-chave diferentes</p>
+                    </div>
+                  ) : null}
                 </div>
               )}
             </div>
