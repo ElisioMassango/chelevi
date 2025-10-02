@@ -12,6 +12,7 @@ interface CartItem {
   quantity: number;
   variant?: string;
   variantId?: number;
+  sizeNote?: string;
 }
 
 interface CartState {
@@ -24,7 +25,7 @@ interface CartState {
 }
 
 interface CartContextType extends CartState {
-  addToCart: (item: Omit<CartItem, 'quantity'> & { quantity?: number }) => Promise<void>;
+  addToCart: (item: Omit<CartItem, 'quantity'> & { quantity?: number; sizeNote?: string }) => Promise<void>;
   removeFromCart: (id: number) => Promise<void>;
   updateQuantity: (id: number, quantity: number) => Promise<void>;
   clearCart: () => void;
@@ -264,7 +265,8 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           image: item.image,
           quantity: item.quantity || 1,
           variant: item.variant,
-          variantId: item.variantId
+          variantId: item.variantId,
+          sizeNote: item.sizeNote
         };
 
         const existingItemIndex = state.items.findIndex(cartItem => cartItem.id === item.id);
@@ -330,6 +332,7 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           productId: id.toString(),
           quantityType,
           variantId: currentItem.variant || '0',
+          variant_name: "",
         });
 
         if (response.status === 1) {

@@ -44,7 +44,7 @@ const Checkout: React.FC = () => {
     // Checkbox to use same address
     useSameAddress: true,
     // Delivery comment
-    deliveryComment: ''
+    deliveryComment: '',
   });
 
   const { items, total, clearCart, cartData } = useCart();
@@ -59,7 +59,6 @@ const Checkout: React.FC = () => {
       navigate('/login');
       return;
     }
-    
     // Verificar se há produtos no carrinho
     if (items.length === 0) {
       navigate('/cart');
@@ -69,20 +68,26 @@ const Checkout: React.FC = () => {
 
   // Auto-fill dos campos de contato quando logado
   React.useEffect(() => {
-    if (user && !formData.email) { // Only auto-fill if not already filled
-      setFormData(prev => ({
-        ...prev,
-        email: user.email || prev.email,
-        phone: user.phone || prev.phone,
-        firstName: user.first_name || user.name?.split(' ')[0] || prev.firstName,
-        lastName: user.last_name || user.name?.split(' ').slice(1).join(' ') || prev.lastName,
-      }));
+    // Preenche apenas quando o usuário está disponível
+    if (user) {
+      setFormData((prev) => {
+        const updated: any = { ...prev };
+        // Copia dados apenas se ainda não estiverem definidos
+        if (!prev.email && user.email) updated.email = user.email;
+        if (!prev.phone && user.phone) updated.phone = user.phone;
+        if (!prev.firstName && (user.first_name || user.name)) {
+          updated.firstName = user.first_name || user.name?.split(' ')[0] || prev.firstName;
+        }
+        if (!prev.lastName && (user.last_name || user.name)) {
+          updated.lastName = user.last_name || (user.name?.split(' ').slice(1).join(' ')) || prev.lastName;
+        }
+        return updated;
+      });
     }
-  }, [user, formData.email]);
+  }, [user]);
 
   // Função para obter nome da cidade pelo ID
   const getCityNameById = (cityId: string): string => {
-    // Mapeamento básico de IDs para nomes de cidades
     const cityMap: { [key: string]: string } = {
       '4689': 'Maputo',
       '4690': 'Matola',
@@ -108,46 +113,36 @@ const Checkout: React.FC = () => {
       '4719': 'Zambézia',
       '4720': 'Nampula',
     };
-    return cityMap[cityId] || 'Maputo'; // Fallback para Maputo
+    return cityMap[cityId] || 'Maputo';
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData(prev => ({
-      ...prev,
-      [e.target.name]: e.target.value
-    }));
+    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
   const handleTextareaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setFormData(prev => ({
-      ...prev,
-      [e.target.name]: e.target.value
-    }));
+    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsProcessing(true);
-    
     if (!user?.id) {
       alert('Please login to place an order');
       return;
     }
-
     // Validate billing address
     if (!formData.billingCountry || !formData.billingState || !formData.billingCityId) {
       alert('Por favor, preencha o endereço de cobrança completamente');
       setIsProcessing(false);
       return;
     }
-
     // Validate billing address field
     if (!formData.billingAddress && !formData.address) {
       alert('Por favor, preencha o endereço de cobrança');
       setIsProcessing(false);
       return;
     }
-
     // Validate shipping address if not using same address
     if (!formData.useSameAddress) {
       if (!formData.shippingCountry || !formData.shippingState || !formData.shippingCityId) {
@@ -156,66 +151,52 @@ const Checkout: React.FC = () => {
         return;
       }
     }
-
     try {
       // Ensure all required fields are present
       const billingInfo: BillingInfo = {
-        // Billing Information
         billing_postecode: formData.billingPostalCode || formData.postalCode || '0000',
         email: formData.email || 'user@example.com',
-        billing_city: formData.billingCityName || 'Maputo', // NOME da cidade
+        billing_city: formData.billingCityName || 'Maputo',
         lastname: formData.lastName || 'User',
         billing_company_name: '',
         billing_address: formData.billingAddress || formData.address || 'Endereço não informado',
         billing_user_telephone: formData.phone || '000000000',
         firstname: formData.firstName || 'User',
-        billing_country: formData.billingCountry || formData.country || '150', // ID do país
-        billing_state: formData.billingState || formData.state || '1', // ID do estado
-        
-        // Delivery/Shipping Information
-        delivery_city: formData.shippingCityName || formData.billingCityName || 'Maputo', // NOME da cidade
-        delivery_state: formData.shippingState || formData.billingState || '1', // ID do estado
+        billing_country: formData.billingCountry || formData.country || '150',
+        billing_state: formData.billingState || formData.state || '1',
+        delivery_city: formData.shippingCityName || formData.billingCityName || 'Maputo',
+        delivery_state: formData.shippingState || formData.billingState || '1',
         delivery_postcode: formData.shippingPostalCode || formData.billingPostalCode || '0000',
-        delivery_country: formData.shippingCountry || formData.billingCountry || '150', // ID do país
+        delivery_country: formData.shippingCountry || formData.billingCountry || '150',
         delivery_address: formData.shippingAddress || formData.billingAddress || 'Address',
       };
-
       console.log('Billing Info:', billingInfo);
-
       const orderData = {
         paymentType: paymentMethod === 'mpesa' ? 'cod' : 'card',
         billingInfo,
         couponInfo: cartData?.coupon_info || {},
-        deliveryComment: formData.deliveryComment || '', // Usar o comentário do formulário
+        deliveryComment: formData.deliveryComment || '',
         userId: user.id.toString(),
         customerId: user.id.toString(),
         paymentComment: formData.deliveryComment || '',
         deliveryId: selectedShippingMethod || '1',
         subTotal: cartData?.final_price ? parseFloat(cartData.final_price) : total,
-        //couponCode: cartData?.coupon_code || '-',
       };
-
       console.log('Order Data:', orderData);
       console.log('Cart Data:', cartData);
-
       const result = await placeOrder(orderData);
-      
       console.log('Order placed successfully:', result);
-      
-      // Navigate first, then clear cart
-      navigate('/checkout-success', { 
-        state: { 
+      navigate('/checkout-success', {
+        state: {
           orderId: result.order_id,
           orderData: {
             subTotal: orderData.subTotal,
             items: items,
             paymentType: orderData.paymentType,
-            billingInfo: orderData.billingInfo
-          }
-        } 
+            billingInfo: orderData.billingInfo,
+          },
+        },
       });
-      
-      // Clear cart after navigation
       setTimeout(() => {
         clearCart();
       }, 100);
@@ -229,12 +210,11 @@ const Checkout: React.FC = () => {
 
   const subtotal = total;
   const tax = total * 0.17;
-  const shipping = 0; // Free shipping
+  const shipping = 0;
   const grandTotal = subtotal + tax + shipping;
 
   return (
     <div className="checkout-page py-12">
-      {/* Loading Overlay */}
       {isProcessing && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-2xl p-8 max-w-md w-full mx-4 text-center">
@@ -253,21 +233,15 @@ const Checkout: React.FC = () => {
           </div>
         </div>
       )}
-
       <div className="container max-w-6xl">
         <h1 className="text-3xl font-bold mb-8">Checkout</h1>
-
         <form onSubmit={handleSubmit}>
           <div className="grid lg:grid-cols-2 gap-12">
-            {/* Left Column - Forms */}
             <div className="space-y-8">
-              {/* Contact Information */}
               <div className="bg-white p-6 rounded-lg border">
                 <h2 className="text-xl font-semibold mb-6 flex items-center gap-2">
-                  <Mail size={20} />
-                  Contact Information
+                  <Mail size={20} /> Contact Information
                 </h2>
-                
                 <div className="grid grid-2 gap-4">
                   <div className="form-group">
                     <label className="form-label">Nome</label>
@@ -292,7 +266,6 @@ const Checkout: React.FC = () => {
                     />
                   </div>
                 </div>
-
                 <div className="grid grid-2 gap-4">
                   <div className="form-group">
                     <label className="form-label">Endereço de Email</label>
@@ -319,11 +292,8 @@ const Checkout: React.FC = () => {
                   </div>
                 </div>
               </div>
-
-              {/* Delivery Method */}
               <div className="bg-white p-6 rounded-lg border">
                 <h2 className="text-xl font-semibold mb-6">Método de Entrega</h2>
-                
                 <div className="space-y-4">
                   <label className="flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50">
                     <input
@@ -340,7 +310,6 @@ const Checkout: React.FC = () => {
                       <div className="text-sm text-text-secondary">Entrega grátis dentro de Maputo</div>
                     </div>
                   </label>
-
                   <label className="flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50">
                     <input
                       type="radio"
@@ -357,10 +326,8 @@ const Checkout: React.FC = () => {
                     </div>
                   </label>
                 </div>
-
                 {deliveryMethod === 'delivery' && (
                   <div className="mt-6 space-y-6">
-                    {/* Billing Address Section */}
                     <div className="bg-white p-6 rounded-lg border">
                       <h3 className="text-lg font-semibold mb-4">Endereço de Cobrança</h3>
                       <div className="space-y-4">
@@ -376,12 +343,10 @@ const Checkout: React.FC = () => {
                             required
                           />
                         </div>
-                        
                         <CheckoutLocationSelector
                           onLocationChange={(location) => {
-                            // Buscar nome da cidade baseado no ID
                             const cityName = getCityNameById(location.city);
-                            setFormData(prev => ({
+                            setFormData((prev) => ({
                               ...prev,
                               billingCountry: location.country,
                               billingState: location.state,
@@ -392,7 +357,6 @@ const Checkout: React.FC = () => {
                           showLabels={true}
                           required={true}
                         />
-
                         <div className="form-group">
                           <label className="form-label">Código Postal</label>
                           <input
@@ -406,8 +370,6 @@ const Checkout: React.FC = () => {
                         </div>
                       </div>
                     </div>
-
-                    {/* Shipping Address Section */}
                     <div className="bg-white p-6 rounded-lg border">
                       <div className="flex items-center justify-between mb-4">
                         <h3 className="text-lg font-semibold">Endereço de Entrega</h3>
@@ -416,7 +378,7 @@ const Checkout: React.FC = () => {
                             type="checkbox"
                             checked={formData.useSameAddress}
                             onChange={(e) => {
-                              setFormData(prev => ({
+                              setFormData((prev) => ({
                                 ...prev,
                                 useSameAddress: e.target.checked,
                                 shippingAddress: e.target.checked ? prev.billingAddress : prev.shippingAddress,
@@ -432,7 +394,6 @@ const Checkout: React.FC = () => {
                           <span className="text-sm">Usar mesmo endereço de cobrança</span>
                         </label>
                       </div>
-                      
                       {!formData.useSameAddress && (
                         <div className="space-y-4">
                           <div className="form-group">
@@ -447,12 +408,10 @@ const Checkout: React.FC = () => {
                               required
                             />
                           </div>
-                          
                           <CheckoutLocationSelector
                             onLocationChange={(location) => {
-                              // Buscar nome da cidade baseado no ID
                               const cityName = getCityNameById(location.city);
-                              setFormData(prev => ({
+                              setFormData((prev) => ({
                                 ...prev,
                                 shippingCountry: location.country,
                                 shippingState: location.state,
@@ -463,7 +422,6 @@ const Checkout: React.FC = () => {
                             showLabels={true}
                             required={true}
                           />
-
                           <div className="form-group">
                             <label className="form-label">Código Postal</label>
                             <input
@@ -474,10 +432,9 @@ const Checkout: React.FC = () => {
                               className="form-input"
                               placeholder="Código postal (opcional)"
                             />
-                          </div>        
+                          </div>
                         </div>
                       )}
-                      
                       {formData.useSameAddress && (
                         <div className="bg-gray-50 p-4 rounded-lg">
                           <p className="text-sm text-gray-600">
@@ -485,32 +442,28 @@ const Checkout: React.FC = () => {
                           </p>
                         </div>
                       )}
-                        <div className="form-group">
-                            <label className="form-label">Comentário de Entrega (Opcional)</label>
-                            <textarea
-                              name="deliveryComment"
-                              value={formData.deliveryComment || ''}
-                              onChange={handleTextareaChange}
-                              className="form-textarea"
-                              placeholder="Instruções especiais para entrega (ex: deixar na portaria, horário preferido, etc.)"
-                              rows={3}
-                            />
-                          </div>
+                      <div className="form-group">
+                        <label className="form-label">Comentário de Entrega (Opcional)</label>
+                        <textarea
+                          name="deliveryComment"
+                          value={formData.deliveryComment || ''}
+                          onChange={handleTextareaChange}
+                          className="form-textarea"
+                          placeholder="Instruções especiais para entrega (ex: deixar na portaria, horário preferido, etc.)"
+                          rows={3}
+                        />
+                      </div>
                     </div>
-                    
                     <div className="bg-blue-50 p-4 rounded-lg">
                       <p className="text-sm text-blue-800">
                         📍 Você pode marcar sua localização exata no Google Maps para entrega precisa.
                       </p>
                     </div>
-
                     <div className="bg-green-50 p-4 rounded-lg">
                       <p className="text-sm text-green-800">
                         🌍 Entregamos apenas para Moçambique e Portugal. Selecione seu país, província/distrito e cidade.
                       </p>
                     </div>
-
-                    {/* Shipping Methods */}
                     <div className="mt-6">
                       <h3 className="text-lg font-medium mb-4">Métodos de Envio</h3>
                       {shippingLoading ? (
@@ -543,14 +496,10 @@ const Checkout: React.FC = () => {
                   </div>
                 )}
               </div>
-
-              {/* Payment Method */}
               <div className="bg-white p-6 rounded-lg border">
                 <h2 className="text-xl font-semibold mb-6 flex items-center gap-2">
-                  <CreditCard size={20} />
-                  Método de Pagamento
+                  <CreditCard size={20} /> Método de Pagamento
                 </h2>
-
                 <div className="space-y-4">
                   <label className="flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50">
                     <input
@@ -567,7 +516,6 @@ const Checkout: React.FC = () => {
                       <div className="text-sm text-text-secondary">Pagar com M-Pesa</div>
                     </div>
                   </label>
-
                   <label className="flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50 opacity-50">
                     <input
                       type="radio"
@@ -585,7 +533,6 @@ const Checkout: React.FC = () => {
                     </div>
                   </label>
                 </div>
-
                 {paymentMethod === 'mpesa' && (
                   <div className="mt-6">
                     <div className="form-group">
@@ -604,13 +551,9 @@ const Checkout: React.FC = () => {
                 )}
               </div>
             </div>
-
-            {/* Right Column - Order Summary */}
             <div className="lg:col-span-1">
               <div className="bg-white p-6 rounded-lg border sticky top-4">
                 <h2 className="text-xl font-semibold mb-6">Resumo do Pedido</h2>
-
-                {/* Applied Coupon */}
                 {cartData?.coupon_info && cartData.coupon_info.coupon_id > 0 && (
                   <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
                     <div className="flex items-center justify-between">
@@ -627,17 +570,14 @@ const Checkout: React.FC = () => {
                           -MT{parseFloat(cartData.coupon_info.coupon_discount_amount).toFixed(2)}
                         </span>
                         <p className="text-green-600 text-xs">
-                          {cartData.coupon_info.coupon_discount_type === 'percentage' 
+                          {cartData.coupon_info.coupon_discount_type === 'percentage'
                             ? `${cartData.coupon_info.coupon_discount_number}% OFF`
-                            : 'Desconto Fixo'
-                          }
+                            : 'Desconto Fixo'}
                         </p>
                       </div>
                     </div>
                   </div>
                 )}
-
-                {/* Items */}
                 <div className="space-y-4 mb-6">
                   {items.map((item) => (
                     <div key={`${item.id}-${item.variant || ''}`} className="flex gap-4">
@@ -646,7 +586,7 @@ const Checkout: React.FC = () => {
                         alt={item.name}
                         className="w-16 h-16 object-cover rounded-md"
                       />
-                      <div className="flex-1">
+                        <div className="flex-1">
                         <h4 className="font-medium text-sm">{item.name}</h4>
                         {item.variant && (
                           <p className="text-xs text-text-secondary">{item.variant}</p>
@@ -659,22 +599,17 @@ const Checkout: React.FC = () => {
                     </div>
                   ))}
                 </div>
-
-                {/* Totals */}
                 <div className="space-y-3 border-t pt-6">
                   <div className="flex justify-between">
                     <span>Subtotal</span>
                     <span>MT{subtotal.toFixed(2)}</span>
                   </div>
-                  
-                  {/* Coupon Discount */}
                   {cartData?.coupon_info && cartData.coupon_info.coupon_id > 0 && (
                     <div className="flex justify-between text-green-600">
                       <span>Desconto ({cartData.coupon_info.coupon_name})</span>
                       <span>-MT{parseFloat(cartData.coupon_info.coupon_discount_amount).toFixed(2)}</span>
                     </div>
                   )}
-                  
                   <div className="flex justify-between">
                     <span>Frete</span>
                     <span className="text-success">Grátis</span>
@@ -685,11 +620,15 @@ const Checkout: React.FC = () => {
                   </div>
                   <div className="flex justify-between font-bold text-lg border-t pt-3">
                     <span>Total</span>
-                    <span>MT{cartData?.final_price ? parseFloat(cartData.final_price).toFixed(2) : grandTotal.toFixed(2)}</span>
+                    <span>
+                      MT{
+                        cartData?.final_price
+                          ? parseFloat(cartData.final_price).toFixed(2)
+                          : grandTotal.toFixed(2)
+                      }
+                    </span>
                   </div>
                 </div>
-
-                {/* Place Order Button */}
                 <button
                   type="submit"
                   disabled={isProcessing}
@@ -697,18 +636,15 @@ const Checkout: React.FC = () => {
                 >
                   {isProcessing ? (
                     <>
-                      <Loader2 size={20} className="animate-spin mr-2" />
-                      Processando...
+                      <Loader2 size={20} className="animate-spin mr-2" /> Processando...
                     </>
                   ) : (
                     'Colocar Pedido'
                   )}
                 </button>
-
-                {/* Security Notice */}
                 <div className="mt-4 p-3 bg-gray-50 rounded-lg">
                   <p className="text-xs text-text-secondary text-center">
-                      🔒 Suas informações de pagamento são seguras e criptografadas
+                    🔒 Suas informações de pagamento são seguras e criptografadas
                   </p>
                 </div>
               </div>

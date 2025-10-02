@@ -43,34 +43,40 @@ const About: React.FC = () => {
 
   const milestones = [
     {
-      year: "2020",
-      title: "O Início",
+      year: "2018",
+      title: "Primeiros passos",
       description:
-        "Nasce a CheLevi com o propósito de criar bolsas e acessórios premium, com identidade própria.",
+        "Lançamento da primeira linha de acessórios: brincos e colares com assinatura artesanal.",
     },
     {
-      year: "2021",
-      title: "Primeira Peça Icónica",
+      year: "2020",
+      title: "Estabelecimento físico",
       description:
         "Lançamento da bolsa Edileyne, rapidamente assumida como assinatura da marca.",
     },
     {
-      year: "2022",
-      title: "Crescimento",
+      year: "2021",
+      title: "Internacionalização da identidade",
       description:
-        "Expansão do portefólio e abertura do atelier para dominar todo o processo produtivo.",
+        "Participação no Fancy International Show com a coleção ROYALTY, apresentando ao mundo uma CheLevi elegante e ousada.",
+    },
+    {
+      year: "2022",
+      title: "Afirmação de estilo",
+      description:
+        "Participação na Maputo Fashion Week com a coleção ÁGUIA, traduzindo força e sofisticação africana.",
     },
     {
       year: "2023",
-      title: "Linha de Calçado",
+      title: "Evolução criativa",
       description:
-        "Chegam os sapatos Siena: sofisticação, conforto e salto de 8 cm.",
+        "Retorno ao Fancy International Show com a coleção AS I AM, celebrando autenticidade e reinvenção.",
     },
     {
-      year: "2024",
-      title: "Presença Digital",
+      year: "2025",
+      title: "Expansão e legado",
       description:
-        "Lançamento da loja online e apoio ao cliente via WhatsApp para um serviço mais próximo.",
+        "Lançamento das bolsas Edileyne e Liane, ícones de elegância moderna.Início da tão aguardada linha de calçado, aliando conforto, presença e identidade.",
     },
   ];
 

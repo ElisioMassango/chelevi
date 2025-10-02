@@ -877,7 +877,7 @@ class ApiService {
 
   // Get product detail (guest)
   async getProductDetailGuest(productId: string): Promise<ApiResponse<ProductDetailResponse>> {
-    return this.request('/product-detail-guest', {
+    return this.request('/product-detail', {
       method: 'POST',
       body: JSON.stringify({
         theme_id: API_CONFIG.themeId,
@@ -1429,7 +1429,7 @@ class ApiService {
     });
   }
 
-  // Add product review
+  // Add product review (deprecated - use productRating instead)
   async addReview(data: {
     category_id: string;
     subcategory_id: string;
@@ -1440,6 +1440,47 @@ class ApiService {
     status: string;
   }): Promise<ApiResponse<{ message: string }>> {
     return this.request('/add-review', {
+      method: 'POST',
+      body: JSON.stringify({
+        theme_id: API_CONFIG.themeId,
+        ...data,
+      }),
+    });
+  }
+
+  // Product rating (new API)
+  async productRating(data: {
+    id: string;
+    user_id: string;
+    rating_no: string;
+    title: string;
+    description: string;
+  }): Promise<ApiResponse<{ message: string }>> {
+    return this.request('/product-rating', {
+      method: 'POST',
+      body: JSON.stringify({
+        theme_id: API_CONFIG.themeId,
+        ...data,
+      }),
+    });
+  }
+
+  // Product variant list
+  async getProductVariantInfo(data: {
+    customer_id: string;
+    product_id: string;
+    variant: string;
+    quantity: string;
+  }): Promise<ApiResponse<{
+    price: string;
+    sale_price: string;
+    currency_name: string;
+    currency: string;
+    product_stock: number;
+    stock_order_status: string;
+    description: string;
+  }>> {
+    return this.request('/variant-list', {
       method: 'POST',
       body: JSON.stringify({
         theme_id: API_CONFIG.themeId,
