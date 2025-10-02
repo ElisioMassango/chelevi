@@ -5,39 +5,39 @@ const About: React.FC = () => {
   const values = [
     {
       icon: <Heart className="text-secondary" size={32} />,
-      title: "Elegância para Todos",
+      title: "Elegância Partilhada ",
       description:
-        "Acreditamos que todas as pessoas merecem sentir-se confiantes e com estilo no seu dia a dia.",
+        "A verdadeira sofisticação nasce quando cada pessoa se reconhece no próprio reflexo.",
     },
     {
       icon: <Leaf className="text-secondary" size={32} />,
-      title: "Materiais Responsáveis",
+      title: "Matérias de Consciência ",
       description:
-        "Selecionamos materiais de alta qualidade e parceiros que seguem boas práticas de produção.",
+        "Tecidos e couros escolhidos com rigor e ética, respeitando mãos, histórias e planeta.",
     },
     {
       icon: <Shield className="text-secondary" size={32} />,
-      title: "Feitas para Durar",
+      title: "Durabilidade Essencial",
       description:
-        "Design pensado para uso real, com estrutura firme, acabamentos de detalhe e garantia de qualidade.",
+        "Cada criação resiste ao tempo, não como moda passageira, mas como legado silencioso.",
     },
     {
       icon: <Award className="text-secondary" size={32} />,
-      title: "Qualidade Premium",
+      title: "Detalhe Supremo ",
       description:
-        "Cada peça respeita padrões elevados de construção, conforto e acabamento.",
+        "O luxo reside nos gestos minuciosos, na perfeição quase invisível que transforma cada peça em obra.",
     },
     {
       icon: <Users className="text-secondary" size={32} />,
-      title: "Comunidade Primeiro",
+      title: "Comunidade Viva ",
       description:
-        "Valorizamos a nossa comunidade em Moçambique e criamos peças que contam histórias reais.",
+        "O pulsar da marca encontra-se na confiança de quem utiliza CheLevi, em histórias que dão voz ao estilo.",
     },
     {
       icon: <Globe className="text-secondary" size={32} />,
-      title: "Futuro Sustentável",
+      title: "Sustentado",
       description:
-        "Evoluímos continuamente para soluções mais duráveis, eficientes e com menor impacto ambiental.",
+        "A visão prolonga-se no amanhã, em escolhas que equilibram beleza e responsabilidade.",
     },
   ];
 
@@ -82,28 +82,26 @@ const About: React.FC = () => {
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             <div>
               <h1 className="text-4xl lg:text-5xl font-bold mb-6 leading-tight">
-                Elegância que inspira confiança
+              A Arquitetura da Confiança.
               </h1>
               <p className="text-xl text-text-secondary mb-8 leading-relaxed">
-                Na CheLevi, criar vai além do design: é sobre transmitir poder,
-                identidade e conforto. Desde 2020, desenvolvemos bolsas e
-                sapatos premium para mulheres que sabem o que querem.
+              A confiança não se encontra. Constrói-se. Cada peça CheLevi é desenhada como uma afirmação dessa força interior. Criamos para a mulher que sabe que o seu estilo é a arquitetura visível da sua alma. Para ela, CheLevi não é adorno, É estrutura.
               </p>
               <div className="flex gap-6">
                 <div className="text-center">
                   <div className="text-3xl font-bold text-accent">5</div>
                   <div className="text-sm text-text-secondary">
-                    Clientes Felizes
+                  Mais de 5 mil mulheres. Infinitas histórias.
                   </div>
                 </div>
                 <div className="text-center">
                   <div className="text-3xl font-bold text-accent">7+</div>
-                  <div className="text-sm text-text-secondary">Peças</div>
+                  <div className="text-sm text-text-secondary">Capítulos da nossa visão.</div>
                 </div>
                 <div className="text-center">
                   <div className="text-3xl font-bold text-accent">5</div>
                   <div className="text-sm text-text-secondary">
-                    Anos de Excelência
+                  Anos a escrever o próximo clássico.
                   </div>
                 </div>
               </div>
@@ -128,22 +126,11 @@ const About: React.FC = () => {
             </h2>
             <div className="text-lg text-text-secondary leading-relaxed space-y-6">
               <p>
-                A CheLevi nasceu do desejo de criar peças duráveis, com estética
-                apurada e uma assinatura imediatamente reconhecível. O percurso
-                começou com acessórios feitos à mão e evoluiu para bolsas
-                icónicas e calçado premium.
+              Tudo nasceu de um sonho: transformar acessórios em símbolos de confiança. 
+              Hoje, esse sonho é a história partilhada com milhares de mulheres. 
+              Continuamos, peça a peça, a contar essa história.
               </p>
-              <p>
-                Dominamos cada etapa — da escolha dos materiais à confeção —
-                para garantir estrutura, conforto e acabamentos impecáveis. Cada
-                peça é testada para responder ao uso real e manter a elegância
-                no dia a dia.
-              </p>
-              <p>
-                Hoje, a CheLevi serve milhares de clientes e continua focada no
-                essencial: criar peças que elevam a confiança e contam histórias
-                de quem as usa.
-              </p>
+            
             </div>
           </div>
         </div>

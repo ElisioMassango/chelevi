@@ -24,12 +24,12 @@ const PrivacyPolicy: React.FC = () => {
               Introdução
             </h2>
             <p className="text-text-secondary leading-relaxed mb-4">
-              A ShopFCC ("nós", "nosso" ou "empresa") está comprometida em proteger e respeitar sua privacidade. 
+              A CheLevi ("nós", "nosso" ou "empresa") está comprometida em proteger e respeitar sua privacidade. 
               Esta Política de Privacidade explica como coletamos, usamos, divulgamos e protegemos suas informações 
-              quando você visita nosso site ou usa nossos serviços.
+              quando você visita nosso site ou usa os nossos serviços.
             </p>
             <p className="text-text-secondary leading-relaxed">
-              Ao usar nossos serviços, você concorda com a coleta e uso de informações de acordo com esta política.
+              Ao usar os nossos serviços, você concorda com a coleta e uso de informações de acordo com esta política.
             </p>
           </section>
 
@@ -57,7 +57,7 @@ const PrivacyPolicy: React.FC = () => {
                 <ul className="list-disc list-inside space-y-2 text-text-secondary">
                   <li>Endereço IP</li>
                   <li>Tipo de navegador e versão</li>
-                  <li>Páginas visitadas em nosso site</li>
+                  <li>Páginas visitadas no nosso site</li>
                   <li>Tempo gasto nas páginas</li>
                   <li>Dados de cookies e tecnologias similares</li>
                 </ul>
@@ -78,7 +78,7 @@ const PrivacyPolicy: React.FC = () => {
                 <ul className="list-disc list-inside space-y-1 text-sm text-text-secondary">
                   <li>Processar e entregar seus pedidos</li>
                   <li>Enviar confirmações e atualizações</li>
-                  <li>Gerenciar devoluções e reembolsos</li>
+                  <li>Gerir devoluções e reembolsos</li>
                 </ul>
               </div>
 
@@ -87,12 +87,12 @@ const PrivacyPolicy: React.FC = () => {
                 <ul className="list-disc list-inside space-y-1 text-sm text-text-secondary">
                   <li>Responder às suas consultas</li>
                   <li>Enviar atualizações importantes</li>
-                  <li>Marketing (com seu consentimento)</li>
+                  <li>Marketing (com o seu consentimento)</li>
                 </ul>
               </div>
 
               <div className="bg-gray-50 p-6 rounded-lg">
-                <h3 className="font-semibold mb-3">Melhoria do Serviço</h3>
+                  <h3 className="font-semibold mb-3">Melhoria do Serviço</h3>
                 <ul className="list-disc list-inside space-y-1 text-sm text-text-secondary">
                   <li>Analisar uso do site</li>
                   <li>Personalizar experiência</li>
@@ -198,14 +198,14 @@ const PrivacyPolicy: React.FC = () => {
                   <Mail className="text-gray-400" size={20} />
                   <div>
                     <p className="font-medium">Email</p>
-                    <p className="text-text-secondary">privacidade@shopfcc.store</p>
+                    <p className="text-text-secondary">info@chelevi.com</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
                   <Phone className="text-gray-400" size={20} />
                   <div>
                     <p className="font-medium">Telefone</p>
-                    <p className="text-text-secondary">+258 84 123 4567</p>
+                    <p className="text-text-secondary">+258 85 2232423</p>
                   </div>
                 </div>
               </div>
@@ -214,7 +214,7 @@ const PrivacyPolicy: React.FC = () => {
 
           {/* Updates */}
           <section>
-            <h2 className="text-2xl font-bold mb-4">Atualizações desta Política</h2>
+              <h2 className="text-2xl font-bold mb-4">Atualizações desta Política</h2>
             <p className="text-text-secondary leading-relaxed">
               Podemos atualizar nossa Política de Privacidade periodicamente. Notificaremos você sobre 
               quaisquer mudanças publicando a nova Política de Privacidade nesta página e atualizando 

@@ -1,5 +1,7 @@
 import React, { createContext, useContext, useReducer, ReactNode } from 'react';
 import { apiService, User as ApiUser } from '../services/api';
+import { toastService } from '../utils/toast';
+import { logger } from '../utils/logger';
 
 interface User {
   id: string;
@@ -44,8 +46,32 @@ type AuthAction =
   | { type: 'CLEAR_ERROR' }
   | { type: 'LOGOUT' };
 
+// Load user from localStorage on initialization
+const loadUserFromStorage = (): User | null => {
+  try {
+    const storedUser = localStorage.getItem('chelevi_user');
+    const storedToken = localStorage.getItem('chelevi_token');
+    
+    if (storedUser && storedToken) {
+      const user = JSON.parse(storedUser);
+      user.token = storedToken;
+      
+      // Set token in API service
+      apiService.setToken(storedToken);
+      
+      return user;
+    }
+  } catch (error) {
+    console.error('Error loading user from storage:', error);
+    // Clear corrupted data
+    localStorage.removeItem('chelevi_user');
+    localStorage.removeItem('chelevi_token');
+  }
+  return null;
+};
+
 const initialState: AuthState = {
-  user: null,
+  user: loadUserFromStorage(),
   isLoading: false,
   error: null,
 };
@@ -55,12 +81,28 @@ const authReducer = (state: AuthState, action: AuthAction): AuthState => {
     case 'SET_LOADING':
       return { ...state, isLoading: action.payload };
     case 'SET_USER':
+      // Save user to localStorage
+      try {
+        const userToStore = { ...action.payload };
+        const token = userToStore.token;
+        delete userToStore.token; // Don't store token in user object
+        
+        localStorage.setItem('chelevi_user', JSON.stringify(userToStore));
+        if (token) {
+          localStorage.setItem('chelevi_token', token);
+        }
+      } catch (error) {
+        console.error('Error saving user to storage:', error);
+      }
       return { ...state, user: action.payload, isLoading: false, error: null };
     case 'SET_ERROR':
       return { ...state, error: action.payload, isLoading: false };
     case 'CLEAR_ERROR':
       return { ...state, error: null };
     case 'LOGOUT':
+      // Clear localStorage
+      localStorage.removeItem('chelevi_user');
+      localStorage.removeItem('chelevi_token');
       return { ...state, user: null, error: null };
     default:
       return state;
@@ -87,45 +129,75 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const login = async (phone: string, otp: string) => {
     dispatch({ type: 'SET_LOADING', payload: true });
+    logger.userAction('Login attempt', { phone, method: 'OTP' });
+    
     try {
-      // For phone-based login, simulate for now
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      const response = await apiService.verifyOTP(phone, otp);
       
-      if (otp === '123456') {
+      if (response.status === 1) {
         const user: User = {
-          id: '1',
-          phone,
-          email: 'info@chelevi.com',
-          name: 'CheLevi User'
+          id: response.data.id.toString(),
+          phone: response.data.mobile,
+          email: response.data.email,
+          name: response.data.name,
+          first_name: response.data.first_name,
+          last_name: response.data.last_name,
+          image: response.data.image,
+          token: response.data.token
         };
-        dispatch({ type: 'SET_USER', payload: user });
         
-        // Send welcome message via Venombot API (in real implementation)
-        // await sendWelcomeMessage(phone);
+        dispatch({ type: 'SET_USER', payload: user });
+        toastService.userLoggedIn();
+        logger.userAction('Login successful', { userId: user.id });
       } else {
-        dispatch({ type: 'SET_ERROR', payload: 'Invalid OTP. Please try again.' });
+        dispatch({ type: 'SET_ERROR', payload: response.message });
+        toastService.error(response.message);
+        logger.warn('Login failed', { phone, error: response.message });
       }
     } catch (error) {
-      dispatch({ type: 'SET_ERROR', payload: 'Login failed. Please try again.' });
+      const errorMessage = 'Login failed. Please try again.';
+      dispatch({ type: 'SET_ERROR', payload: errorMessage });
+      toastService.error(errorMessage);
+      logger.error('Login error', { phone, error });
+    } finally {
+      dispatch({ type: 'SET_LOADING', payload: false });
     }
   };
 
   const loginWithEmail = async (email: string, password: string) => {
     dispatch({ type: 'SET_LOADING', payload: true });
+    logger.userAction('Email login attempt', { email });
+    
     try {
-      // For now, simulate email login
-      // In production, implement proper email/password authentication
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      const response = await apiService.login(email, password);
       
-      const user: User = {
-        id: '1',
-        phone: '+258 84 123 4567',
-        email,
-        name: 'CheLevi User'
-      };
-      dispatch({ type: 'SET_USER', payload: user });
+      if (response.status === 1) {
+        const user: User = {
+          id: response.data.id.toString(),
+          phone: response.data.mobile,
+          email: response.data.email,
+          name: response.data.name,
+          first_name: response.data.first_name,
+          last_name: response.data.last_name,
+          image: response.data.image,
+          token: response.data.token
+        };
+        
+        dispatch({ type: 'SET_USER', payload: user });
+        toastService.userLoggedIn();
+        logger.userAction('Email login successful', { userId: user.id });
+      } else {
+        dispatch({ type: 'SET_ERROR', payload: response.message });
+        toastService.error(response.message);
+        logger.warn('Email login failed', { email, error: response.message });
+      }
     } catch (error) {
-      dispatch({ type: 'SET_ERROR', payload: 'Login failed. Please try again.' });
+      const errorMessage = 'Email login failed. Please try again.';
+      dispatch({ type: 'SET_ERROR', payload: errorMessage });
+      toastService.error(errorMessage);
+      logger.error('Email login error', { email, error });
+    } finally {
+      dispatch({ type: 'SET_LOADING', payload: false });
     }
   };
 
@@ -177,6 +249,22 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
+
+  const register = async (phone: string, email?: string) => {
+    dispatch({ type: 'SET_LOADING', payload: true });
+    logger.userAction('Phone registration attempt', { phone, email });
+    
+    try {
+      // This is for phone-based registration, redirect to OTP verification
+      await sendOTP(phone);
+    } catch (error) {
+      const errorMessage = 'Registration failed. Please try again.';
+      dispatch({ type: 'SET_ERROR', payload: errorMessage });
+      toastService.error(errorMessage);
+      logger.error('Phone registration error', { phone, error });
+    }
+  };
+
   const registerWithEmail = async (data: {
     first_name: string;
     last_name: string;
@@ -185,51 +273,61 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     mobile: string;
   }) => {
     dispatch({ type: 'SET_LOADING', payload: true });
+    logger.userAction('Email registration attempt', { email: data.email });
+    
     try {
       const response = await apiService.register(data);
+      
       if (response.status === 1) {
         const user: User = {
           id: response.data.id.toString(),
-          phone: data.mobile,
-          email: data.email,
-          name: `${data.first_name} ${data.last_name}`,
-          first_name: data.first_name,
-          last_name: data.last_name,
+          phone: response.data.mobile,
+          email: response.data.email,
+          name: response.data.name,
+          first_name: response.data.first_name,
+          last_name: response.data.last_name,
+          image: response.data.image,
           token: response.data.token
         };
         
-        // Set API token for future requests
-        if (response.data.token) {
-          apiService.setToken(response.data.token);
-        }
-        
         dispatch({ type: 'SET_USER', payload: user });
+        toastService.userRegistered();
+        logger.userAction('Email registration successful', { userId: user.id });
       } else {
-        throw new Error(response.message);
+        dispatch({ type: 'SET_ERROR', payload: response.message });
+        toastService.error(response.message);
+        logger.warn('Email registration failed', { email: data.email, error: response.message });
       }
     } catch (error) {
-      dispatch({ type: 'SET_ERROR', payload: 'Registration failed. Please try again.' });
-      throw error;
-    }
-  };
-
-  const register = async (phone: string, email?: string) => {
-    dispatch({ type: 'SET_LOADING', payload: true });
-    try {
-      // This is for phone-based registration, redirect to OTP verification
-      await sendOTP(phone);
-    } catch (error) {
-      dispatch({ type: 'SET_ERROR', payload: 'Registration failed. Please try again.' });
+      const errorMessage = 'Registration failed. Please try again.';
+      dispatch({ type: 'SET_ERROR', payload: errorMessage });
+      toastService.error(errorMessage);
+      logger.error('Email registration error', { email: data.email, error });
+    } finally {
+      dispatch({ type: 'SET_LOADING', payload: false });
     }
   };
 
   const logout = () => {
     if (state.user?.id) {
+      logger.userAction('Logout attempt', { userId: state.user.id });
       // Call logout API
-      apiService.logout(state.user.id).catch(console.error);
+      apiService.logout(state.user.id)
+        .then(() => {
+          logger.userAction('Logout successful', { userId: state.user?.id });
+          toastService.userLoggedOut();
+        })
+        .catch((error) => {
+          logger.error('Logout API error', { userId: state.user?.id, error });
+          // Still proceed with local logout even if API fails
+          toastService.userLoggedOut();
+        });
     }
     // Clear API token
     apiService.clearToken();
+    // Clear localStorage
+    localStorage.removeItem('chelevi_user');
+    localStorage.removeItem('chelevi_token');
     dispatch({ type: 'LOGOUT' });
   };
 

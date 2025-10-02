@@ -1,13 +1,11 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Phone, MessageSquare, Lock, Mail, Eye, EyeOff } from 'lucide-react';
+import { Lock, Mail, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 
 const Login: React.FC = () => {
-  const [loginMethod, setLoginMethod] = useState<'email' | 'whatsapp'>('email');
-  const [step, setStep] = useState<'login' | 'register' | 'otp'>('login');
-  const [phone, setPhone] = useState('');
-  const [otp, setOtp] = useState('');
+  // Only email login is available
+  const [step, setStep] = useState<'login' | 'register' | 'forgot-password' | 'verify-otp' | 'reset-password'>('login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -16,7 +14,13 @@ const Login: React.FC = () => {
   const [mobile, setMobile] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const { login, loginWithEmail, register, sendOTP, forgotPassword, verifyForgotPasswordOtp, resetPassword, isLoading, error, clearError } = useAuth();
+  const [forgotPasswordEmail, setForgotPasswordEmail] = useState('');
+  const [forgotPasswordOtp, setForgotPasswordOtp] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmNewPassword, setConfirmNewPassword] = useState('');
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmNewPassword, setShowConfirmNewPassword] = useState(false);
+  const { loginWithEmail, registerWithEmail, forgotPassword, verifyForgotPasswordOtp, resetPassword, isLoading, error, clearError } = useAuth();
   const navigate = useNavigate();
 
   const handleEmailLogin = async (e: React.FormEvent) => {
@@ -37,7 +41,7 @@ const Login: React.FC = () => {
     e.preventDefault();
     clearError();
     
-    if (!email || !password || !confirmPassword) return;
+    if (!firstName || !lastName || !email || !password || !confirmPassword || !mobile) return;
     
     if (password !== confirmPassword) {
       // Handle password mismatch
@@ -45,38 +49,69 @@ const Login: React.FC = () => {
     }
 
     try {
-      await register(email, email);
-      navigate('/');
+      await registerWithEmail({
+        first_name: firstName,
+        last_name: lastName,
+        email: email,
+        password: password,
+        mobile: mobile
+      });
+      //navigate('/');
     } catch (error) {
       // Error handled in context
     }
   };
 
-  const handlePhoneSubmit = async (e: React.FormEvent) => {
+
+  const handleForgotPassword = async (e: React.FormEvent) => {
     e.preventDefault();
     clearError();
     
-    if (!phone) return;
+    if (!forgotPasswordEmail) return;
 
     try {
-      await sendOTP(phone);
-      setStep('otp');
+      await forgotPassword(forgotPasswordEmail);
+      setStep('verify-otp');
     } catch (error) {
-      // Error is handled in the context
+      // Error handled in context
     }
   };
 
-  const handleOtpSubmit = async (e: React.FormEvent) => {
+  const handleVerifyForgotPasswordOtp = async (e: React.FormEvent) => {
     e.preventDefault();
     clearError();
-
-    if (!otp) return;
+    
+    if (!forgotPasswordOtp) return;
 
     try {
-      await login(phone, otp);
-      navigate('/');
+      await verifyForgotPasswordOtp(forgotPasswordEmail, forgotPasswordOtp);
+      setStep('reset-password');
     } catch (error) {
-      // Error is handled in the context
+      // Error handled in context
+    }
+  };
+
+  const handleResetPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    clearError();
+    
+    if (!newPassword || !confirmNewPassword) return;
+    
+    if (newPassword !== confirmNewPassword) {
+      // Handle password mismatch
+      return;
+    }
+
+    try {
+      await resetPassword(forgotPasswordEmail, newPassword);
+      setStep('login');
+      // Clear form
+      setForgotPasswordEmail('');
+      setForgotPasswordOtp('');
+      setNewPassword('');
+      setConfirmNewPassword('');
+    } catch (error) {
+      // Error handled in context
     }
   };
 
@@ -87,47 +122,26 @@ const Login: React.FC = () => {
           {/* Header */}
           <div className="text-center mb-8">
             <Link to="/" className="inline-block mb-6">
-              <img src="https://chelevi.sparktechnology.cloud/chelevi/Logos/icon.png" alt="CheLevi" className="w-30 h-20" />
+              <img src="https://chelevi.sparktechnology.cloud/chelevi/Logos/Monogram-bege-BLACK.png" alt="CheLevi" className="w-30 h-20" />
             </Link>
             <h2 className="text-2xl font-bold mb-2">
               {step === 'login' ? 'Bem-vindo de volta' : 
                step === 'register' ? 'Criar Conta' : 
+               step === 'forgot-password' ? 'Recuperar Senha' :
+               step === 'verify-otp' ? 'Verificar Código' :
+               step === 'reset-password' ? 'Nova Senha' :
                'Verificar Código'}
             </h2>
             <p className="text-text-secondary">
               {step === 'login' ? 'Entre na sua conta para continuar' :
                step === 'register' ? 'Crie sua conta para começar' :
-               'Digite o código enviado para seu WhatsApp'}
+               step === 'forgot-password' ? 'Digite seu email para recuperar a senha' :
+               step === 'verify-otp' ? 'Digite o código enviado para seu email' :
+               step === 'reset-password' ? 'Digite sua nova senha' :
+               'Digite o código enviado para seu email'}
             </p>
           </div>
 
-          {/* Login Method Toggle */}
-          {(step === 'login' || step === 'register') && (
-            <div className="flex bg-gray-100 rounded-lg p-1 mb-6">
-              <button
-                onClick={() => setLoginMethod('email')}
-                className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
-                  loginMethod === 'email' 
-                    ? 'bg-white text-text-primary shadow-sm' 
-                    : 'text-text-secondary hover:text-text-primary'
-                }`}
-              >
-                <Mail size={16} className="inline mr-2" />
-                Email
-              </button>
-              <button
-                onClick={() => setLoginMethod('whatsapp')}
-                className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
-                  loginMethod === 'whatsapp' 
-                    ? 'bg-white text-text-primary shadow-sm' 
-                    : 'text-text-secondary hover:text-text-primary'
-                }`}
-              >
-                <MessageSquare size={16} className="inline mr-2" />
-                WhatsApp
-              </button>
-            </div>
-          )}
 
           {/* Error Message */}
           {error && (
@@ -137,7 +151,7 @@ const Login: React.FC = () => {
           )}
 
           {/* Email Login Form */}
-          {step === 'login' && loginMethod === 'email' && (
+          {step === 'login' && (
             <form onSubmit={handleEmailLogin} className="space-y-6">
               <div className="form-group">
                 <label className="form-label">Email</label>
@@ -195,26 +209,29 @@ const Login: React.FC = () => {
                 <button
                   type="button"
                   className="text-sm text-accent hover:underline"
+                  onClick={() => setStep('forgot-password')}
                 >
                   Esqueceu a senha?
                 </button>
                 <div>
-                  <button
-                    type="button"
-                    onClick={() => setStep('register')}
-                    className="text-sm text-accent hover:underline"
-                  >
-                    Não tem conta? Criar conta
-                  </button>
+                  <div className="flex justify-between">
+                    <button
+                      type="button"
+                      onClick={() => setStep('register')}
+                      className="text-sm text-accent hover:underline"
+                    >
+                      Não tem conta? Criar conta
+                    </button>
+                  </div>
                 </div>
               </div>
             </form>
           )}
 
           {/* Email Register Form */}
-          {step === 'register' && loginMethod === 'email' && (
+          {step === 'register' && (
             <form onSubmit={handleEmailRegister} className="space-y-6">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-4 mb-0">
                 <div className="form-group">
                   <label className="form-label">Nome</label>
                   <input
@@ -226,7 +243,7 @@ const Login: React.FC = () => {
                     required
                   />
                 </div>
-                <div className="form-group">
+                <div className="form-group ">
                   <label className="form-label">Sobrenome</label>
                   <input
                     type="text"
@@ -239,7 +256,7 @@ const Login: React.FC = () => {
                 </div>
               </div>
 
-              <div className="form-group">
+              <div className="form-group mt-0">
                 <label className="form-label">Email</label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
@@ -257,7 +274,7 @@ const Login: React.FC = () => {
               <div className="form-group">
                 <label className="form-label">Telefone</label>
                 <div className="relative">
-                  <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
                   <input
                     type="tel"
                     value={mobile}
@@ -340,58 +357,64 @@ const Login: React.FC = () => {
             </form>
           )}
 
-          {/* WhatsApp Login/Register */}
-          {(step === 'login' || step === 'register') && loginMethod === 'whatsapp' && (
-            <form onSubmit={handlePhoneSubmit} className="space-y-6">
+
+
+          {/* Forgot Password Form */}
+          {step === 'forgot-password' && (
+            <form onSubmit={handleForgotPassword} className="space-y-6">
               <div className="form-group">
-                <label className="form-label">Número de Telefone</label>
+                <label className="form-label">Email</label>
                 <div className="relative">
-                  <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
                   <input
-                    type="tel"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    placeholder="+258 XX XXX XXXX"
+                    type="email"
+                    value={forgotPasswordEmail}
+                    onChange={(e) => setForgotPasswordEmail(e.target.value)}
+                    placeholder="Digite seu email"
                     className="form-input pl-12"
                     required
                   />
                 </div>
-                <p className="text-xs text-text-secondary mt-2">
-                  Enviaremos um código de verificação para o seu WhatsApp
-                </p>
               </div>
 
               <button
                 type="submit"
-                disabled={isLoading || !phone}
-                className="btn btn-primary w-full flex items-center justify-center gap-2"
+                disabled={isLoading || !forgotPasswordEmail}
+                className="btn btn-primary w-full"
               >
                 {isLoading ? (
                   <>
-                    <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full" />
-                    Enviando Código...
+                    <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2" />
+                    Enviando...
                   </>
                 ) : (
-                  <>
-                    <MessageSquare size={20} />
-                    Enviar Código de Verificação
-                  </>
+                  'Enviar Código de Recuperação'
                 )}
               </button>
+
+              <div className="text-center">
+                <button
+                  type="button"
+                  onClick={() => setStep('login')}
+                  className="text-sm text-text-secondary hover:underline"
+                >
+                  Voltar ao Login
+                </button>
+              </div>
             </form>
           )}
 
-          {/* OTP Verification */}
-          {step === 'otp' && (
-            <form onSubmit={handleOtpSubmit} className="space-y-6">
+          {/* Verify Forgot Password OTP */}
+          {step === 'verify-otp' && (
+            <form onSubmit={handleVerifyForgotPasswordOtp} className="space-y-6">
               <div className="form-group">
                 <label className="form-label">Código de Verificação</label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
                   <input
                     type="text"
-                    value={otp}
-                    onChange={(e) => setOtp(e.target.value)}
+                    value={forgotPasswordOtp}
+                    onChange={(e) => setForgotPasswordOtp(e.target.value)}
                     placeholder="Digite o código de 6 dígitos"
                     className="form-input pl-12 text-center tracking-widest text-lg font-mono"
                     maxLength={6}
@@ -399,13 +422,13 @@ const Login: React.FC = () => {
                   />
                 </div>
                 <p className="text-xs text-text-secondary mt-2">
-                  Código enviado para {phone}
+                  Código enviado para {forgotPasswordEmail}
                 </p>
               </div>
 
               <button
                 type="submit"
-                disabled={isLoading || !otp}
+                disabled={isLoading || !forgotPasswordOtp}
                 className="btn btn-primary w-full"
               >
                 {isLoading ? (
@@ -414,14 +437,14 @@ const Login: React.FC = () => {
                     Verificando...
                   </>
                 ) : (
-                  'Verificar & Continuar'
+                  'Verificar Código'
                 )}
               </button>
 
               <div className="text-center space-y-2">
                 <button
                   type="button"
-                  onClick={() => handlePhoneSubmit({ preventDefault: () => {} } as React.FormEvent)}
+                  onClick={() => handleForgotPassword({ preventDefault: () => {} } as React.FormEvent)}
                   className="text-sm text-accent hover:underline block"
                   disabled={isLoading}
                 >
@@ -432,32 +455,97 @@ const Login: React.FC = () => {
                   onClick={() => setStep('login')}
                   className="text-sm text-text-secondary hover:underline block"
                 >
-                  Voltar
+                  Voltar ao Login
+                </button>
+              </div>
+            </form>
+          )}
+
+          {/* Reset Password Form */}
+          {step === 'reset-password' && (
+            <form onSubmit={handleResetPassword} className="space-y-6">
+              <div className="form-group">
+                <label className="form-label">Nova Senha</label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+                  <input
+                    type={showNewPassword ? 'text' : 'password'}
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    placeholder="Digite sua nova senha"
+                    className="form-input pl-12 pr-12"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowNewPassword(!showNewPassword)}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  >
+                    {showNewPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                  </button>
+                </div>
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">Confirmar Nova Senha</label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+                  <input
+                    type={showConfirmNewPassword ? 'text' : 'password'}
+                    value={confirmNewPassword}
+                    onChange={(e) => setConfirmNewPassword(e.target.value)}
+                    placeholder="Confirme sua nova senha"
+                    className="form-input pl-12 pr-12"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmNewPassword(!showConfirmNewPassword)}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  >
+                    {showConfirmNewPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                  </button>
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                disabled={isLoading || !newPassword || !confirmNewPassword}
+                className="btn btn-primary w-full"
+              >
+                {isLoading ? (
+                  <>
+                    <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2" />
+                    Salvando...
+                  </>
+                ) : (
+                  'Salvar Nova Senha'
+                )}
+              </button>
+
+              <div className="text-center">
+                <button
+                  type="button"
+                  onClick={() => setStep('login')}
+                  className="text-sm text-text-secondary hover:underline"
+                >
+                  Voltar ao Login
                 </button>
               </div>
             </form>
           )}
 
           {/* Demo Instructions */}
-          <div className="mt-8 p-4 bg-gray-50 rounded-lg">
-            <h4 className="text-sm font-semibold mb-2 text-gray-700">Instruções de Demonstração:</h4>
-            <p className="text-xs text-gray-600">
-              {loginMethod === 'email' 
-                ? 'Use qualquer email e senha para fazer login de demonstração.'
-                : 'Digite qualquer número de telefone e use 123456 como código de verificação.'
-              }
-            </p>
-          </div>
-
+      
           {/* Terms */}
           <div className="mt-6 text-center">
             <p className="text-xs text-text-secondary">
-              Ao continuar, você concorda com nossos{' '}
-              <Link to="/terms" className="text-accent hover:underline">
+              Ao continuar, você concorda com os nossos{' '}
+              <Link to="/privacy-policy" className="text-accent hover:underline">
                 Termos de Serviço
               </Link>{' '}
               e{' '}
-              <Link to="/privacy" className="text-accent hover:underline">
+              <Link to="/privacy-policy" className="text-accent hover:underline">
                 Política de Privacidade
               </Link>
             </p>

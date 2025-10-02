@@ -8,8 +8,8 @@
 
 :root {
   /* SI Cosmetics Color Palette */
-  --color-primary: rgba(199, 142, 125, 0.274);
-  --color-secondary: rgba(199, 142, 125, 0.555);
+  --color-primary: rgb(217, 216, 221);
+  --color-secondary: #EAE9EE;
   --color-accent: #6666668b;
   --color-text-primary: #000000;
   --color-text-secondary: #241F20;

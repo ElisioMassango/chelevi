@@ -3,19 +3,7 @@ import { Link } from 'react-router-dom';
 import { Heart, Star, ShoppingBag } from 'lucide-react';
 import { useWishlist } from '../contexts/WishlistContext';
 import { useCart } from '../contexts/CartContext';
-
-interface Product {
-  id: number;
-  name: string;
-  price: number;
-  originalPrice?: number;
-  image: string;
-  secondImage?: string;
-  rating: number;
-  reviews: number;
-  badge?: string;
-  colors: string[];
-}
+import { Product } from '../services/api';
 
 interface ProductCardProps {
   product: Product;
@@ -23,7 +11,7 @@ interface ProductCardProps {
 
 const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const [isHovered, setIsHovered] = useState(false);
-  const [currentImage, setCurrentImage] = useState(product.image);
+  const [currentImage, setCurrentImage] = useState(product.cover_image_url);
   const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
   const { addToCart } = useCart();
 
@@ -37,8 +25,8 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
       addToWishlist({
         id: product.id,
         name: product.name,
-        price: product.price,
-        image: product.image
+        price: parseFloat(product.final_price),
+        image: product.cover_image_url
       });
     }
   };
@@ -50,22 +38,21 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
     addToCart({
       id: product.id,
       name: product.name,
-      price: product.price,
-      image: product.image,
+      price: parseFloat(product.final_price),
+      image: product.cover_image_url,
       quantity: 1
     });
   };
 
   const handleMouseEnter = () => {
     setIsHovered(true);
-    if (product.secondImage) {
-      setCurrentImage(product.secondImage);
-    }
+    // For now, we'll use the same image since the API structure doesn't have secondImage
+    // This could be enhanced later to use product images array
   };
 
   const handleMouseLeave = () => {
     setIsHovered(false);
-    setCurrentImage(product.image);
+    setCurrentImage(product.cover_image_url);
   };
 
   return (
@@ -83,11 +70,11 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
           />
           
-          {/* Badge */}
-          {product.badge && (
+          {/* Badge - Show if product is trending */}
+          {product.trending === 1 && (
             <div className="absolute top-3 left-3">
               <span className="bg-secondary text-text-primary px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide">
-                {product.badge}
+                TRENDING
               </span>
             </div>
           )}
@@ -131,7 +118,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                   key={i}
                   size={12}
                   className={`${
-                    i < Math.floor(product.rating)
+                    i < Math.floor(product.average_rating)
                       ? 'fill-current text-warning'
                       : 'text-gray-300'
                   }`}
@@ -139,7 +126,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
               ))}
             </div>
             <span className="text-xs text-text-secondary">
-              ({product.reviews})
+              ({product.average_rating})
             </span>
           </div>
 
@@ -148,32 +135,15 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             {product.name}
           </h3>
 
-          {/* Color Swatches */}
-          {product.colors.length > 0 && (
-            <div className="flex gap-1 mb-3">
-              {product.colors.slice(0, 4).map((color, index) => (
-                <div
-                  key={index}
-                  className="w-4 h-4 rounded-full border border-gray-300"
-                  style={{ backgroundColor: color }}
-                />
-              ))}
-              {product.colors.length > 4 && (
-                <span className="text-xs text-text-secondary ml-1">
-                  +{product.colors.length - 4}
-                </span>
-              )}
-            </div>
-          )}
 
           {/* Price */}
           <div className="flex items-center gap-2">
             <span className="font-bold text-text-primary">
-              MT{product.price}
+              MT{product.final_price}
             </span>
-            {product.originalPrice && (
+            {product.sale_price && product.sale_price < product.price && (
               <span className="text-sm text-text-secondary line-through">
-                MT{product.originalPrice}
+                MT{product.price}
               </span>
             )}
           </div>

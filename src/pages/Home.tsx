@@ -1,64 +1,18 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ChevronLeft, ChevronRight, Star, Heart, ShoppingBag, Play } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ShoppingBag } from 'lucide-react';
 import ProductCard from '../components/ProductCard';
+import { useFeaturedProducts, useBestsellerProducts } from '../hooks/useProducts';
 
 const Home: React.FC = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
-  const recentLoading = false;
-
-  const heroSlides = [
-    {
-      id: 1,
-      title: "EDILEYNE ICONIC",
-      subtitle: "BOLSAS PREMIUM",
-      description: "Sofisticação, poder e conforto em cada detalhe.",
-      buttonText: "Saiba Mais",
-      image: "https://chelevi.sparktechnology.cloud/chelevi/Banners/IMG_1276.JPG",
-      link: "/products/bolsas"
-    }
-  ];
-
-  const collections = [
-    {
-      id: 1,
-      category: "Coleção",
-      title: "",
-      buttonText: "Compre agora",
-      image: "https://chelevi.sparktechnology.cloud/chelevi/Banners/IMG_2065.PNG",
-      link: "/products/red-chelevi",
-      size: "large"
-    },
-    {
-      id: 2,
-      category: "Tendências",
-      title: "",
-      buttonText: "",
-      image: "https://chelevi.sparktechnology.cloud/chelevi/Banners/IMG_6392.JPG",
-      link: "/products/crocodile-leather",
-      size: "medium"
-    },
-    {
-      id: 3,
-      category: "Novidade",
-      title: "",
-      buttonText: "",
-      image: "https://chelevi.sparktechnology.cloud/chelevi/Banners/IMG_0647.JPG",
-      link: "/products/obsidian-jewelry",
-      size: "medium"
-    },
-    {
-      id: 4,
-      category: "Coleção",
-      title: "",
-      buttonText: "Compre agora",
-      image: "https://chelevi.sparktechnology.cloud/chelevi/Banners/IMG_1276.JPG",
-      link: "/products/nile-crocodile",
-      size: "hero"
-    }
-  ];
   
-  const featuredProducts = [
+  // API hooks for real data
+  const { products: featuredProducts, loading: featuredLoading, error: featuredError } = useFeaturedProducts();
+  const { products: bestsellerProducts, loading: bestsellerLoading, error: bestsellerError } = useBestsellerProducts();
+
+  // Fallback products if API fails
+  const fallbackProducts = [
     {
       id: 1,
       name: "Liane Handbag",
@@ -68,7 +22,7 @@ const Home: React.FC = () => {
       rating: 4.8,
       reviews: 245,
       badge: "NOVIDADE",
-      colors: ['green', 'black', 'beige'],
+      colors: [],
       category: "bolsas"
     },
     {
@@ -94,44 +48,64 @@ const Home: React.FC = () => {
       badge: "FAVORITO",
       colors: [],
       category: "bolsas"
+    }
+  ];
+
+  // Use API products or fallback
+  const displayFeaturedProducts = featuredProducts.length > 0 ? featuredProducts : fallbackProducts;
+  const displayBestsellerProducts = bestsellerProducts.length > 0 ? bestsellerProducts : fallbackProducts;
+
+  const heroSlides = [
+    {
+      id: 1,
+      title: "EDILEYNE",
+      subtitle: "BOLSAS PREMIUM",
+      description: "Há nomes que definem um legado. Esta coleção não é sobre moda, é sobre o poder que escolhemos carregar, a identidade que revelamos ao mundo. Não se usa. Afirma-se.",
+      buttonText: "O Ícone",
+      image: "https://chelevi.sparktechnology.cloud/chelevi/Banners/IMG_1276.JPG",
+      link: "/products/bolsas"
+    }
+  ];
+
+  const collections = [
+    {
+      id: 1,
+      category: "Elegância que nunca sai de moda.",
+      title: "Coleção",
+      buttonText: "",
+      image: "https://chelevi.sparktechnology.cloud/chelevi/Banners/IMG_2065.PNG",
+      link: "/products/bolsas",
+      size: "large"
+    },
+    {
+      id: 2,
+      category: "",
+      title: "Tendências",
+      buttonText: "",
+      image: "https://chelevi.sparktechnology.cloud/chelevi/Banners/IMG_6392.JPG",
+      link: "/products/sapatos",
+      size: "medium"
+    },
+    {
+      id: 3,
+      category: "",
+      title: "Novidades",
+      buttonText: "",
+      image: "https://chelevi.sparktechnology.cloud/chelevi/Banners/IMG_0647.JPG",
+      link: "/products/sapatos",
+      size: "medium"
     },
     {
       id: 4,
-      name: "Sapato Siena",
-      price: 7300,
-      image: "https://chelevi.sparktechnology.cloud/chelevi/Banners/IMG_6393.JPG",  
-      secondImage: "https://chelevi.sparktechnology.cloud/chelevi/Banners/IMG_0647.JPG",
-      rating: 4.6,
-      reviews: 156,
-      badge: "TOP",
-      colors: [],
-      category: "sapatos"
-    },
-    {
-      id: 5,
-      name: "Edileyne Mel",
-      price: 750,
-      image: "https://chelevi.sparktechnology.cloud/chelevi/Products/IMG_1278.PNG",
-      secondImage: "https://chelevi.sparktechnology.cloud/chelevi/Banners/IMG_1252.JPG",
-      rating: 4.5,
-      reviews: 203,
-      badge: "MAIS VENDIDO",
-      colors: [],
-      category: "bolsas"
-    },
-    {
-      id: 6,
-      name: "Edileyne Vermelha",
-      price: 980,
-      image: "https://chelevi.sparktechnology.cloud/chelevi/Products/IMG_1280.PNG",
-      secondImage: "https://chelevi.sparktechnology.cloud/chelevi/Banners/IMG_6390.JPG",
-      rating: 4.9,
-      reviews: 78,
-      badge: "EDIÇÃO LIMITADA",
-      colors: [],
-      category: "cabelo"
+      category: "",
+      title: "Coleção",
+      buttonText: "O seu próximo acessório espera por si.",
+      image: "https://chelevi.sparktechnology.cloud/chelevi/Banners/IMG_1276.JPG",
+      link: "/products/bolsas",
+      size: "hero"
     }
   ];
+  
 
  const videos = [
   {
@@ -280,9 +254,9 @@ const Home: React.FC = () => {
       </section>
 
       {/* New Collections Section - Replacing Shop by Category */}
-      <section className="py-20 bg-white margin bottom ">
+      <section className="py-20 bg-white ">
         <div className="container">
-          <div className="collections-grid">
+          <div className="collections-grid mb-0">
             {/* Large Featured Collection */}
             <Link
               to={collections[0].link}
@@ -294,13 +268,14 @@ const Home: React.FC = () => {
               >
                 <div className="absolute inset-0 bg-gradient-to-r from-black/20 to-transparent" />
                 <div className="absolute top-8 left-8 text-white">
-                  <p className="text-sm font-medium mb-2 opacity-90">{collections[0].category}</p>
+                  
                   <h2 className="text-3xl lg:text-4xl font-bold mb-6 leading-tight max-w-xs">
-                    {collections[0].title}
+                    {collections[0].title} 
                   </h2>
+                  <p className="text-sm font-medium mb-2 opacity-90">{collections[0].category}</p>
                   <div className="flex items-center gap-2 text-sm font-medium group-hover:gap-4 transition-all">
                     <span>{collections[0].buttonText}</span>
-                    <ChevronRight size={16} />
+                    
                   </div>
                 </div>
               </div>
@@ -360,7 +335,7 @@ const Home: React.FC = () => {
                   </h2>
                   <div className="flex items-center gap-2 text-sm font-medium group-hover:gap-4 transition-all">
                     <span>{collections[3].buttonText}</span>
-                    <ChevronRight size={16} />
+                   
                   </div>
                 </div>
               </div>
@@ -370,14 +345,14 @@ const Home: React.FC = () => {
       </section>
 
       {/* Modern Product Showcase */}
-      <section className="py-20 bg-gray-50">
+      <section className="py-16 bg-gray-50 ">
         <div className="container">
           <div className="text-center mb-16">
             <h2 className="text-4xl lg:text-5xl font-bold mb-4 tracking-wide">
-              As Nossas Produções
+            O Coração do Atelier.
             </h2>
             <p className="text-center text-text-secondary mb-8 text-lg">
-              Explore a mais recente coleção CheLevi — bolsas e sapatos premium, criados para mulheres que sabem o que querem.
+            Da arte do desenho à perícia da mão que cose, cada peça é uma sinfonia de dedicação. As nossas coleções não são produzidas, são compostas e pensadas para a mulher que reconhece a beleza que reside no detalhe
             </p>
           </div>
           
@@ -385,12 +360,12 @@ const Home: React.FC = () => {
           <div className="relative">
             {/* Desktop: Horizontal Scroll */}
             <div className="hidden lg:flex gap-6 overflow-x-auto pb-4 scrollbar-hide snap-x snap-mandatory scroll-smooth" id="products-scroll">
-              {recentLoading ? (
+              {bestsellerLoading ? (
                 <div className="flex items-center justify-center w-full py-8">
                   <div className="animate-spin w-6 h-6 border-2 border-secondary border-t-transparent rounded-full"></div>
                 </div>
               ) : (
-                featuredProducts.map((product) => (
+                bestsellerProducts.map((product: any) => (
                 <div key={product.id} className="flex-none w-72 snap-start">
                   <ProductCard product={product} />
                 </div>
@@ -400,7 +375,7 @@ const Home: React.FC = () => {
             
             {/* Mobile: Grid 2x2 */}
             <div className="grid grid-cols-2 gap-4 lg:hidden">
-              {featuredProducts.slice(0, 6).map((product) => (
+              {bestsellerProducts.slice(0, 6).map((product: any) => (
                 <ProductCard key={product.id} product={product} />
               ))}
             </div>
@@ -451,10 +426,10 @@ const Home: React.FC = () => {
         <div className="container">
           <div className="text-center mb-16">
             <h2 className="text-4xl lg:text-5xl font-bold mb-4 tracking-wide">
-            CheLevi em Movimento
+            A Alma em Movimento.
             </h2>
             <p className="text-xl text-text-secondary max-w-3xl mx-auto">
-             Explore cada detalhe em vídeo ,sofisticação, textura e design que ganham vida.
+            Uma peça <strong>CheLevi</strong>  não é estática. Ganha vida nas suas mãos, em cada gesto, em cada passo. Os nossos vídeos não mostram acessórios. Mostram energia, detalhe e a alma vibrante da marca.
             </p>
           </div>
 
@@ -492,74 +467,82 @@ const Home: React.FC = () => {
         </div>
       </section>
      {/* Best Sellers Section with Horizontal Scroll */}
-      <section className="py-20 bg-white">
-        <div className="container">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl lg:text-5xl font-bold mb-4 tracking-wide">
-              Mais Vendidos
-            </h2>
-            <p className="text-center text-text-secondary mb-8 text-lg">
-              Os produtos favoritos dos nossos clientes
-            </p>
-          </div>
-          
-          <div className="relative">
-            {/* Horizontal Scroll Container */}
-            <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide snap-x snap-mandatory scroll-smooth" id="bestsellers-scroll">
-              {featuredProducts.slice().reverse().map((product) => (
-                <div key={`bestseller-${product.id}`} className="flex-none w-72 snap-start">
-                  <ProductCard product={product} />
-                </div>
-              ))}
-            </div>
-            
-            {/* Navigation Arrows */}
-            <button
-              onClick={() => {
-                const container = document.getElementById('bestsellers-scroll');
-                if (container) {
-                  container.scrollBy({ left: -300, behavior: 'smooth' });
-                }
-              }}
-              className="absolute left-0 top-1/2 transform -translate-y-1/2 -translate-x-4 w-12 h-12 bg-white shadow-lg rounded-full flex items-center justify-center hover:shadow-xl transition-all z-10 hover:scale-110"
-            >
-              <ChevronLeft size={20} className="text-gray-600" />
-            </button>
-            <button
-              onClick={() => {
-                const container = document.getElementById('bestsellers-scroll');
-                if (container) {
-                  container.scrollBy({ left: 300, behavior: 'smooth' });
-                }
-              }}
-              className="absolute right-0 top-1/2 transform -translate-y-1/2 translate-x-4 w-12 h-12 bg-white shadow-lg rounded-full flex items-center justify-center hover:shadow-xl transition-all z-10 hover:scale-110"
-            >
-              <ChevronRight size={20} className="text-gray-600" />
-            </button>
-            
-            {/* Scroll Indicators */}
-            <div className="flex justify-center mt-6 gap-2">
-              {Array.from({ length: Math.ceil(featuredProducts.length / 3) }).map((_, index) => (
-                <div key={index} className="w-2 h-2 rounded-full bg-gray-300 hover:bg-secondary transition-colors cursor-pointer"></div>
-              ))}
-            </div>
-          </div>
+     <section className="py-20 bg-white">
+  <div className="container">
+    <div className="text-center mb-16">
+      <h2 className="text-4xl lg:text-5xl font-bold mb-4 tracking-wide">
+      O Coração do Atelier.
+      </h2>
+      <p className="text-center text-text-secondary mb-8 text-lg">
+        Os produtos favoritos dos nossos clientes
+      </p>
+    </div>
 
-          <div className="text-center mt-12">
-            <Link to="/products" className="btn btn-primary btn-lg uppercase tracking-widest">
-              VER MAIS VENDIDOS
-            </Link>
+    <div className="relative">
+      {/* Horizontal Scroll Container */}
+      <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide snap-x snap-mandatory scroll-smooth" id="bestsellers-scroll">
+        {bestsellerLoading ? (
+          <div className="flex items-center justify-center w-full py-8">
+            <div className="animate-spin w-6 h-6 border-2 border-secondary border-t-transparent rounded-full"></div>
           </div>
-        </div>
-      </section>
+        ) : (
+          // Duplica os produtos se houver menos de 3 para preencher o espaço
+          [...displayBestsellerProducts, ...displayBestsellerProducts].map((product: any, index: number) => (
+            <div key={`bestseller-${product.id}-${index}`} className="flex-none w-72 snap-start">
+              <ProductCard product={product} />
+            </div>
+          ))
+        )}
+      </div>
+
+      {/* Navigation Arrows */}
+      <button
+        onClick={() => {
+          const container = document.getElementById('bestsellers-scroll');
+          if (container) {
+            container.scrollBy({ left: -300, behavior: 'smooth' });
+          }
+        }}
+        className="absolute left-0 top-1/2 transform -translate-y-1/2 -translate-x-4 w-12 h-12 bg-white shadow-lg rounded-full flex items-center justify-center hover:shadow-xl transition-all z-10 hover:scale-110"
+      >
+        <ChevronLeft size={20} className="text-gray-600" />
+      </button>
+      <button
+        onClick={() => {
+          const container = document.getElementById('bestsellers-scroll');
+          if (container) {
+            container.scrollBy({ left: 300, behavior: 'smooth' });
+          }
+        }}
+        className="absolute right-0 top-1/2 transform -translate-y-1/2 translate-x-4 w-12 h-12 bg-white shadow-lg rounded-full flex items-center justify-center hover:shadow-xl transition-all z-10 hover:scale-110"
+      >
+        <ChevronRight size={20} className="text-gray-600" />
+      </button>
+
+      {/* Scroll Indicators */}
+      <div className="flex justify-center mt-6 gap-2">
+        {Array.from({ length: Math.ceil(displayBestsellerProducts.length / 3) }).map((_, index) => (
+          <div key={index} className="w-2 h-2 rounded-full bg-gray-300 hover:bg-secondary transition-colors cursor-pointer"></div>
+        ))}
+      </div>
+    </div>
+
+    <div className="text-center mt-12">
+      <Link to="/products" className="btn btn-primary btn-lg uppercase tracking-widest">
+        VER MAIS VENDIDOS
+      </Link>
+    </div>
+  </div>
+</section>
+
 
       {/* Dessert in a Mist Section */}
-      <section className="py-20 bg-gradient-to-r from-pink-50 to-orange-50">
+      <section className="py-20 bg-gradient-to-r from-[#f5f5dc] to-white">
         <div className="container">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             {/* Left side - Product Image */}
             <div className="relative">
-              <div className="bg-gradient-to-br from-orange-100 to-pink-100 rounded-3xl p-8 h-106 flex items-center justify-center">
+              <div className="bg-gradient-to-br  rounded-3xl p-8 h-106 flex items-center justify-center">
                 <img
                   src="https://chelevi.sparktechnology.cloud/chelevi/Banners/IMG_2065.PNG"
                   alt="poder, elegância e identidade"
@@ -570,19 +553,19 @@ const Home: React.FC = () => {
 
             {/* Right side - Content */}
             <div className="space-y-6">
-              <h2 className="text-4xl lg:text-5xl font-bold text-rose-400 uppercase tracking-wide">
-                UMA MARCA, MIL HISTÓRIAS
+              <h2 className="text-4xl lg:text-5xl  text-black uppercase tracking-wide">
+              Uma Vida, Uma Peça.
               </h2>
               
               <div className="space-y-4 text-gray-600">
                 <p className="text-lg leading-relaxed">
-                  Cada detalhe da CheLevi traduz{' '}
-                  <span className="font-semibold text-gray-800">poder, elegância e identidade.</span>{' '}
+                As suas conquistas, as suas noites, os seus sonhos, cada peça {' '}
+                  <span className="font-semibold text-gray-800">CheLevi</span>{' '}é um fragmento da sua vida. Não as criamos para as vitrinas; criamo-las para as suas mãos, para a sua jornada. Para serem as guardiãs silenciosas da sua história.
                  
                 </p>
                 
-                <p className="leading-relaxed">
-                  Escolha a peça que vai marcar o seu próximo momento.
+                <p className="leading-relaxed font-semibold">
+                Encontre a sua Guardiã
                 </p>
               </div>
 
@@ -596,24 +579,26 @@ const Home: React.FC = () => {
       
 
       {/* The Cosmic Universe */}
-      <section className="py-20 bg-gray-900 text-white overflow-hidden">
+      <section className="py-20 bg-gray-500 text-white overflow-hidden">
         <div className="container">
           <div className="grid grid-cols-2 gap-16 items-center">
             <div className="space-y-8 animate-slideUp">
-              <h2 className="text-4xl lg:text-5xl font-bold tracking-wide uppercase">
+              <h2 className="text-4xl lg:text-5xl font-semi bold tracking-wide uppercase">
                 O
                 <br />
-                <span className="text-secondary">UNIVERSO CHELEVI</span>
+                <span className="text-secondary text-white">UNIVERSO CHELEVI</span>
               </h2>
               <p className="text-xl opacity-90 leading-relaxed">
-                Em cada peça, um cosmos de estilo e poder.
-                Bolsas icónicas criadas para brilhar em qualquer ocasião.
+              Cada peça é uma constelação. Juntas, formam um universo de estilo e poder.
+              <br />
+              Aqui não se encontram apenas acessórios, encontram-se afirmações. Cada uma delas à espera de ser a sua.
+
               </p>
               <Link
                 to="/products/fragrance"
                 className="btn btn-primary btn-lg uppercase tracking-widest"
               >
-                SHOP NOW
+                EXPLORE
               </Link>
             </div>
             <div className="relative">
@@ -630,7 +615,7 @@ const Home: React.FC = () => {
       {/* Instagram Feed - Bento Grid */}
       <section className="py-20">
         <div className="container">
-          <h2 className="text-4xl lg:text-5xl font-bold text-center mb-16 uppercase tracking-wide text-rose-400">
+          <h2 className="text-4xl lg:text-5xl  text-center mb-16 uppercase tracking-wide text-">
             SHOP OUR IG
           </h2>
           
@@ -783,7 +768,7 @@ const Home: React.FC = () => {
               href="https://instagram.com"
               target="_blank"
               rel="noopener noreferrer"
-              className="btn btn-outline btn-lg uppercase tracking-widest border-rose-400 text-rose-400 hover:bg-rose-400 hover:text-white"
+              className="btn btn-outline btn-lg uppercase tracking-widest border-black-400 text-black hover:bg-black hover:text-white"
             >
               FOLLOW @CheLevi
             </a>

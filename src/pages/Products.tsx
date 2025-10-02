@@ -2,13 +2,39 @@ import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Filter, ChevronDown } from 'lucide-react';
 import ProductCard from '../components/ProductCard';
+import { useCategoryProducts, useBestsellerProducts, useFeaturedProducts } from '../hooks/useProducts';
 
 const Products: React.FC = () => {
   const { category } = useParams<{ category: string }>();
   const [sortBy, setSortBy] = useState('featured');
   const [showFilters, setShowFilters] = useState(false);
 
-  const products = [
+  // Use API hooks based on category and sort
+  const { products: categoryProducts, loading: categoryLoading, error: categoryError } = useCategoryProducts(category);
+  const { products: bestsellerProducts, loading: bestsellerLoading, error: bestsellerError } = useBestsellerProducts();
+  const { products: featuredProducts, loading: featuredLoading, error: featuredError } = useFeaturedProducts();
+
+  // Determine which products to show based on sort and category
+  const getProductsToShow = () => {
+    if (category) {
+      return categoryProducts;
+    }
+    
+    switch (sortBy) {
+      case 'bestsellers':
+        return bestsellerProducts;
+      case 'featured':
+      default:
+        return featuredProducts;
+    }
+  };
+
+  const products = getProductsToShow();
+  const loading = category ? categoryLoading : (sortBy === 'bestsellers' ? bestsellerLoading : featuredLoading);
+  const error = category ? categoryError : (sortBy === 'bestsellers' ? bestsellerError : featuredError);
+
+  // Mock products for fallback
+  const mockProducts = [
     {
       id: 1,
       name: "Liane Handbag",
@@ -165,9 +191,30 @@ const Products: React.FC = () => {
 
         {/* Products Grid */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-8 mb-12">
-          {convertedProducts.map((product) => (
-            <ProductCard key={product.id} product={product} />
-          ))}
+          {loading ? (
+            <div className="col-span-full text-center py-12">
+              <div className="animate-spin w-8 h-8 border-2 border-accent border-t-transparent rounded-full mx-auto mb-4"></div>
+              <p className="text-text-secondary">Carregando produtos...</p>
+            </div>
+          ) : error ? (
+            <div className="col-span-full text-center py-12">
+              <p className="text-red-500 mb-4">Erro ao carregar produtos: {error}</p>
+              <button 
+                onClick={() => window.location.reload()} 
+                className="btn btn-outline"
+              >
+                Tentar Novamente
+              </button>
+            </div>
+          ) : products.length === 0 ? (
+            <div className="col-span-full text-center py-12">
+              <p className="text-text-secondary">Nenhum produto encontrado.</p>
+            </div>
+          ) : (
+            products.map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))
+          )}
         </div>
 
         {/* Load More */}

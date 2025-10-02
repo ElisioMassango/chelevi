@@ -4,7 +4,51 @@ import { Minus, Plus, X, ShoppingBag, Heart, Truck, Shield, ArrowLeft } from 'lu
 import { useCart } from '../contexts/CartContext';
 
 const Cart: React.FC = () => {
-  const { items, total, updateQuantity, removeFromCart, clearCart } = useCart();
+  const { 
+    items, 
+    total, 
+    loading, 
+    error, 
+    cartData, 
+    updateQuantity, 
+    removeFromCart, 
+    clearCart,
+    applyCoupon,
+    refreshCart 
+  } = useCart();
+
+  // Show loading state
+  if (loading) {
+    return (
+      <div className="cart-page py-20 min-h-screen bg-gray-50">
+        <div className="container">
+          <div className="flex items-center justify-center min-h-[400px]">
+            <div className="animate-spin w-8 h-8 border-2 border-secondary border-t-transparent rounded-full"></div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error state
+  if (error) {
+    return (
+      <div className="cart-page py-20 min-h-screen bg-gray-50">
+        <div className="container">
+          <div className="text-center">
+            <h1 className="text-2xl font-bold mb-4 text-red-600">Erro ao carregar carrinho</h1>
+            <p className="text-text-secondary mb-8">{error}</p>
+            <button 
+              onClick={refreshCart}
+              className="btn btn-primary"
+            >
+              Tentar Novamente
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (items.length === 0) {
     return (
@@ -167,24 +211,80 @@ const Cart: React.FC = () => {
                 </div>
               </div>
 
+              {/* Coupon Section */}
+              <div className="mb-6">
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    placeholder="Código do cupom"
+                    className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary"
+                    id="couponCode"
+                  />
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      const couponInput = document.getElementById('couponCode') as HTMLInputElement;
+                      if (couponInput?.value) {
+                        applyCoupon(couponInput.value);
+                      }
+                    }}
+                    className="btn btn-secondary px-6"
+                  >
+                    Aplicar
+                  </button>
+                </div>
+                {cartData?.coupon_info && cartData.coupon_info.coupon_id > 0 && (
+                  <div className="mt-2 p-4 bg-green-50 border border-green-200 rounded-lg">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <span className="text-green-700 font-medium text-sm">
+                          Cupom Aplicado: {cartData.coupon_info.coupon_name}
+                        </span>
+                        <p className="text-green-600 text-xs mt-1">
+                          Código: {cartData.coupon_info.coupon_code}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <span className="text-green-600 font-bold text-lg">
+                          -MT{parseFloat(cartData.coupon_info.coupon_discount_amount).toFixed(2)}
+                        </span>
+                        <p className="text-green-600 text-xs">
+                          {cartData.coupon_info.coupon_discount_type === 'percentage' 
+                            ? `${cartData.coupon_info.coupon_discount_number}% OFF`
+                            : 'Desconto Fixo'
+                          }
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
               {/* Price Breakdown */}
               <div className="space-y-4 mb-6">
                 <div className="flex justify-between text-gray-600">
                   <span>Subtotal ({items.length} {items.length === 1 ? 'item' : 'itens'})</span>
-                  <span>MT{total.toFixed(2)}</span>
+                  <span>MT{cartData?.sub_total?.toFixed(2) || total.toFixed(2)}</span>
                 </div>
+                {cartData?.coupon_info && cartData.coupon_info.coupon_id > 0 && (
+                  <div className="flex justify-between text-green-600">
+                    <span>Desconto ({cartData.coupon_info.coupon_name})</span>
+                    <span>-MT{parseFloat(cartData.coupon_info.coupon_discount_amount).toFixed(2)}</span>
+                  </div>
+                )}
                 <div className="flex justify-between text-gray-600">
                   <span>Frete</span>
                   <span className="text-green-600 font-medium">Grátis</span>
                 </div>
                 <div className="flex justify-between text-gray-600">
                   <span>Impostos</span>
-                  <span>MT{(total * 0.17).toFixed(2)}</span>
+                  <span>MT{cartData?.total_tax_price || (total * 0.17).toFixed(2)}</span>
                 </div>
                 <div className="border-t pt-4">
                   <div className="flex justify-between font-bold text-xl text-gray-800">
                     <span>Total</span>
-                    <span>MT{(total * 1.17).toFixed(2)}</span>
+                    <span>MT{cartData?.final_price || (total * 1.17).toFixed(2)}</span>
                   </div>
                   <p className="text-sm text-text-secondary mt-1">
                     Impostos incluídos
@@ -207,40 +307,6 @@ const Cart: React.FC = () => {
                 >
                   Continuar Comprando
                 </Link>
-              </div>
-
-              {/* Promo Code */}
-              <div className="mt-6 pt-6 border-t">
-                <h3 className="font-semibold mb-3">Código Promocional</h3>
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    placeholder="Digite o código"
-                    className="form-input flex-1"
-                  />
-                  <button className="btn btn-secondary px-4">
-                    Aplicar
-                  </button>
-                </div>
-              </div>
-
-              {/* Payment Methods */}
-              <div className="mt-6 pt-6 border-t">
-                <h3 className="font-semibold mb-3">Métodos de Pagamento</h3>
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-8 bg-blue-600 rounded text-white text-xs flex items-center justify-center font-bold">
-                    MPESA
-                  </div>
-                  <div className="w-12 h-8 bg-gray-200 rounded text-gray-600 text-xs flex items-center justify-center">
-                    VISA
-                  </div>
-                  <div className="w-12 h-8 bg-gray-200 rounded text-gray-600 text-xs flex items-center justify-center">
-                    MC
-                  </div>
-                  <div className="text-xs text-text-secondary">
-                    +mais
-                  </div>
-                </div>
               </div>
 
               {/* Security Notice */}

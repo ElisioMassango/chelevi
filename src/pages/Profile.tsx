@@ -1,24 +1,62 @@
-import React, { useState } from 'react';
-import { User, MapPin, Package, Heart, Settings, LogOut, Phone, Mail, CreditCard as Edit, Save, X } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { User, MapPin, Package, Heart, Settings, LogOut, Phone, Mail, CreditCard as Edit, Save, X, Eye, EyeOff, Lock } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useWishlist } from '../contexts/WishlistContext';
-import { apiService } from '../services/api';
-import AddressManager from '../components/AddressManager';
+import { useUserProfile, useAddresses } from '../hooks/useUser';
+import { useCustomerOrders } from '../hooks/useProducts';
+import { useNewsletter } from '../hooks/useNewsletter';
+import CheckoutLocationSelector from '../components/CheckoutLocationSelector';
+import { useNavigate } from 'react-router-dom';
 
 const Profile: React.FC = () => {
   const [activeTab, setActiveTab] = useState('overview');
-  const [isEditing, setIsEditing] = useState(false);
   const [editingField, setEditingField] = useState<string | null>(null);
-  const [formData, setFormData] = useState({
-    name: 'Chelevi',
-    email: 'Chelevi@gmail.com',
-    phone: '+258 84 123 4567',
-    address: 'Avenida Julius Nyerere, 1234',
-    city: 'Maputo',
-    postalCode: '1100'
+  const [showPasswordForm, setShowPasswordForm] = useState(false);
+  const [showNewsletterForm, setShowNewsletterForm] = useState(false);
+  const [newsletterEmail, setNewsletterEmail] = useState('');
+  const [passwordData, setPasswordData] = useState({
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: ''
   });
+  const [showPasswords, setShowPasswords] = useState({
+    current: false,
+    new: false,
+    confirm: false
+  });
+  
   const { user, logout } = useAuth();
   const { items: wishlistItems } = useWishlist();
+  const { 
+    profile, 
+    updateProfile,
+    changePassword
+  } = useUserProfile();
+  const { addresses } = useAddresses();
+  const { orders: userOrders, loading: ordersLoading } = useCustomerOrders(user?.id || '');
+  const { subscribe, isSubscribing } = useNewsletter();
+  const navigate = useNavigate();
+  
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    address: '',
+    city: '',
+    postalCode: ''
+  });
+
+  // Update form data when profile or user data changes
+  useEffect(() => {
+    setFormData({
+      name: profile?.name || user?.name || '',
+      email: profile?.email || user?.email || '',
+      phone: profile?.mobile || user?.phone || '',
+      address: profile?.address || '',
+      city: profile?.city || '',
+      postalCode: profile?.postcode || ''
+    });
+  }, [profile, user]);
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({
@@ -27,87 +65,78 @@ const Profile: React.FC = () => {
     }));
   };
 
-  const handleSave = (field: string) => {
-    // Save to backend using API service
-    if (user?.id) {
-      switch (field) {
-        case 'name':
-          // Split name into first and last name
-          const [firstName, ...lastNameParts] = formData.name.split(' ');
-          const lastName = lastNameParts.join(' ');
-          apiService.updateProfile({
-            customer_id: user.id,
-            first_name: firstName,
-            last_name: lastName,
-            email: formData.email,
-            telephone: formData.phone,
-          }).then(() => {
-            console.log('Profile updated successfully');
-          }).catch(error => {
-            console.error('Failed to update profile:', error);
-          });
-          break;
-        case 'email':
-        case 'phone':
-          apiService.updateProfile({
-            customer_id: user.id,
-            first_name: formData.name.split(' ')[0],
-            last_name: formData.name.split(' ').slice(1).join(' '),
-            email: formData.email,
-            telephone: formData.phone,
-          }).then(() => {
-            console.log('Profile updated successfully');
-          }).catch(error => {
-            console.error('Failed to update profile:', error);
-          });
-          break;
-        case 'address':
-          // Handle address update separately if needed
-          console.log('Address update:', formData);
-          break;
-      }
+  const handleSave = async () => {
+    if (!user?.id) return;
+
+    try {
+      // Split name into first and last name
+      const [firstName, ...lastNameParts] = formData.name.split(' ');
+      const lastName = lastNameParts.join(' ');
+      
+      await updateProfile({
+        first_name: firstName,
+        last_name: lastName,
+        email: formData.email,
+        telephone: formData.phone,
+      });
+      
+      setEditingField(null);
+    } catch (error) {
+      console.error('Failed to update profile:', error);
     }
-    setEditingField(null);
+  };
+
+  const handlePasswordChange = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!user?.id) return;
+
+    if (passwordData.newPassword !== passwordData.confirmPassword) {
+      alert('As senhas não coincidem');
+      return;
+    }
+
+    try {
+      await changePassword(user.id, passwordData.currentPassword, passwordData.newPassword);
+      setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
+      setShowPasswordForm(false);
+    } catch (error) {
+      console.error('Error changing password:', error);
+    }
+  };
+
+  const handleNewsletterSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newsletterEmail) return;
+
+    try {
+      await subscribe(newsletterEmail);
+      setNewsletterEmail('');
+      setShowNewsletterForm(false);
+    } catch (error) {
+      console.error('Error subscribing to newsletter:', error);
+    }
+  };
+
+  const handleOrderClick = (orderId: string) => {
+    navigate(`/orders/${orderId}`);
+  };
+
+  const handleOrderTracking = (orderId: string) => {
+    navigate(`/order-tracking/${orderId}`);
   };
 
   const handleCancel = () => {
     // Reset form data to original values
     setFormData({
-      name: 'Chelevi',
-      email: 'Chelevi@gmail.com',
-      phone: '+258 84 123 4567',
-      address: 'Avenida Julius Nyerere, 1234',
-      city: 'Maputo',
-      postalCode: '1100'
+      name: profile?.name || user?.name || '',
+      email: profile?.email || user?.email || '',
+      phone: profile?.mobile || user?.phone || '',
+      address: profile?.address || '',
+      city: profile?.city || '',
+      postalCode: profile?.postcode || ''
     });
     setEditingField(null);
   };
-  const orders = [
-    {
-      id: 'ORD-001',
-      date: '2024-01-20',
-      status: 'delivered',
-      total: 1250,
-      items: 3,
-      deliveryAddress: 'Avenida Julius Nyerere, 1234, Maputo'
-    },
-    {
-      id: 'ORD-002',
-      date: '2024-01-15',
-      status: 'shipped',
-      total: 850,
-      items: 2,
-      deliveryAddress: 'Avenida Julius Nyerere, 1234, Maputo'
-    },
-    {
-      id: 'ORD-003',
-      date: '2024-01-10',
-      status: 'processing',
-      total: 1450,
-      items: 4,
-      deliveryAddress: 'Avenida Julius Nyerere, 1234, Maputo'
-    }
-  ];
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -214,7 +243,7 @@ const Profile: React.FC = () => {
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="text-text-secondary text-sm">Total de Pedidos</p>
-                        <p className="text-2xl font-bold">{orders.length}</p>
+                        <p className="text-2xl font-bold">{userOrders.length}</p>
                       </div>
                       <Package size={32} className="text-secondary" />
                     </div>
@@ -223,7 +252,7 @@ const Profile: React.FC = () => {
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="text-text-secondary text-sm">Total Gasto</p>
-                        <p className="text-2xl font-bold">MT{orders.reduce((sum, order) => sum + order.total, 0)}</p>
+                        <p className="text-2xl font-bold">MT{userOrders.reduce((sum: number, order: any) => sum + (order.total_amount || order.total || 0), 0)}</p>
                       </div>
                       <div className="text-2xl">💳</div>
                     </div>
@@ -243,17 +272,25 @@ const Profile: React.FC = () => {
                 <div className="bg-white p-6 rounded-lg border">
                   <h2 className="text-xl font-semibold mb-4">Pedidos Recentes</h2>
                   <div className="space-y-4">
-                    {orders.slice(0, 3).map((order) => (
-                      <div key={order.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                        <div>
-                          <p className="font-medium">{order.id}</p>
-                          <p className="text-sm text-text-secondary">{order.items} items • {order.date}</p>
+                    {userOrders.slice(0, 3).map((order) => (
+                      <div key={order.id} className="p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer" onClick={() => handleOrderClick(order.id.toString())}>
+                        <div className="flex items-center justify-between mb-2">
+                          <div>
+                            <p className="font-medium text-lg">Pedido #{order.id}</p>
+                            <p className="text-sm text-text-secondary">
+                              {new Date((order as any).created_at).toLocaleDateString('pt-BR')} às {new Date((order as any).created_at).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+                            </p>
+                          </div>
+                          <div className="text-right">
+                            <p className="font-bold text-lg">MT{(order as any).total_amount || (order as any).total}</p>
+                            <span className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${getStatusColor((order as any).order_status || (order as any).status)}`}>
+                              {(order as any).order_status || (order as any).status}
+                            </span>
+                          </div>
                         </div>
-                        <div className="text-right">
-                          <p className="font-bold">MT{order.total}</p>
-                          <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(order.status)}`}>
-                            {order.status}
-                          </span>
+                        <div className="flex items-center justify-between text-sm text-text-secondary">
+                          <span>{(order as any).items_count || 0} produtos</span>
+                          <span>Clique para ver detalhes</span>
                         </div>
                       </div>
                     ))}
@@ -266,42 +303,72 @@ const Profile: React.FC = () => {
               <div className="space-y-6">
                 <h1 className="text-3xl font-bold">Meus Pedidos</h1>
                 
-                <div className="space-y-4">
-                  {orders.map((order) => (
-                    <div key={order.id} className="bg-white p-6 rounded-lg border hover:shadow-md transition-shadow">
-                      <div className="flex items-center justify-between mb-4">
-                        <div>
-                          <h3 className="font-semibold text-lg">{order.id}</h3>
-                          <p className="text-text-secondary">Pedido em {order.date}</p>
-                        </div>
-                        <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(order.status)}`}>
-                          {order.status}
-                        </span>
-                      </div>
-                      
-                      <div className="mb-4">
-                        <p className="text-sm text-text-secondary mb-1">Endereço de Entrega:</p>
-                        <p className="text-sm font-medium">{order.deliveryAddress}</p>
-                        <button className="text-xs text-accent hover:underline mt-1">
-                          Alterar endereço de entrega
-                        </button>
-                      </div>
-                      
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="text-text-secondary">{order.items} items</p>
-                          <p className="font-bold text-lg">MT{order.total}</p>
-                        </div>
-                        <div className="space-x-2">
-                          <button className="btn btn-outline btn-sm">Ver Detalhes</button>
-                          {order.status === 'delivered' && (
-                            <button className="btn btn-secondary btn-sm">Pedir Novamente</button>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                {ordersLoading ? (
+                  <div className="flex items-center justify-center py-8">
+                    <div className="animate-spin w-8 h-8 border-2 border-secondary border-t-transparent rounded-full"></div>
+                  </div>
+                ) : userOrders.length === 0 ? (
+                  <div className="text-center py-8">
+                    <Package size={48} className="mx-auto text-gray-400 mb-4" />
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">Nenhum pedido encontrado</h3>
+                    <p className="text-gray-500">Você ainda não fez nenhum pedido.</p>
+                  </div>
+                ) : (
+                         <div className="space-y-4">
+                           {userOrders.map((order) => (
+                             <div key={order.id} className="bg-white p-6 rounded-lg border hover:shadow-md transition-shadow">
+                               <div className="flex items-center justify-between mb-4">
+                                 <div>
+                                   <h3 className="font-semibold text-lg">Pedido #{order.id}</h3>
+                                   <p className="text-text-secondary">
+                                     Pedido em {new Date((order as any).created_at).toLocaleDateString('pt-BR')} às {new Date((order as any).created_at).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+                                   </p>
+                                 </div>
+                                 <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor((order as any).order_status || (order as any).status)}`}>
+                                   {(order as any).order_status || (order as any).status}
+                                 </span>
+                               </div>
+                               
+                               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                                 <div className="bg-gray-50 p-3 rounded-lg">
+                                   <p className="text-sm text-text-secondary mb-1">Total do Pedido</p>
+                                   <p className="text-lg font-bold text-primary">MT{(order as any).total_amount || (order as any).total}</p>
+                                 </div>
+                                 <div className="bg-gray-50 p-3 rounded-lg">
+                                   <p className="text-sm text-text-secondary mb-1">Produtos</p>
+                                   <p className="text-lg font-semibold">{(order as any).items_count || 0} itens</p>
+                                 </div>
+                                 <div className="bg-gray-50 p-3 rounded-lg">
+                                   <p className="text-sm text-text-secondary mb-1">Método de Pagamento</p>
+                                   <p className="text-lg font-semibold">{(order as any).payment_type || 'M-Pesa'}</p>
+                                 </div>
+                               </div>
+                               
+                               <div className="flex items-center justify-between">
+                                 <div className="flex items-center gap-4">
+                                   <span className="text-sm text-text-secondary">
+                                     ID: {order.id} • {(order as any).items_count || 0} produtos
+                                   </span>
+                                 </div>
+                                 <div className="flex gap-2">
+                                   <button 
+                                     onClick={() => handleOrderClick(order.id.toString())}
+                                     className="btn btn-outline btn-sm"
+                                   >
+                                     Ver Detalhes
+                                   </button>
+                                   <button 
+                                     onClick={() => handleOrderTracking(order.id.toString())}
+                                     className="btn btn-primary btn-sm"
+                                   >
+                                     Rastrear Pedido
+                                   </button>
+                                 </div>
+                               </div>
+                             </div>
+                           ))}
+                         </div>
+                )}
               </div>
             )}
 
@@ -345,13 +412,262 @@ const Profile: React.FC = () => {
             )}
 
             {activeTab === 'addresses' && (
-              <AddressManager customerId={user?.id || '1'} />
+              <div className="space-y-6">
+                <h1 className="text-3xl font-bold">Meus Endereços</h1>
+                <p className="text-text-secondary">Gerencie seus endereços de entrega</p>
+                
+                <div className="bg-white p-6 rounded-lg border">
+                  <h2 className="text-xl font-semibold mb-6">Adicionar Novo Endereço</h2>
+                  
+                  <form className="space-y-6">
+                    <div className="form-group">
+                      <label className="form-label">Título do Endereço</label>
+                      <input
+                        type="text"
+                        className="form-input"
+                        placeholder="Ex: Casa, Trabalho, etc."
+                      />
+                    </div>
+                    
+                    <div className="form-group">
+                      <label className="form-label">Endereço Completo</label>
+                      <textarea
+                        className="form-textarea"
+                        placeholder="Rua, número, bairro..."
+                        rows={3}
+                      />
+                    </div>
+                    
+                    <CheckoutLocationSelector
+                      onLocationChange={(location) => {
+                        console.log('Location selected:', location);
+                      }}
+                      showLabels={true}
+                      required={true}
+                    />
+                    
+                    <div className="form-group">
+                      <label className="form-label">Código Postal</label>
+                      <input
+                        type="text"
+                        className="form-input"
+                        placeholder="Código postal (opcional)"
+                      />
+                    </div>
+                    
+                    <div className="flex items-center gap-4">
+                      <label className="flex items-center gap-2">
+                        <input type="checkbox" className="form-checkbox" />
+                        <span className="text-sm">Endereço padrão</span>
+                      </label>
+                    </div>
+                    
+                    <div className="flex gap-4">
+                      <button type="submit" className="btn btn-primary">
+                        Adicionar Endereço
+                      </button>
+                      <button type="button" className="btn btn-outline">
+                        Cancelar
+                      </button>
+                    </div>
+                  </form>
+                </div>
+                
+                {/* Existing Addresses */}
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold">Endereços Salvos</h3>
+                  {addresses && addresses.length > 0 ? (
+                    addresses.map((address, index) => (
+                      <div key={index} className="bg-white p-6 rounded-lg border">
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <h4 className="font-medium">{address.title || 'Endereço'}</h4>
+                            <p className="text-sm text-text-secondary mt-1">
+                              {address.address}, {address.city}, {address.country}
+                            </p>
+                            {address.is_default && (
+                              <span className="inline-block mt-2 px-2 py-1 bg-primary text-white text-xs rounded-full">
+                                Padrão
+                              </span>
+                            )}
+                          </div>
+                          <div className="flex gap-2">
+                            <button className="btn btn-outline btn-sm">
+                              Editar
+                            </button>
+                            <button className="btn btn-error btn-sm">
+                              Excluir
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="text-center py-8">
+                      <MapPin size={48} className="mx-auto text-gray-400 mb-4" />
+                      <h3 className="text-lg font-medium text-gray-900 mb-2">Nenhum endereço cadastrado</h3>
+                      <p className="text-gray-500">Adicione um endereço para facilitar suas compras.</p>
+                    </div>
+                  )}
+                </div>
+              </div>
             )}
 
             {activeTab === 'settings' && (
               <div className="space-y-6">
                 <h1 className="text-3xl font-bold">Configurações da Conta</h1>
                 <p className="text-text-secondary">Gerencie suas informações pessoais e preferências</p>
+                
+                {/* Password Change Section */}
+                <div className="bg-white p-6 rounded-lg border">
+                  <h2 className="text-xl font-semibold mb-6 flex items-center gap-2">
+                    <Lock size={20} />
+                    Alterar Senha
+                  </h2>
+                  
+                  {!showPasswordForm ? (
+                    <button
+                      onClick={() => setShowPasswordForm(true)}
+                      className="btn btn-outline"
+                    >
+                      Alterar Senha
+                    </button>
+                  ) : (
+                    <form onSubmit={handlePasswordChange} className="space-y-4">
+                      <div className="form-group">
+                        <label className="form-label">Senha Atual</label>
+                        <div className="relative">
+                          <input
+                            type={showPasswords.current ? 'text' : 'password'}
+                            value={passwordData.currentPassword}
+                            onChange={(e) => setPasswordData(prev => ({ ...prev, currentPassword: e.target.value }))}
+                            className="form-input pr-10"
+                            required
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowPasswords(prev => ({ ...prev, current: !prev.current }))}
+                            className="absolute right-3 top-1/2 transform -translate-y-1/2"
+                          >
+                            {showPasswords.current ? <EyeOff size={20} /> : <Eye size={20} />}
+                          </button>
+                        </div>
+                      </div>
+                      
+                      <div className="form-group">
+                        <label className="form-label">Nova Senha</label>
+                        <div className="relative">
+                          <input
+                            type={showPasswords.new ? 'text' : 'password'}
+                            value={passwordData.newPassword}
+                            onChange={(e) => setPasswordData(prev => ({ ...prev, newPassword: e.target.value }))}
+                            className="form-input pr-10"
+                            required
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowPasswords(prev => ({ ...prev, new: !prev.new }))}
+                            className="absolute right-3 top-1/2 transform -translate-y-1/2"
+                          >
+                            {showPasswords.new ? <EyeOff size={20} /> : <Eye size={20} />}
+                          </button>
+                        </div>
+                      </div>
+                      
+                      <div className="form-group">
+                        <label className="form-label">Confirmar Nova Senha</label>
+                        <div className="relative">
+                          <input
+                            type={showPasswords.confirm ? 'text' : 'password'}
+                            value={passwordData.confirmPassword}
+                            onChange={(e) => setPasswordData(prev => ({ ...prev, confirmPassword: e.target.value }))}
+                            className="form-input pr-10"
+                            required
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowPasswords(prev => ({ ...prev, confirm: !prev.confirm }))}
+                            className="absolute right-3 top-1/2 transform -translate-y-1/2"
+                          >
+                            {showPasswords.confirm ? <EyeOff size={20} /> : <Eye size={20} />}
+                          </button>
+                        </div>
+                      </div>
+                      
+                      <div className="flex gap-4">
+                        <button type="submit" className="btn btn-primary">
+                          Alterar Senha
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setShowPasswordForm(false);
+                            setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
+                          }}
+                          className="btn btn-outline"
+                        >
+                          Cancelar
+                        </button>
+                      </div>
+                    </form>
+                  )}
+                </div>
+                
+                {/* Newsletter Section */}
+                <div className="bg-white p-6 rounded-lg border">
+                  <h2 className="text-xl font-semibold mb-6 flex items-center gap-2">
+                    <Mail size={20} />
+                    Newsletter
+                  </h2>
+                  
+                  {!showNewsletterForm ? (
+                    <div className="space-y-4">
+                      <p className="text-text-secondary">
+                        Receba as últimas novidades, ofertas especiais e atualizações sobre nossos produtos.
+                      </p>
+                      <button
+                        onClick={() => setShowNewsletterForm(true)}
+                        className="btn btn-primary"
+                      >
+                        Inscrever-se na Newsletter
+                      </button>
+                    </div>
+                  ) : (
+                    <form onSubmit={handleNewsletterSubmit} className="space-y-4">
+                      <div className="form-group">
+                        <label className="form-label">Email para Newsletter</label>
+                        <input
+                          type="email"
+                          value={newsletterEmail}
+                          onChange={(e) => setNewsletterEmail(e.target.value)}
+                          className="form-input"
+                          placeholder="seu@email.com"
+                          required
+                        />
+                      </div>
+                      
+                      <div className="flex gap-4">
+                        <button 
+                          type="submit" 
+                          className="btn btn-primary"
+                          disabled={isSubscribing}
+                        >
+                          {isSubscribing ? 'Inscrevendo...' : 'Inscrever-se'}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setShowNewsletterForm(false);
+                            setNewsletterEmail('');
+                          }}
+                          className="btn btn-outline"
+                        >
+                          Cancelar
+                        </button>
+                      </div>
+                    </form>
+                  )}
+                </div>
                 <div className="bg-white p-6 rounded-lg border">
                   <h2 className="text-xl font-semibold mb-6">Informações Pessoais</h2>
                   
@@ -373,7 +689,7 @@ const Profile: React.FC = () => {
                                   autoFocus
                                 />
                                 <button
-                                  onClick={() => handleSave('name')}
+                                  onClick={handleSave}
                                   className="text-green-600 hover:text-green-700"
                                 >
                                   <Save size={16} />
@@ -418,7 +734,7 @@ const Profile: React.FC = () => {
                                   autoFocus
                                 />
                                 <button
-                                  onClick={() => handleSave('email')}
+                                  onClick={handleSave}
                                   className="text-green-600 hover:text-green-700"
                                 >
                                   <Save size={16} />
@@ -463,7 +779,7 @@ const Profile: React.FC = () => {
                                   autoFocus
                                 />
                                 <button
-                                  onClick={() => handleSave('phone')}
+                                  onClick={handleSave}
                                   className="text-green-600 hover:text-green-700"
                                 >
                                   <Save size={16} />
@@ -528,7 +844,7 @@ const Profile: React.FC = () => {
                                 </div>
                                 <div className="flex items-center gap-2">
                                   <button
-                                    onClick={() => handleSave('address')}
+                                    onClick={handleSave}
                                     className="text-green-600 hover:text-green-700"
                                   >
                                     <Save size={16} />

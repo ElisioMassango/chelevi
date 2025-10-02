@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { MapPin, Plus, CreditCard as Edit, Trash2, Save, X } from 'lucide-react';
 import { useAddresses } from '../hooks/useApi';
 import { Address } from '../services/api';
+import LocationSelector from './LocationSelector';
 
 interface AddressManagerProps {
   customerId: string;
@@ -159,40 +160,18 @@ const AddressManager: React.FC<AddressManagerProps> = ({ customerId }) => {
               />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="form-group">
-                <label className="form-label">País</label>
-                <select
-                  value={formData.country}
-                  onChange={(e) => handleInputChange('country', e.target.value)}
-                  className="form-select"
-                >
-                  <option value="1">Moçambique</option>
-                </select>
-              </div>
-              
-              <div className="form-group">
-                <label className="form-label">Província</label>
-                <select
-                  value={formData.state}
-                  onChange={(e) => handleInputChange('state', e.target.value)}
-                  className="form-select"
-                >
-                  <option value="1">Maputo</option>
-                </select>
-              </div>
-              
-              <div className="form-group">
-                <label className="form-label">Cidade</label>
-                <select
-                  value={formData.city}
-                  onChange={(e) => handleInputChange('city', e.target.value)}
-                  className="form-select"
-                >
-                  <option value="1">Maputo</option>
-                </select>
-              </div>
-            </div>
+            <LocationSelector
+              onLocationChange={(location) => {
+                setFormData(prev => ({
+                  ...prev,
+                  country: location.country,
+                  state: location.state,
+                  city: location.city,
+                }));
+              }}
+              showLabels={true}
+              required={true}
+            />
 
             <div className="form-group">
               <label className="flex items-center gap-2">

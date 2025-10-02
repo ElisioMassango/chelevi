@@ -1,9 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { CheckCircle, Package, Truck, Heart, ArrowRight } from 'lucide-react';
 
 const CheckoutSuccess: React.FC = () => {
   const [showAnimation, setShowAnimation] = useState(false);
+  const location = useLocation();
+  const orderId = location.state?.orderId;
+  const orderData = location.state?.orderData;
 
   useEffect(() => {
     // Trigger animation after component mounts
@@ -11,10 +14,13 @@ const CheckoutSuccess: React.FC = () => {
   }, []);
 
   const orderDetails = {
-    id: 'ORD-' + Math.random().toString(36).substr(2, 9).toUpperCase(),
-    total: 1250,
-    items: 3,
-    estimatedDelivery: '2-3 dias úteis'
+    id: orderId ? `#${orderId}` : 'ORD-' + Math.random().toString(36).substr(2, 9).toUpperCase(),
+    total: orderData?.subTotal || 0,
+    items: orderData?.items?.length || 0,
+    estimatedDelivery: '2-3 dias úteis',
+    paymentMethod: orderData?.paymentType || 'M-Pesa',
+    orderDate: new Date().toLocaleDateString('pt-BR'),
+    orderTime: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
   };
 
   return (
@@ -55,12 +61,20 @@ const CheckoutSuccess: React.FC = () => {
                 <span className="font-bold">#{orderDetails.id}</span>
               </div>
               <div className="flex justify-between">
+                <span>Data do Pedido:</span>
+                <span className="font-medium">{orderDetails.orderDate} às {orderDetails.orderTime}</span>
+              </div>
+              <div className="flex justify-between">
                 <span>Total:</span>
                 <span className="font-bold text-green-600">MT{orderDetails.total}</span>
               </div>
               <div className="flex justify-between">
                 <span>Itens:</span>
                 <span>{orderDetails.items} produtos</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Método de Pagamento:</span>
+                <span className="font-medium">{orderDetails.paymentMethod}</span>
               </div>
               <div className="flex justify-between">
                 <span>Entrega Estimada:</span>
@@ -100,7 +114,7 @@ const CheckoutSuccess: React.FC = () => {
           {/* Action Buttons */}
           <div className={`space-y-4 transition-all duration-1000 delay-1000 ${showAnimation ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}`}>
             <Link
-              to={`/order-tracking/${orderDetails.id}`}
+              to={`/order-tracking/${orderId || orderDetails.id}`}
               className="btn btn-primary btn-lg w-full flex items-center justify-center gap-2"
             >
               Rastrear Pedido

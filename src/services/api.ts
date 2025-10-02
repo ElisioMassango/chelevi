@@ -1,6 +1,8 @@
 // API Configuration and Base Service
+import { logger } from '../utils/logger';
+
 const API_CONFIG = {
-  baseUrl: 'https://example.com/api',
+  baseUrl: 'https://dashboard.sparktechnology.cloud/api',
   storeSlug: 'chelevi', // Replace with actual store slug
   themeId: 'stylique',
   headers: {
@@ -15,6 +17,55 @@ export interface ApiResponse<T = any> {
   status: number;
   message: string;
   data: T;
+}
+
+export interface PaginatedResponse<T> {
+  current_page: number;
+  data: T[];
+  first_page_url: string;
+  from: number;
+  last_page: number;
+  last_page_url: string;
+  links: Array<{
+    url: string | null;
+    label: string;
+    active: boolean;
+  }>;
+  next_page_url: string | null;
+  path: string;
+  per_page: number;
+  prev_page_url: string | null;
+  to: number;
+  total: number;
+}
+
+export interface Category {
+  id: number;
+  name: string;
+  slug: string;
+  image?: string;
+  description?: string;
+  parent_id?: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Country {
+  id: number;
+  name: string;
+}
+
+export interface State {
+  id: number;
+  name: string;
+  country_id: number;
+}
+
+export interface City {
+  id: number;
+  name: string;
+  state_id: number;
+  country_id: number;
 }
 
 export interface User {
@@ -34,6 +85,93 @@ export interface User {
   token?: string;
   token_type?: string;
   defaulte_address_id?: number;
+}
+
+export interface Product {
+  id: number;
+  name: string;
+  slug: string;
+  tag_id: string;
+  product_code: string;
+  category_id: number;
+  subcategory_id: number;
+  brand_id: number;
+  label_id: number;
+  tax_id: string;
+  tax_status: string;
+  shipping_id: number;
+  preview_type: string;
+  preview_video: string | null;
+  preview_content: string | null;
+  trending: number;
+  status: number;
+  video_url: string | null;
+  track_stock: number;
+  stock_order_status: string;
+  price: number;
+  sale_price: number;
+  product_type: string | null;
+  product_stock: number;
+  low_stock_threshold: number;
+  downloadable_product: string;
+  product_weight: number | null;
+  cover_image_path: string;
+  cover_image_url: string;
+  stock_status: string;
+  variant_product: number;
+  attribute_id: string;
+  product_attribute: string;
+  custom_field_status: number;
+  custom_field: string | null;
+  description: string;
+  detail: string;
+  specification: string;
+  size_chart_title: string | null;
+  size_chart_information: string | null;
+  average_rating: number;
+  store_id: number;
+  created_by: number;
+  is_active: number | null;
+  created_at: string;
+  updated_at: string;
+  category_name: string;
+  sub_category_name: string;
+  in_cart: boolean;
+  in_whishlist: boolean;
+  final_price: string;
+  product_data: {
+    id: number;
+    name: string;
+    slug: string;
+    image_path: string;
+    icon_path: string;
+    trending: number;
+    status: number;
+    store_id: number;
+    created_at: string;
+    updated_at: string;
+    demo_field: string;
+    category_item: number;
+    total_product: number;
+    category_id: number;
+    image_path_full_url: string;
+    icon_path_full_url: string;
+  };
+  sub_categoryct_data: {
+    id: number;
+    name: string;
+    image_url: string;
+    image_path: string;
+    icon_path: string;
+    category_id: number;
+    status: number;
+    store_id: number;
+    created_at: string;
+    updated_at: string;
+    icon_img_path: string;
+    image_path_full_url: string;
+    icon_path_full_url: string;
+  };
 }
 
 export interface ProductImage {
@@ -153,6 +291,176 @@ export interface CurrencyData {
   currency_name: string;
 }
 
+export interface ShippingMethod {
+  id: number;
+  method_name: string;
+  zone_id: number;
+  cost: string;
+  product_cost: string | null;
+  calculation_type: string | null;
+  shipping_requires: string | null;
+  store_id: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface DeliveryCharge {
+  original_price: string;
+  charge_price: string;
+  final_price: string;
+}
+
+export interface LoyaltyProgram {
+  'loyality-program': {
+    'loyality-program-title': string;
+    'loyality-program-description': string;
+    'loyality-program-your-cash': string;
+    'loyality-program-copy-this-link-and-send-to-your-friends': string;
+  };
+  point: string;
+  reward_history: PaginatedResponse<{
+    id: number;
+    product_order_id: string;
+    order_date: string;
+    customer_id: number;
+    is_guest: number;
+    product_json: string;
+    product_id: string;
+    product_price: number;
+    coupon_price: number;
+    delivery_price: number;
+    tax_price: number;
+    final_price: number;
+    return_price: number;
+    payment_comment: string;
+    payment_type: string;
+    payment_status: string;
+    delivery_id: number;
+    delivery_comment: string;
+    delivered_status: number;
+    delivery_date: string | null;
+    confirmed_date: string | null;
+    picked_date: string | null;
+    shipped_date: string | null;
+    return_status: number;
+    return_date: string;
+    cancel_date: string | null;
+    reward_points: number;
+    additional_note: string | null;
+    deliveryboy_id: number | null;
+    store_id: number;
+    created_at: string;
+    updated_at: string;
+    demo_field: string;
+    delivered_status_string: string;
+    delivered_image: string;
+    order_id_string: string;
+    user_name: string;
+  }>;
+}
+
+export interface Order {
+  id: number;
+  order_date: string;
+  delivery_date: string | null;
+  product_order_id: string;
+  date: string;
+  amount: number;
+  delivery_id: number;
+  delivered_status: number;
+  return_status: number;
+  reward_points: number;
+  demo_field: string;
+  delivered_status_string: string;
+  delivered_image: string;
+  order_id_string: string;
+  return_date: string;
+  user_name: string;
+}
+
+export interface OrderDetail {
+  id: number;
+  is_guest: number;
+  order_id: string;
+  delivery_date: string | null;
+  order_reward_point: number;
+  return_price: number;
+  return_status_message: string | null;
+  return_date: string;
+  order_status_text: string;
+  order_status: number;
+  order_status_message: string;
+  payment_status: string;
+  deliveryboy_id: number | null;
+  coupon_price: number;
+  product: Array<{
+    product_id: number;
+    image: string;
+    name: string;
+    orignal_price: string;
+    total_orignal_price: string;
+    final_price: string;
+    qty: number;
+    variant_id: number;
+    variant_name: string;
+    return: number;
+  }>;
+  is_review: number;
+  billing_informations: {
+    name: string;
+    address: string;
+    state: string;
+    country: string;
+    city: string;
+    post_code: string;
+    email: string;
+    phone: string;
+  };
+  delivery_informations: {
+    name: string;
+    address: string;
+    state: string;
+    country: string;
+    city: string;
+    post_code: string;
+    email: string;
+    phone: string;
+  };
+  paymnet_type: string;
+  paymnet: string;
+  delivery: string;
+  delivered_charge: string;
+  coupon_info: any;
+  tax: {
+    amountstring: number;
+  };
+  sub_total: string;
+  final_price: string;
+  tax_price: string;
+  tax_name: string;
+  tax_rate: number;
+  tax_type: string;
+  tax_id: number;
+}
+
+export interface BillingInfo {
+  billing_postecode: string; // Mantém o typo conforme API
+  email: string;
+  billing_city: string; // Nome da cidade
+  lastname: string;
+  billing_company_name: string;
+  delivery_city: string; // Nome da cidade
+  delivery_state: string; // ID do estado
+  billing_address: string;
+  delivery_postcode: string;
+  billing_user_telephone: string;
+  firstname: string;
+  delivery_country: string; // ID do país
+  billing_country: string; // ID do país
+  delivery_address: string;
+  billing_state: string; // ID do estado
+}
+
 class ApiService {
   private token: string | null = null;
 
@@ -162,7 +470,7 @@ class ApiService {
   }
 
   private getHeaders(): Record<string, string> {
-    const headers = { ...API_CONFIG.headers };
+    const headers: Record<string, string> = { ...API_CONFIG.headers };
     if (this.token) {
       headers['Authorization'] = `Bearer ${this.token}`;
     }
@@ -174,6 +482,7 @@ class ApiService {
     options: RequestInit = {}
   ): Promise<ApiResponse<T>> {
     const url = `${API_CONFIG.baseUrl}/${API_CONFIG.storeSlug}${endpoint}`;
+    const startTime = Date.now();
     
     const config: RequestInit = {
       ...options,
@@ -183,9 +492,17 @@ class ApiService {
       },
     };
 
+    // Log API request
+    logger.apiRequest(options.method || 'GET', url, options.body ? JSON.parse(options.body as string) : undefined);
+
     try {
       const response = await fetch(url, config);
       const data = await response.json();
+      const duration = Date.now() - startTime;
+      
+      // Log API response
+      logger.apiResponse(options.method || 'GET', url, response.status, data);
+      logger.performance(`${options.method || 'GET'} ${endpoint}`, duration);
       
       if (!response.ok) {
         throw new Error(data.message || 'API request failed');
@@ -193,6 +510,9 @@ class ApiService {
       
       return data;
     } catch (error) {
+      const duration = Date.now() - startTime;
+      logger.apiError(options.method || 'GET', url, error);
+      logger.performance(`${options.method || 'GET'} ${endpoint} (failed)`, duration);
       console.error('API Error:', error);
       throw error;
     }
@@ -325,7 +645,7 @@ class ApiService {
 
   // Customer logout
   async logout(customerId: string): Promise<ApiResponse<{ message: string; logout: number }>> {
-    const response = await this.request('/logOut', {
+    const response = await this.request<{ message: string; logout: number }>('/logOut', {
       method: 'POST',
       body: JSON.stringify({ customer_id: customerId }),
     });
@@ -356,13 +676,18 @@ class ApiService {
   }
 
   // Change password
-  async changePassword(customerId: string, password: string): Promise<ApiResponse<{ message: string }>> {
+  async changePassword(data: {
+    customer_id: string;
+    current_password: string;
+    new_password: string;
+  }): Promise<ApiResponse<{ message: string }>> {
     return this.request('/change-password', {
       method: 'POST',
       body: JSON.stringify({
         theme_id: API_CONFIG.themeId,
-        customer_id: customerId,
-        password,
+        customer_id: data.customer_id,
+        current_password: data.current_password,
+        new_password: data.new_password,
       }),
     });
   }
@@ -480,6 +805,62 @@ class ApiService {
         // Don't set Content-Type for FormData, let browser set it
         'Authorization': this.token ? `Bearer ${this.token}` : '',
       },
+    });
+  }
+
+  // Location APIs
+  
+  // Get country list
+  async getCountryList(): Promise<ApiResponse<Country[]>> {
+    return this.request('/country-list', {
+      method: 'POST',
+      body: JSON.stringify({
+        theme_id: API_CONFIG.themeId,
+      }),
+    });
+  }
+
+  // Get state list by country
+  async getStateList(countryId: string): Promise<ApiResponse<State[]>> {
+    return this.request('/state-list', {
+      method: 'POST',
+      body: JSON.stringify({
+        theme_id: API_CONFIG.themeId,
+        country_id: countryId,
+      }),
+    });
+  }
+
+  // Get city list by state
+  async getCityList(stateId: string): Promise<ApiResponse<City[]>> {
+    return this.request('/city-list', {
+      method: 'POST',
+      body: JSON.stringify({
+        theme_id: API_CONFIG.themeId,
+        state_id: stateId,
+      }),
+    });
+  }
+
+  // Newsletter subscription
+  async subscribeNewsletter(email: string): Promise<ApiResponse<{ message: string }>> {
+    return this.request('/subscribe', {
+      method: 'POST',
+      body: JSON.stringify({
+        theme_id: API_CONFIG.themeId,
+        email: email,
+      }),
+    });
+  }
+
+  // Get user details
+  async getUserDetails(customerId: string): Promise<ApiResponse<User>> {
+    return this.request('/user-detail', {
+      method: 'POST',
+      body: JSON.stringify({
+        theme_id: API_CONFIG.themeId,
+        customer_id: customerId,
+      }),
     });
   }
 
@@ -737,6 +1118,241 @@ class ApiService {
       }),
     });
   }
+
+  // Apply coupon
+  async applyCoupon(couponCode: string): Promise<ApiResponse<CartResponse>> {
+    return this.request('/apply-coupon', {
+      method: 'POST',
+      body: JSON.stringify({
+        theme_id: API_CONFIG.themeId,
+        coupon_code: couponCode,
+      }),
+    });
+  }
+
+  // Shipping APIs
+  
+  // Get shipping methods
+  async getShippingMethods(): Promise<ApiResponse<ShippingMethod[]>> {
+    return this.request('/shipping', {
+      method: 'POST',
+      body: JSON.stringify({
+        theme_id: API_CONFIG.themeId,
+      }),
+    });
+  }
+
+  // Get delivery methods
+  async getDeliveryMethods(): Promise<ApiResponse<ShippingMethod[]>> {
+    return this.request('/delivery-list', {
+      method: 'POST',
+      body: JSON.stringify({
+        theme_id: API_CONFIG.themeId,
+      }),
+    });
+  }
+
+  // Calculate delivery charge
+  async calculateDeliveryCharge(data: {
+    methodId: string;
+    countryId: string;
+    stateId: string;
+  }): Promise<ApiResponse<DeliveryCharge>> {
+    return this.request('/delivery-charge', {
+      method: 'POST',
+      body: JSON.stringify({
+        theme_id: API_CONFIG.themeId,
+        method_id: data.methodId,
+        country_id: data.countryId,
+        state_id: data.stateId,
+      }),
+    });
+  }
+
+  // Loyalty Program APIs
+  
+  // Get loyalty program data
+  async getLoyaltyProgram(): Promise<ApiResponse<LoyaltyProgram>> {
+    return this.request('/loyality-program-json', {
+      method: 'POST',
+      body: JSON.stringify({
+        theme_id: API_CONFIG.themeId,
+      }),
+    });
+  }
+
+  // Get loyalty reward points
+  async getLoyaltyReward(userId: string): Promise<ApiResponse<{ point: string }>> {
+    return this.request('/loyality-reward', {
+      method: 'POST',
+      body: JSON.stringify({
+        theme_id: API_CONFIG.themeId,
+        user_id: userId,
+      }),
+    });
+  }
+
+  // Order Management APIs
+  
+  // Get customer order list
+  async getCustomerOrders(customerId: string): Promise<ApiResponse<PaginatedResponse<Order>>> {
+    return this.request('/order-list', {
+      method: 'POST',
+      body: JSON.stringify({
+        theme_id: API_CONFIG.themeId,
+        customer_id: customerId,
+      }),
+    });
+  }
+
+  // Get order detail
+  async getOrderDetail(orderId: string): Promise<ApiResponse<OrderDetail>> {
+    return this.request('/order-detail', {
+      method: 'POST',
+      body: JSON.stringify({
+        theme_id: API_CONFIG.themeId,
+        order_id: orderId,
+      }),
+    });
+  }
+
+  // Place order
+  async placeOrder(data: {
+    paymentType: string;
+    billingInfo: BillingInfo;
+    couponInfo?: any;
+    deliveryComment?: string;
+    userId: string;
+    customerId: string;
+    paymentComment?: string;
+    deliveryId: string;
+    subTotal?: number;
+    couponCode?: string;
+  }): Promise<ApiResponse<{ order_id: number; slug: string }>> {
+    const requestData = {
+      payment_type: data.paymentType,
+      billing_info: data.billingInfo,
+      coupon_info: {},
+      delivery_comment: data.deliveryComment || '',
+      user_id: data.userId,
+      customer_id: data.customerId,
+      payment_comment: data.paymentComment || '',
+      delivery_id: data.deliveryId,
+      theme_id: API_CONFIG.themeId,
+    };
+
+    console.log('API Request Data:', JSON.stringify(requestData, null, 2));
+
+    return this.request('/place-order', {
+      method: 'POST',
+      body: JSON.stringify(requestData),
+    });
+  }
+
+  // Confirm order
+  async confirmOrder(data: {
+    paymentType: string;
+    billingInfo: BillingInfo;
+    deliveryId: string;
+    couponInfo?: string;
+    deliveryComment?: string;
+    paymentComment?: string;
+    price: string;
+    shippingId: string;
+    userId: string;
+  }): Promise<ApiResponse<any>> {
+    return this.request('/confirm-order', {
+      method: 'POST',
+      body: JSON.stringify({
+        theme_id: API_CONFIG.themeId,
+        payment_type: data.paymentType,
+        billing_info: data.billingInfo,
+        delivery_id: data.deliveryId,
+        coupon_info: data.couponInfo || '',
+        delivery_comment: data.deliveryComment || '',
+        payment_comment: data.paymentComment || '',
+        price: data.price,
+        shipping_id: data.shippingId,
+        user_id: data.userId,
+      }),
+    });
+  }
+
+  // Save order
+  async saveOrder(data: {
+    paymentType: string;
+    billingInfo: BillingInfo;
+    deliveryId: string;
+    couponInfo?: any;
+    methodId?: string;
+    customerId: string;
+  }): Promise<ApiResponse<any>> {
+    return this.request('/order-save', {
+      method: 'POST',
+      body: JSON.stringify({
+        theme_id: API_CONFIG.themeId,
+        payment_type: data.paymentType,
+        billing_info: data.billingInfo,
+        delivery_id: data.deliveryId,
+        coupon_info: data.couponInfo || null,
+        method_id: data.methodId || null,
+        customer_id: data.customerId,
+      }),
+    });
+  }
+
+  // Cancel order
+  async cancelOrder(orderId: string, userId: string): Promise<ApiResponse<{ message: string }>> {
+    return this.request('/order-cancel', {
+      method: 'POST',
+      body: JSON.stringify({
+        theme_id: API_CONFIG.themeId,
+        order_id: orderId,
+        user_id: userId,
+      }),
+    });
+  }
+
+  // Change order status
+  async changeOrderStatus(orderId: string, orderStatus: string): Promise<ApiResponse<{ message: string }>> {
+    return this.request('/order-status-change', {
+      method: 'POST',
+      body: JSON.stringify({
+        theme_id: API_CONFIG.themeId,
+        order_id: orderId,
+        order_status: orderStatus,
+      }),
+    });
+  }
+
+  // Get return order list
+  async getReturnOrders(customerId: string): Promise<ApiResponse<PaginatedResponse<Order>>> {
+    return this.request('/return-order-list', {
+      method: 'POST',
+      body: JSON.stringify({
+        customer_id: customerId,
+        theme_id: API_CONFIG.themeId,
+      }),
+    });
+  }
+
+  // Product return
+  async returnProduct(data: {
+    productId: string;
+    variantId: string;
+    orderId: string;
+  }): Promise<ApiResponse<{ message: string }>> {
+    return this.request('/product-return', {
+      method: 'POST',
+      body: JSON.stringify({
+        theme_id: API_CONFIG.themeId,
+        product_id: data.productId,
+        variant_id: data.variantId,
+        order_id: data.orderId,
+      }),
+    });
+  }
+
   // Category APIs
   
   // Get categories with pagination
@@ -814,6 +1430,26 @@ class ApiService {
       }),
     });
   }
+
+  // Add product review
+  async addReview(data: {
+    category_id: string;
+    subcategory_id: string;
+    product_id: string;
+    rating_no: string;
+    title: string;
+    description: string;
+    status: string;
+  }): Promise<ApiResponse<{ message: string }>> {
+    return this.request('/add-review', {
+      method: 'POST',
+      body: JSON.stringify({
+        theme_id: API_CONFIG.themeId,
+        ...data,
+      }),
+    });
+  }
+  
 }
 
 // Export singleton instance

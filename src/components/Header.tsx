@@ -85,7 +85,7 @@ const Header: React.FC = () => {
                     onClick={() => handleLanguageChange('en')}
                     className="w-full text-left px-4 py-2 text-sm hover:bg-gray-light transition-colors"
                   >
-                    MZ | EN
+                    MZ | PT
                   </button>
                   <button
                     onClick={() => handleLanguageChange('pt')}
@@ -99,7 +99,7 @@ const Header: React.FC = () => {
 
             {/* Logo */}
             <Link to="/" className="flex flex-col items-center">
-              <img src='https://chelevi.sparktechnology.cloud/chelevi/Logos/CHE-LEVI-01.png' alt="CheLevi" className="w-30 h-20" />
+              <img src='https://chelevi.sparktechnology.cloud/chelevi/Logos/CHE-LEVI-02.png' alt="CheLevi" className="w-30 h-20" />
             </Link>
 
             {/* Action Icons */}
@@ -210,7 +210,7 @@ const Header: React.FC = () => {
             </button>
 
             <Link to="/" className="flex flex-col items-center">
-              <img src='https://chelevi.sparktechnology.cloud/chelevi/Logos/CHE-LEVI-01.png' alt="CheLevi" className="w-25 h-10" />
+              <img src='https://chelevi.sparktechnology.cloud/chelevi/Logos/CHE-LEVI-02.png' alt="CheLevi" className="w-25 h-10" />
             </Link>
 
             <div className="flex items-center gap-4">

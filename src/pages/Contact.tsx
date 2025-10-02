@@ -37,9 +37,9 @@ const Contact: React.FC = () => {
       <div className="container max-w-6xl">
         {/* Header */}
         <div className="text-center mb-16">
-          <h1 className="text-4xl lg:text-5xl font-bold mb-6">Contacte-nos</h1>
+          <h1 className="text-4xl lg:text-5xl font-bold mb-6">Estamos aqui.</h1>
           <p className="text-xl text-text-secondary max-w-2xl mx-auto">
-            Estamos aqui para ajudar! Entre em contato com nosso time de atendimento ao cliente para qualquer pergunta, preocupação ou feedback.
+          Mais do que uma marca, somos uma confidente. Se uma dúvida a inquieta, se uma história precisa de ser partilhada, ou se simplesmente procura um conselho de estilo, a nossa linha está aberta. Para si.
           </p>
         </div>
 
@@ -47,10 +47,10 @@ const Contact: React.FC = () => {
           {/* Contact Information */}
           <div className="space-y-8">
             <div>
-              <h2 className="text-2xl font-bold mb-6">Entre em Contato</h2>
+              <h2 className="text-2xl font-bold mb-6">Bloco de Apoio:</h2>
               <p className="text-text-secondary mb-8 leading-relaxed">
-                Tem perguntas sobre nossos produtos, precisa de ajuda com seu pedido ou quer saber mais sobre a ShopFCC? 
-                Gostaríamos de ouvir de você! Nosso time de atendimento ao cliente está pronto para ajudá-lo.
+                Tem perguntas sobre nossos produtos, precisa de ajuda com seu pedido ou quer saber mais sobre a CheLevi? 
+                Gostaríamos de ouvir de si! A nossa equipa está pronta para ajudá-la.
               </p>
             </div>
 
@@ -59,10 +59,11 @@ const Contact: React.FC = () => {
               <div className="flex items-start gap-4 p-6 bg-white rounded-lg border">
                 <MapPin className="text-secondary mt-1" size={24} />
                 <div>
-                  <h3 className="font-semibold mb-2">Visite Nossa Loja</h3>
+                  <h3 className="font-semibold mb-2">Visite-nos</h3>
                   <p className="text-text-secondary">
-                    Avenida Julius Nyerere, 1234<br />
-                    Maputo, Mozambique
+                  Rua da Resistência n° 1550, R/C. <br />
+                    Maputo, Mozambique <br />
+                    As portas estão abertas.
                   </p>
                 </div>
               </div>
@@ -71,9 +72,9 @@ const Contact: React.FC = () => {
                 <Phone className="text-secondary mt-1" size={24} />
                 <div>
                   <h3 className="font-semibold mb-2">Ligue-nos</h3>
+                  <p>Uma conversa está à distância de uma chamada. </p>
                   <p className="text-text-secondary">
-                    +258 84 123 4567<br />
-                    +258 87 765 4321
+                  +258 85 2232423.<br />
                   </p>
                 </div>
               </div>
@@ -83,8 +84,8 @@ const Contact: React.FC = () => {
                 <div>
                   <h3 className="font-semibold mb-2">Envie-nos um Email</h3>
                   <p className="text-text-secondary">
-                    info@shopfcc.store<br />
-                    support@shopfcc.store
+                    info@cheLevivi.com<br />
+                    support@cheLevi.com
                   </p>
                 </div>    
               </div>
@@ -94,41 +95,10 @@ const Contact: React.FC = () => {
                 <div>
                       <h3 className="font-semibold mb-2">WhatsApp</h3>
                   <p className="text-text-secondary">
-                    +258 84 123 4567<br />
+                    +258 85 2232423.<br />
                     Disponível 24/7 para suporte instantâneo
                   </p>
                 </div>
-              </div>
-
-              <div className="flex items-start gap-4 p-6 bg-white rounded-lg border">
-                <Clock className="text-secondary mt-1" size={24} />
-                <div>
-                  <h3 className="font-semibold mb-2">Horário de Atendimento</h3>
-                  <div className="text-text-secondary">
-                    <p>Monday - Friday: 9:00 AM - 6:00 PM</p>
-                    <p>Saturday: 9:00 AM - 5:00 PM</p>
-                    <p>Sunday: 10:00 AM - 4:00 PM</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Social Media */}
-            <div className="bg-primary p-6 rounded-lg">
-              <h3 className="font-semibold mb-4">Siga-nos</h3>
-              <div className="flex gap-4">
-                <a href="#" className="w-10 h-10 bg-white rounded-full flex items-center justify-center hover:bg-secondary transition-colors">
-                  📘
-                </a>
-                <a href="#" className="w-10 h-10 bg-white rounded-full flex items-center justify-center hover:bg-secondary transition-colors">
-                  📷
-                </a>
-                <a href="#" className="w-10 h-10 bg-white rounded-full flex items-center justify-center hover:bg-secondary transition-colors">
-                  🐦
-                </a>
-                <a href="#" className="w-10 h-10 bg-white rounded-full flex items-center justify-center hover:bg-secondary transition-colors">
-                  📺
-                </a>
               </div>
             </div>
           </div>
@@ -235,31 +205,30 @@ const Contact: React.FC = () => {
 
         {/* FAQ Section */}
         <div className="mt-20">
-          <h2 className="text-3xl font-bold text-center mb-12">Frequently Asked Questions</h2>
-          
+          <h2 className="text-3xl font-bold text-center mb-12">Questões Frequentes (FAQ)</h2>
+          <p className="text-text-secondary mb-8 leading-relaxed">
+          A elegância reside na clareza. Aqui, reunimos as respostas para as suas questões, permitindo-lhe uma experiência tão fluida e serena quanto as nossas peças.
+          </p>
           <div className="grid lg:grid-cols-2 gap-8">
             <div className="space-y-6">
               <div className="bg-white p-6 rounded-lg border">
-                <h3 className="font-semibold mb-3">Quanto tempo leva o envio?</h3>
+                <h3 className="font-semibold mb-3">•	Quanto tempo demora a entrega?</h3>
                 <p className="text-text-secondary">
-                  Oferecemos entrega grátis dentro de Maputo, que normalmente leva 1-2 dias úteis. 
-                  Para outras áreas em Moçambique, o envio leva 3-5 dias úteis.
+                Em Maputo, em apenas 1 a 2 dias. No resto do país, 3 a 5 dias. Sempre com a promessa de chegar com cuidado, como se fosse entregue por mãos amigas.
                 </p>
               </div>
               
               <div className="bg-white p-6 rounded-lg border">
-                <h3 className="font-semibold mb-3">Qual é a sua política de retorno?</h3>
+                <h3 className="font-semibold mb-3">•	Como posso acompanhar o meu pedido?</h3>
                 <p className="text-text-secondary">
-                  Aceitamos retornos dentro de 30 dias após a compra para produtos não abertos em condição original. 
-                  Todos os retornos devem incluir o recibo original ou prova de compra.
+                Receberá um link de rastreio pelo WhatsApp e poderá acompanhar o seu pedido a qualquer momento na sua conta CheLevi.
                 </p>
               </div>
 
               <div className="bg-white p-6 rounded-lg border">
-                <h3 className="font-semibold mb-3">Oferecemos envio internacional?</h3>
+                <h3 className="font-semibold mb-3">•	Qual é a vossa política de devolução?</h3>
                 <p className="text-text-secondary">
-                  Atualmente, enviamos apenas para Moçambique. Estamos trabalhando para expandir nossas opções de envio 
-                  para atender mais países no futuro próximo.
+                Aceitamos devoluções até 30 dias após a compra. Confiamos na qualidade das nossas criações, mas queremos que cada escolha sua seja feita com a mesma confiança e prazer de usar CheLevi.
                 </p>
               </div>
             </div>
@@ -268,27 +237,20 @@ const Contact: React.FC = () => {
               <div className="bg-white p-6 rounded-lg border">
                 <h3 className="font-semibold mb-3">Como posso rastrear meu pedido?</h3>
                 <p className="text-text-secondary">
-                  Uma vez que seu pedido é enviado, você receberá um link de rastreamento via WhatsApp. Você também pode 
-                  rastrear seu pedido entrando em sua conta e visualizando seu histórico de pedidos.
+                  Uma vez que seu pedido é enviado, receberás um link de rastreamento via WhatsApp.Também podes 
+                  rastrear o teu pedido entrando em teu conta e visualizando o teu histórico de pedidos.
                 </p>
               </div>
               
               <div className="bg-white p-6 rounded-lg border">
-                <h3 className="font-semibold mb-3">Seus produtos são veganos?</h3>
+                <h3 className="font-semibold mb-3">Enviam para fora de Moçambique?</h3>
                 <p className="text-text-secondary">
-                    Sim! Todos os produtos da ShopFCC são 100% veganos. 
-                  Nunca testamos em animais e trabalhamos apenas com fornecedores que compartilham nossos valores.
-                </p>
-              </div>
-
-              <div className="bg-white p-6 rounded-lg border">
-                <h3 className="font-semibold mb-3">Posso cancelar ou modificar meu pedido?</h3>
-                <p className="text-text-secondary">
-                  Você pode cancelar ou modificar seu pedido dentro de 1 hora após o pedido. Após isso, 
-                  por favor, entre em contato com nosso time de atendimento ao cliente para assistência.
+                Sim, enviamos para Portugal. Em breve estaremos também noutros países, para que a CheLevi continue a aproximar-se de quem partilha o nosso olhar sobre a elegância
                 </p>
               </div>
             </div>
+            
+
           </div>
         </div>
       </div>

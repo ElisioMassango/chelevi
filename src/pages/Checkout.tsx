@@ -1,14 +1,18 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { MapPin, Phone, Mail, CreditCard, Smartphone, Loader2 } from 'lucide-react';
+import { MapPin, Mail, CreditCard, Smartphone, Loader2 } from 'lucide-react';
 import { useCart } from '../contexts/CartContext';
 import { useAuth } from '../contexts/AuthContext';
+import { useShippingMethods, useOrderManagement } from '../hooks/useProducts';
+import { BillingInfo } from '../services/api';
+import CheckoutLocationSelector from '../components/CheckoutLocationSelector';
 
 const Checkout: React.FC = () => {
   const navigate = useNavigate();
   const [isProcessing, setIsProcessing] = useState(false);
   const [deliveryMethod, setDeliveryMethod] = useState<'delivery' | 'pickup'>('delivery');
   const [paymentMethod, setPaymentMethod] = useState<'mpesa' | 'card'>('mpesa');
+  const [selectedShippingMethod, setSelectedShippingMethod] = useState<string>('');
   const [formData, setFormData] = useState({
     email: '',
     phone: '',
@@ -17,12 +21,104 @@ const Checkout: React.FC = () => {
     address: '',
     city: '',
     postalCode: '',
-    mpesaNumber: ''
+    mpesaNumber: '',
+    country: '',
+    state: '',
+    cityId: '',
+    // Billing specific
+    billingAddress: '',
+    billingCity: '',
+    billingCityName: '', // Nome da cidade para billing
+    billingPostalCode: '',
+    billingCountry: '',
+    billingState: '',
+    billingCityId: '',
+    // Shipping specific
+    shippingAddress: '',
+    shippingCity: '',
+    shippingCityName: '', // Nome da cidade para shipping
+    shippingPostalCode: '',
+    shippingCountry: '',
+    shippingState: '',
+    shippingCityId: '',
+    // Checkbox to use same address
+    useSameAddress: true,
+    // Delivery comment
+    deliveryComment: ''
   });
-  const { items, total, clearCart } = useCart();
+
+  const { items, total, clearCart, cartData } = useCart();
   const { user } = useAuth();
+  const { methods: shippingMethods, loading: shippingLoading } = useShippingMethods();
+  const { placeOrder } = useOrderManagement();
+
+  // Validações de segurança
+  React.useEffect(() => {
+    // Verificar se o usuário está logado
+    if (!user) {
+      navigate('/login');
+      return;
+    }
+    
+    // Verificar se há produtos no carrinho
+    if (items.length === 0) {
+      navigate('/cart');
+      return;
+    }
+  }, [user, items, navigate]);
+
+  // Auto-fill dos campos de contato quando logado
+  React.useEffect(() => {
+    if (user && !formData.email) { // Only auto-fill if not already filled
+      setFormData(prev => ({
+        ...prev,
+        email: user.email || prev.email,
+        phone: user.phone || prev.phone,
+        firstName: user.first_name || user.name?.split(' ')[0] || prev.firstName,
+        lastName: user.last_name || user.name?.split(' ').slice(1).join(' ') || prev.lastName,
+      }));
+    }
+  }, [user, formData.email]);
+
+  // Função para obter nome da cidade pelo ID
+  const getCityNameById = (cityId: string): string => {
+    // Mapeamento básico de IDs para nomes de cidades
+    const cityMap: { [key: string]: string } = {
+      '4689': 'Maputo',
+      '4690': 'Matola',
+      '4700': 'Beira',
+      '4701': 'Nampula',
+      '4702': 'Chimoio',
+      '4703': 'Nacala',
+      '4704': 'Quelimane',
+      '4705': 'Tete',
+      '4706': 'Pemba',
+      '4707': 'Lichinga',
+      '4708': 'Inhambane',
+      '4709': 'Xai-Xai',
+      '4710': 'Gaza',
+      '4711': 'Manica',
+      '4712': 'Sofala',
+      '4713': 'Zambézia',
+      '4714': 'Cabo Delgado',
+      '4715': 'Niassa',
+      '4716': 'Tete',
+      '4717': 'Manica',
+      '4718': 'Sofala',
+      '4719': 'Zambézia',
+      '4720': 'Nampula',
+    };
+    return cityMap[cityId] || 'Maputo'; // Fallback para Maputo
+  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData(prev => ({
+      ...prev,
+      [e.target.name]: e.target.value
+    }));
+  };
+
+  const handleTextareaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setFormData(prev => ({
       ...prev,
       [e.target.name]: e.target.value
@@ -33,17 +129,99 @@ const Checkout: React.FC = () => {
     e.preventDefault();
     setIsProcessing(true);
     
+    if (!user?.id) {
+      alert('Please login to place an order');
+      return;
+    }
+
+    // Validate billing address
+    if (!formData.billingCountry || !formData.billingState || !formData.billingCityId) {
+      alert('Por favor, preencha o endereço de cobrança completamente');
+      setIsProcessing(false);
+      return;
+    }
+
+    // Validate billing address field
+    if (!formData.billingAddress && !formData.address) {
+      alert('Por favor, preencha o endereço de cobrança');
+      setIsProcessing(false);
+      return;
+    }
+
+    // Validate shipping address if not using same address
+    if (!formData.useSameAddress) {
+      if (!formData.shippingCountry || !formData.shippingState || !formData.shippingCityId) {
+        alert('Por favor, preencha o endereço de entrega completamente');
+        setIsProcessing(false);
+        return;
+      }
+    }
+
     try {
-      // Simulate order processing with loading
-      await new Promise(resolve => setTimeout(resolve, 3000));
+      // Ensure all required fields are present
+      const billingInfo: BillingInfo = {
+        // Billing Information
+        billing_postecode: formData.billingPostalCode || formData.postalCode || '0000',
+        email: formData.email || 'user@example.com',
+        billing_city: formData.billingCityName || 'Maputo', // NOME da cidade
+        lastname: formData.lastName || 'User',
+        billing_company_name: '',
+        billing_address: formData.billingAddress || formData.address || 'Endereço não informado',
+        billing_user_telephone: formData.phone || '000000000',
+        firstname: formData.firstName || 'User',
+        billing_country: formData.billingCountry || formData.country || '150', // ID do país
+        billing_state: formData.billingState || formData.state || '1', // ID do estado
+        
+        // Delivery/Shipping Information
+        delivery_city: formData.shippingCityName || formData.billingCityName || 'Maputo', // NOME da cidade
+        delivery_state: formData.shippingState || formData.billingState || '1', // ID do estado
+        delivery_postcode: formData.shippingPostalCode || formData.billingPostalCode || '0000',
+        delivery_country: formData.shippingCountry || formData.billingCountry || '150', // ID do país
+        delivery_address: formData.shippingAddress || formData.billingAddress || 'Address',
+      };
+
+      console.log('Billing Info:', billingInfo);
+
+      const orderData = {
+        paymentType: paymentMethod === 'mpesa' ? 'cod' : 'card',
+        billingInfo,
+        couponInfo: cartData?.coupon_info || {},
+        deliveryComment: formData.deliveryComment || '', // Usar o comentário do formulário
+        userId: user.id.toString(),
+        customerId: user.id.toString(),
+        paymentComment: formData.deliveryComment || '',
+        deliveryId: selectedShippingMethod || '1',
+        subTotal: cartData?.final_price ? parseFloat(cartData.final_price) : total,
+        //couponCode: cartData?.coupon_code || '-',
+      };
+
+      console.log('Order Data:', orderData);
+      console.log('Cart Data:', cartData);
+
+      const result = await placeOrder(orderData);
       
-      console.log('Processing order...', { formData, items, total });
+      console.log('Order placed successfully:', result);
       
-      clearCart();
-      navigate('/checkout-success');
+      // Navigate first, then clear cart
+      navigate('/checkout-success', { 
+        state: { 
+          orderId: result.order_id,
+          orderData: {
+            subTotal: orderData.subTotal,
+            items: items,
+            paymentType: orderData.paymentType,
+            billingInfo: orderData.billingInfo
+          }
+        } 
+      });
+      
+      // Clear cart after navigation
+      setTimeout(() => {
+        clearCart();
+      }, 100);
     } catch (error) {
       console.error('Order processing failed:', error);
-      // Handle error
+      alert('Failed to place order. Please try again.');
     } finally {
       setIsProcessing(false);
     }
@@ -181,47 +359,186 @@ const Checkout: React.FC = () => {
                 </div>
 
                 {deliveryMethod === 'delivery' && (
-                  <div className="mt-6 space-y-4">
-                    <div className="form-group">
-                      <label className="form-label">Endereço</label>
-                      <input
-                        type="text"
-                        name="address"
-                        value={formData.address}
-                        onChange={handleInputChange}
-                        className="form-input"
-                        placeholder="Endereço"
-                        required
-                      />
+                  <div className="mt-6 space-y-6">
+                    {/* Billing Address Section */}
+                    <div className="bg-white p-6 rounded-lg border">
+                      <h3 className="text-lg font-semibold mb-4">Endereço de Cobrança</h3>
+                      <div className="space-y-4">
+                        <div className="form-group">
+                          <label className="form-label">Endereço de Cobrança</label>
+                          <input
+                            type="text"
+                            name="billingAddress"
+                            value={formData.billingAddress}
+                            onChange={handleInputChange}
+                            className="form-input"
+                            placeholder="Endereço de cobrança"
+                            required
+                          />
+                        </div>
+                        
+                        <CheckoutLocationSelector
+                          onLocationChange={(location) => {
+                            // Buscar nome da cidade baseado no ID
+                            const cityName = getCityNameById(location.city);
+                            setFormData(prev => ({
+                              ...prev,
+                              billingCountry: location.country,
+                              billingState: location.state,
+                              billingCityId: location.city,
+                              billingCityName: cityName,
+                            }));
+                          }}
+                          showLabels={true}
+                          required={true}
+                        />
+
+                        <div className="form-group">
+                          <label className="form-label">Código Postal</label>
+                          <input
+                            type="text"
+                            name="billingPostalCode"
+                            value={formData.billingPostalCode}
+                            onChange={handleInputChange}
+                            className="form-input"
+                            placeholder="Código postal (opcional)"
+                          />
+                        </div>
+                      </div>
                     </div>
-                    <div className="grid grid-2 gap-4">
-                      <div className="form-group">
-                        <label className="form-label">Cidade</label>
-                        <input
-                          type="text"
-                          name="city"
-                          value={formData.city}
-                          onChange={handleInputChange}
-                          className="form-input"
-                          required
-                        />
+
+                    {/* Shipping Address Section */}
+                    <div className="bg-white p-6 rounded-lg border">
+                      <div className="flex items-center justify-between mb-4">
+                        <h3 className="text-lg font-semibold">Endereço de Entrega</h3>
+                        <label className="flex items-center gap-2">
+                          <input
+                            type="checkbox"
+                            checked={formData.useSameAddress}
+                            onChange={(e) => {
+                              setFormData(prev => ({
+                                ...prev,
+                                useSameAddress: e.target.checked,
+                                shippingAddress: e.target.checked ? prev.billingAddress : prev.shippingAddress,
+                                shippingCountry: e.target.checked ? prev.billingCountry : prev.shippingCountry,
+                                shippingState: e.target.checked ? prev.billingState : prev.shippingState,
+                                shippingCityId: e.target.checked ? prev.billingCityId : prev.shippingCityId,
+                                shippingCityName: e.target.checked ? prev.billingCityName : prev.shippingCityName,
+                                shippingPostalCode: e.target.checked ? prev.billingPostalCode : prev.shippingPostalCode,
+                              }));
+                            }}
+                            className="form-checkbox"
+                          />
+                          <span className="text-sm">Usar mesmo endereço de cobrança</span>
+                        </label>
                       </div>
-                      <div className="form-group">
-                        <label className="form-label">Código Postal</label>
-                        <input
-                          type="text"
-                          name="postalCode"
-                          value={formData.postalCode}
-                          onChange={handleInputChange}
-                          className="form-input"
-                        />
-                      </div>
+                      
+                      {!formData.useSameAddress && (
+                        <div className="space-y-4">
+                          <div className="form-group">
+                            <label className="form-label">Endereço de Entrega</label>
+                            <input
+                              type="text"
+                              name="shippingAddress"
+                              value={formData.shippingAddress}
+                              onChange={handleInputChange}
+                              className="form-input"
+                              placeholder="Endereço de entrega"
+                              required
+                            />
+                          </div>
+                          
+                          <CheckoutLocationSelector
+                            onLocationChange={(location) => {
+                              // Buscar nome da cidade baseado no ID
+                              const cityName = getCityNameById(location.city);
+                              setFormData(prev => ({
+                                ...prev,
+                                shippingCountry: location.country,
+                                shippingState: location.state,
+                                shippingCityId: location.city,
+                                shippingCityName: cityName,
+                              }));
+                            }}
+                            showLabels={true}
+                            required={true}
+                          />
+
+                          <div className="form-group">
+                            <label className="form-label">Código Postal</label>
+                            <input
+                              type="text"
+                              name="shippingPostalCode"
+                              value={formData.shippingPostalCode}
+                              onChange={handleInputChange}
+                              className="form-input"
+                              placeholder="Código postal (opcional)"
+                            />
+                          </div>        
+                        </div>
+                      )}
+                      
+                      {formData.useSameAddress && (
+                        <div className="bg-gray-50 p-4 rounded-lg">
+                          <p className="text-sm text-gray-600">
+                            ✓ Usando o mesmo endereço de cobrança para entrega
+                          </p>
+                        </div>
+                      )}
+                        <div className="form-group">
+                            <label className="form-label">Comentário de Entrega (Opcional)</label>
+                            <textarea
+                              name="deliveryComment"
+                              value={formData.deliveryComment || ''}
+                              onChange={handleTextareaChange}
+                              className="form-textarea"
+                              placeholder="Instruções especiais para entrega (ex: deixar na portaria, horário preferido, etc.)"
+                              rows={3}
+                            />
+                          </div>
                     </div>
                     
                     <div className="bg-blue-50 p-4 rounded-lg">
                       <p className="text-sm text-blue-800">
-                            📍 Você pode marcar sua localização exata no Google Maps para entrega precisa.
+                        📍 Você pode marcar sua localização exata no Google Maps para entrega precisa.
                       </p>
+                    </div>
+
+                    <div className="bg-green-50 p-4 rounded-lg">
+                      <p className="text-sm text-green-800">
+                        🌍 Entregamos apenas para Moçambique e Portugal. Selecione seu país, província/distrito e cidade.
+                      </p>
+                    </div>
+
+                    {/* Shipping Methods */}
+                    <div className="mt-6">
+                      <h3 className="text-lg font-medium mb-4">Métodos de Envio</h3>
+                      {shippingLoading ? (
+                        <div className="flex items-center justify-center py-4">
+                          <div className="animate-spin w-6 h-6 border-2 border-secondary border-t-transparent rounded-full"></div>
+                        </div>
+                      ) : (
+                        <div className="space-y-3">
+                          {shippingMethods.map((method) => (
+                            <label key={method.id} className="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
+                              <input
+                                type="radio"
+                                name="shippingMethod"
+                                value={method.id.toString()}
+                                checked={selectedShippingMethod === method.id.toString()}
+                                onChange={(e) => setSelectedShippingMethod(e.target.value)}
+                                className="mr-3"
+                              />
+                              <div className="flex-1">
+                                <div className="font-medium">{method.method_name}</div>
+                                <div className="text-sm text-text-secondary">
+                                  Custo: MT{method.cost === '0' ? 'Grátis' : method.cost}
+                                </div>
+                              </div>
+                            </label>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   </div>
                 )}
@@ -293,6 +610,33 @@ const Checkout: React.FC = () => {
               <div className="bg-white p-6 rounded-lg border sticky top-4">
                 <h2 className="text-xl font-semibold mb-6">Resumo do Pedido</h2>
 
+                {/* Applied Coupon */}
+                {cartData?.coupon_info && cartData.coupon_info.coupon_id > 0 && (
+                  <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <span className="text-green-700 font-medium text-sm">
+                          Cupom Aplicado: {cartData.coupon_info.coupon_name}
+                        </span>
+                        <p className="text-green-600 text-xs mt-1">
+                          Código: {cartData.coupon_info.coupon_code}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <span className="text-green-600 font-bold text-lg">
+                          -MT{parseFloat(cartData.coupon_info.coupon_discount_amount).toFixed(2)}
+                        </span>
+                        <p className="text-green-600 text-xs">
+                          {cartData.coupon_info.coupon_discount_type === 'percentage' 
+                            ? `${cartData.coupon_info.coupon_discount_number}% OFF`
+                            : 'Desconto Fixo'
+                          }
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 {/* Items */}
                 <div className="space-y-4 mb-6">
                   {items.map((item) => (
@@ -322,6 +666,15 @@ const Checkout: React.FC = () => {
                     <span>Subtotal</span>
                     <span>MT{subtotal.toFixed(2)}</span>
                   </div>
+                  
+                  {/* Coupon Discount */}
+                  {cartData?.coupon_info && cartData.coupon_info.coupon_id > 0 && (
+                    <div className="flex justify-between text-green-600">
+                      <span>Desconto ({cartData.coupon_info.coupon_name})</span>
+                      <span>-MT{parseFloat(cartData.coupon_info.coupon_discount_amount).toFixed(2)}</span>
+                    </div>
+                  )}
+                  
                   <div className="flex justify-between">
                     <span>Frete</span>
                     <span className="text-success">Grátis</span>
@@ -332,7 +685,7 @@ const Checkout: React.FC = () => {
                   </div>
                   <div className="flex justify-between font-bold text-lg border-t pt-3">
                     <span>Total</span>
-                    <span>MT{grandTotal.toFixed(2)}</span>
+                    <span>MT{cartData?.final_price ? parseFloat(cartData.final_price).toFixed(2) : grandTotal.toFixed(2)}</span>
                   </div>
                 </div>
 
