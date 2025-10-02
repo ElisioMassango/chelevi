@@ -83,7 +83,7 @@ export function useUserProfile() {
     }
   };
 
-  const changePassword = async (customerId: string, currentPassword: string, newPassword: string) => {
+  const changePassword = async (customerId: string, newPassword: string) => {
     if (!user?.id) return;
     
     setLoading(true);
@@ -93,7 +93,6 @@ export function useUserProfile() {
     try {
       const response = await apiService.changePassword({
         customer_id: customerId,
-        current_password: currentPassword,
         new_password: newPassword
       });
       

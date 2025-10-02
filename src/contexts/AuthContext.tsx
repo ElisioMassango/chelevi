@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useReducer, ReactNode } from 'react';
-import { apiService, User as ApiUser } from '../services/api';
+import { apiService } from '../services/api';
 import { toastService } from '../utils/toast';
 import { logger } from '../utils/logger';
 
@@ -114,7 +114,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [state, dispatch] = useReducer(authReducer, initialState);
 
-  const sendOTP = async (phone: string) => {
+  const sendOTP = async (_phone: string) => {
     dispatch({ type: 'SET_LOADING', payload: true });
     try {
       // For phone-based OTP, we'll simulate for now
@@ -138,11 +138,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         const user: User = {
           id: response.data.id.toString(),
           phone: response.data.mobile,
-          email: response.data.email,
-          name: response.data.name,
-          first_name: response.data.first_name,
-          last_name: response.data.last_name,
-          image: response.data.image,
+          email: response.data.email || undefined,
+          name: response.data.name || undefined,
+          first_name: response.data.first_name || undefined,
+          last_name: response.data.last_name || undefined,
+          image: response.data.image || undefined,
           token: response.data.token
         };
         
@@ -175,11 +175,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         const user: User = {
           id: response.data.id.toString(),
           phone: response.data.mobile,
-          email: response.data.email,
-          name: response.data.name,
-          first_name: response.data.first_name,
-          last_name: response.data.last_name,
-          image: response.data.image,
+          email: response.data.email || undefined,
+          name: response.data.name || undefined,
+          first_name: response.data.first_name || undefined,
+          last_name: response.data.last_name || undefined,
+          image: response.data.image || undefined,
           token: response.data.token
         };
         
@@ -219,17 +219,42 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const verifyForgotPasswordOtp = async (email: string, otp: string) => {
     dispatch({ type: 'SET_LOADING', payload: true });
+    logger.userAction('Verify forgot password OTP attempt', { email });
+    
     try {
       const response = await apiService.forgotPasswordVerifyOtp(email, otp);
       if (response.status === 1) {
-        dispatch({ type: 'SET_LOADING', payload: false });
-        return response.data;
+        // Check if response contains user data and token (auto-login)
+        if (response.data.token && response.data.id) {
+          const user: User = {
+            id: response.data.id.toString(),
+            phone: response.data.mobile,
+            email: response.data.email || undefined,
+            name: response.data.name || undefined,
+            first_name: response.data.first_name || undefined,
+            last_name: response.data.last_name || undefined,
+            image: response.data.image || undefined,
+            token: response.data.token
+          };
+          
+          dispatch({ type: 'SET_USER', payload: user });
+          toastService.userLoggedIn();
+          logger.userAction('Auto-login after OTP verification successful', { userId: user.id });
+          return { ...response.data, autoLogin: true };
+        } else {
+          // No auto-login, proceed to reset password
+          dispatch({ type: 'SET_LOADING', payload: false });
+          return { ...response.data, autoLogin: false };
+        }
       } else {
         throw new Error(response.message);
       }
     } catch (error) {
       dispatch({ type: 'SET_ERROR', payload: 'Invalid OTP. Please try again.' });
+      logger.error('Verify forgot password OTP error', { email, error });
       throw error;
+    } finally {
+      dispatch({ type: 'SET_LOADING', payload: false });
     }
   };
 
@@ -282,11 +307,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         const user: User = {
           id: response.data.id.toString(),
           phone: response.data.mobile,
-          email: response.data.email,
-          name: response.data.name,
-          first_name: response.data.first_name,
-          last_name: response.data.last_name,
-          image: response.data.image,
+          email: response.data.email || undefined,
+          name: response.data.name || undefined,
+          first_name: response.data.first_name || undefined,
+          last_name: response.data.last_name || undefined,
+          image: response.data.image || undefined,
           token: response.data.token
         };
         

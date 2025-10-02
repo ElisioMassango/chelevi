@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { apiService, Product, ProductDetailResponse, ProductVariant, CartResponse, PaginatedResponse, ApiResponse, ShippingMethod, DeliveryCharge, LoyaltyProgram, Order, OrderDetail, BillingInfo } from '../services/api';
+import { apiService, Product, ProductDetailResponse, CartResponse, PaginatedResponse, ApiResponse, ShippingMethod, LoyaltyProgram, Order, OrderDetail, BillingInfo } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
 
 // Hook for product detail
@@ -129,7 +129,7 @@ export function useCategoryProducts(categoryId?: string, subcategoryId?: string)
 
 // Hook for featured products
 export function useFeaturedProducts() {
-  const [products, setProducts] = useState<any[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { user } = useAuth();
@@ -140,7 +140,7 @@ export function useFeaturedProducts() {
         setLoading(true);
         setError(null);
         
-        let response: ApiResponse<any[]>;
+        let response: ApiResponse<any>;
         
         if (user) {
           response = await apiService.getFeaturedProducts();
@@ -149,7 +149,25 @@ export function useFeaturedProducts() {
         }
         
         if (response.status === 1) {
-          setProducts(response.data);
+          // Debug log to see what's being returned
+          console.log('Featured products response:', response.data);
+          
+          // Check if the response contains products or categories
+          if (Array.isArray(response.data)) {
+            // If it's an array, check if first item looks like a product
+            if (response.data.length > 0 && response.data[0].hasOwnProperty('name') && response.data[0].hasOwnProperty('final_price')) {
+              setProducts(response.data);
+            } else {
+              console.log('API returned categories instead of products');
+              setError('API returned categories instead of products');
+            }
+          } else if (response.data.data && Array.isArray(response.data.data)) {
+            // Paginated response
+            setProducts(response.data.data);
+          } else {
+            console.log('Unexpected response structure for featured products:', response.data);
+            setError('Unexpected response structure');
+          }
         } else {
           setError(response.message);
         }
@@ -777,4 +795,64 @@ export function useOrderManagement() {
     loading,
     error,
   };
+}
+
+// Hook for all products
+export function useAllProducts() {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [pagination, setPagination] = useState<PaginatedResponse<Product> | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const { user } = useAuth();
+
+  useEffect(() => {
+    const fetchAllProducts = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        
+        // Try to get bestseller products first, then featured as fallback
+        let response: ApiResponse<any>;
+        
+        try {
+          if (user) {
+            response = await apiService.getBestsellerProducts();
+          } else {
+            response = await apiService.getBestsellerProductsGuest();
+          }
+        } catch (bestsellerError) {
+          // Fallback to recent products if bestsellers fail
+          console.log('Bestsellers failed, trying recent products:', bestsellerError);
+          if (user) {
+            response = await apiService.getRecentProducts();
+          } else {
+            response = await apiService.getRecentProductsGuest();
+          }
+        }
+        
+        if (response.status === 1) {
+          // Check if response is paginated or direct array
+          if (response.data.data) {
+            setProducts(response.data.data);
+            setPagination(response.data);
+          } else if (Array.isArray(response.data)) {
+            setProducts(response.data);
+          } else {
+            console.log('Unexpected response structure:', response.data);
+            setError('Unexpected response structure');
+          }
+        } else {
+          setError(response.message);
+        }
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to fetch products');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAllProducts();
+  }, [user]);
+
+  return { products, pagination, loading, error };
 }

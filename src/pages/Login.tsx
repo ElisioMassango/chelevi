@@ -84,8 +84,16 @@ const Login: React.FC = () => {
     if (!forgotPasswordOtp) return;
 
     try {
-      await verifyForgotPasswordOtp(forgotPasswordEmail, forgotPasswordOtp);
-      setStep('reset-password');
+      const result = await verifyForgotPasswordOtp(forgotPasswordEmail, forgotPasswordOtp);
+      
+      // Check if auto-login occurred
+      if (result && result.autoLogin) {
+        // User is now logged in, redirect to home or profile
+        navigate('/');
+      } else {
+        // Proceed to reset password step
+        setStep('reset-password');
+      }
     } catch (error) {
       // Error handled in context
     }

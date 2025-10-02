@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Heart, User, Search, ShoppingBag, Menu, X, ChevronDown, Globe, Minus, Plus } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
@@ -19,6 +19,11 @@ const Header: React.FC = () => {
 
   const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
 
+  // Debug effect for menu state
+  useEffect(() => {
+    console.log('Menu state changed:', isMenuOpen);
+  }, [isMenuOpen]);
+
   // Mock search results
   const searchResults = [
     {
@@ -33,7 +38,7 @@ const Header: React.FC = () => {
       price: 1200,
       image: "https://fentybeauty.com/cdn/shop/files/FS_FALL25_T2PRODUCT_ECOMM_BODY-MILK_SALTED-CARAMEL_1200X1500_72DPI_900x1100.jpg?v=1754005575&width=100&height=100"
     }
-  ].filter(product => 
+  ].filter(product =>
     product.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
@@ -139,14 +144,14 @@ const Header: React.FC = () => {
                 </Link>
               )}
 
-              <button 
+              <button
                 onClick={() => setIsSearchOpen(!isSearchOpen)}
                 className="hover:text-accent transition-colors"
               >
                 <Search size={20} />
               </button>
 
-              <button 
+              <button
                 onClick={() => setIsCartOpen(!isCartOpen)}
                 className="relative hover:text-accent transition-colors"
               >
@@ -162,48 +167,52 @@ const Header: React.FC = () => {
 
           {/* Navigation Menu */}
           <nav className="hidden lg:block border-t border-gray-light">
-          <ul className="flex items-center justify-center gap-12 py-4">
-  <li>
-    <Link 
-      to="/products/bolsas" 
-      className="text-sm font-medium uppercase tracking-wide hover:text-accent transition-colors"
-    >
-      Bolsas
-    </Link>
-  </li>
-  <li>
-    <Link 
-      to="/products/sapatos" 
-      className="text-sm font-medium uppercase tracking-wide hover:text-accent transition-colors"
-    >
-      Sapatos
-    </Link>
-  </li>
-  <li>
-    <Link 
-      to="/products/carteiras" 
-      className="text-sm font-medium uppercase tracking-wide hover:text-accent transition-colors"
-    >
-      Carteiras
-    </Link>
-  </li>
-  <li>
-    <Link 
-      to="/products/bolsas" 
-      className="text-sm font-medium uppercase tracking-wide hover:text-accent transition-colors"
-    >
-      Coleções
-    </Link>
-  </li>
+            <ul className="flex items-center justify-center gap-12 py-4">
+              <li>
+                <Link
+                  to="/"
+                  className="text-sm font-medium uppercase tracking-wide hover:text-accent transition-colors"
+                >
+                  Início
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/about"
+                  className="text-sm font-medium uppercase tracking-wide hover:text-accent transition-colors"
+                >
+                  Sobre Nós
+                </Link>
+              </li>
 
-</ul>
+              <li>
+                <Link
+                  to="/products/"
+                  className="text-sm font-medium uppercase tracking-wide hover:text-accent transition-colors"
+                >
+                  Coleções
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/contact"
+                  className="text-sm font-medium uppercase tracking-wide hover:text-accent transition-colors"
+                >
+                  Contacto
+                </Link>
+              </li>
+
+            </ul>
 
           </nav>
 
           {/* Mobile Header */}
           <div className="lg:hidden flex items-center justify-between py-4">
             <button
-              onClick={() => setIsMenuOpen(true)}
+              onClick={() => {
+                console.log('Menu button clicked, opening menu...');
+                setIsMenuOpen(true);
+              }}
               className="hover:text-accent transition-colors"
             >
               <Menu size={24} />
@@ -228,30 +237,69 @@ const Header: React.FC = () => {
 
         {/* Mobile Menu */}
         {isMenuOpen && (
-          <div className="fixed inset-0 z-50 lg:hidden">
-            <div className="fixed inset-0 bg-black bg-opacity-50" onClick={() => setIsMenuOpen(false)} />
-            <div className="fixed top-0 left-0 h-full w-80 max-w-full bg-white shadow-xl">
+          <div
+            className="fixed inset-0 z-[60] lg:hidden"
+            style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9999 }}
+          >
+            <div
+              className="fixed inset-0 bg-black bg-opacity-50"
+              onClick={() => setIsMenuOpen(false)}
+              style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0, 0, 0, 0.5)' }}
+            />
+            <div
+              className="fixed top-0 left-0 h-full w-80 max-w-full bg-white shadow-xl"
+              style={{ position: 'fixed', top: 0, left: 0, width: '320px', height: '100vh', backgroundColor: 'white', zIndex: 10000 }}
+            >
               <div className="flex items-center justify-between p-6 border-b">
                 <h2 className="text-lg font-bold">Menu</h2>
-                <button onClick={() => setIsMenuOpen(false)}>
+                <button onClick={() => {
+                  console.log('Closing menu...');
+                  setIsMenuOpen(false);
+                }}>
                   <X size={24} />
                 </button>
               </div>
-              
+
               <nav className="p-6">
-              <ul className="space-y-6">
-                {categories.map((category) => (
-                  <li key={category.id}>
+                <ul className="space-y-6">
+                  <li>
                     <Link
-                      to={`/products/category/${category.id}`}
+                      to="/"
                       className="block text-lg font-medium hover:text-accent transition-colors"
                       onClick={() => setIsMenuOpen(false)}
                     >
-                      {category.name}
+                      Início
                     </Link>
                   </li>
-                ))}
-              </ul>
+                  <li>
+                    <Link
+                      to="/about"
+                      className="block text-lg font-medium hover:text-accent transition-colors"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      Sobre Nós
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      to="/products/"
+                      className="block text-lg font-medium hover:text-accent transition-colors"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      Coleções
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      to="/contact"
+                      className="block text-lg font-medium hover:text-accent transition-colors"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      Contacto
+                    </Link>
+                  </li>
+                
+                </ul>
 
 
                 <div className="mt-8 pt-8 border-t space-y-4">
@@ -262,7 +310,7 @@ const Header: React.FC = () => {
                         className="block text-lg font-medium hover:text-accent transition-colors"
                         onClick={() => setIsMenuOpen(false)}
                       >
-                       Perfil
+                        Perfil
                       </Link>
                       <Link
                         to="/orders"
@@ -289,8 +337,9 @@ const Header: React.FC = () => {
                     >
                       Login
                     </Link>
+                    
                   )}
-                  
+
                   <Link
                     to="/wishlist"
                     className="flex items-center gap-2 text-lg font-medium hover:text-accent transition-colors"
@@ -299,6 +348,7 @@ const Header: React.FC = () => {
                     <Heart size={20} />
                     Wishlist ({wishlistItems.length})
                   </Link>
+                  
                 </div>
               </nav>
             </div>
@@ -323,7 +373,7 @@ const Header: React.FC = () => {
                   <X size={20} />
                 </button>
               </div>
-              
+
               {searchQuery && (
                 <div className="space-y-4 max-h-96 overflow-y-auto">
                   {searchResults.length > 0 ? (
@@ -367,7 +417,7 @@ const Header: React.FC = () => {
                   </button>
                 </div>
               </div>
-              
+
               <div className="flex-1 p-6">
                 {items.length > 0 ? (
                   <div className="space-y-4">
@@ -413,7 +463,7 @@ const Header: React.FC = () => {
                   </div>
                 )}
               </div>
-              
+
               {items.length > 0 && (
                 <div className="border-t p-6 space-y-4">
                   <div className="flex justify-between font-bold text-lg">

@@ -10,41 +10,29 @@ export function useApi<T>(
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    let isMounted = true;
-
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        const response = await apiCall();
-        
-        if (isMounted) {
-          if (response.status === 1) {
-            setData(response.data);
-          } else {
-            setError(response.message);
-          }
-        }
-      } catch (err) {
-        if (isMounted) {
-          setError(err instanceof Error ? err.message : 'An error occurred');
-        }
-      } finally {
-        if (isMounted) {
-          setLoading(false);
-        }
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await apiCall();
+      
+      if (response.status === 1) {
+        setData(response.data);
+      } else {
+        setError(response.message);
       }
-    };
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An error occurred');
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchData();
-
-    return () => {
-      isMounted = false;
-    };
   }, dependencies);
 
-  return { data, loading, error, refetch: () => fetchData() };
+  return { data, loading, error, refetch: fetchData };
 }
 
 // Hook for manual API calls (e.g., form submissions)
@@ -158,13 +146,13 @@ export function useUserProfile(customerId: string) {
 
   const handleChangePassword = async (password: string) => {
     return await changePassword(apiService.changePassword.bind(apiService), {
-      customerId,
-      password,
+      customer_id: customerId,
+      new_password: password,
     });
   };
 
   const handleUpdateImage = async (imageFile: File) => {
-    const result = await updateImage(apiService.updateUserImage.bind(apiService), {
+    const result = await updateImage((params: any) => apiService.updateUserImage(params.customerId, params.imageFile), {
       customerId,
       imageFile,
     });

@@ -96,7 +96,7 @@ const Profile: React.FC = () => {
     }
 
     try {
-      await changePassword(user.id, passwordData.currentPassword, passwordData.newPassword);
+      await changePassword(user.id,passwordData.newPassword);
       setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
       setShowPasswordForm(false);
     } catch (error) {

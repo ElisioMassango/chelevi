@@ -678,7 +678,6 @@ class ApiService {
   // Change password
   async changePassword(data: {
     customer_id: string;
-    current_password: string;
     new_password: string;
   }): Promise<ApiResponse<{ message: string }>> {
     return this.request('/change-password', {
@@ -686,8 +685,7 @@ class ApiService {
       body: JSON.stringify({
         theme_id: API_CONFIG.themeId,
         customer_id: data.customer_id,
-        current_password: data.current_password,
-        new_password: data.new_password,
+        password: data.new_password,  
       }),
     });
   }
