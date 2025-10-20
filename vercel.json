@@ -1,17 +1,13 @@
 {
-    "builds": [
-      { "src": "vite.config.js", "use": "@vercel/static-build" }
-    ],
-    "routes": [
-      { "handle": "filesystem" },
-      { "src": "/api/whatsapp-proxy/(.*)", "dest": "/api/whatsapp-proxy" },
-      { "src": "/api/email-proxy/(.*)", "dest": "/api/email-proxy" },
-      { "src": "/(.*)", "dest": "/index.html" }
-    ],
     "functions": {
       "api/whatsapp-proxy.js": { "maxDuration": 30 },
       "api/email-proxy.js": { "maxDuration": 30 }
     },
+    "rewrites": [
+      { "source": "/api/whatsapp-proxy/(.*)", "destination": "/api/whatsapp-proxy" },
+      { "source": "/api/email-proxy/(.*)", "destination": "/api/email-proxy" },
+      { "source": "/(.*)", "destination": "/index.html" }
+    ],
     "headers": [
       {
         "source": "/(.*)",
