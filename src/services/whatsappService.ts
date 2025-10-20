@@ -1,6 +1,7 @@
 // WhatsApp Service for Chelevi
 import { logger } from '../utils/logger';
 import { env } from '../config/environment';
+import { formatPhoneForWhatsApp } from '../utils/phoneUtils';
 
 // WhatsApp message templates
 const MESSAGE_TEMPLATES = {
@@ -86,18 +87,24 @@ class WhatsAppService {
         instance: this.instance
       });
 
-      const response = await fetch(`${this.baseUrl}/message/sendText/${this.instance}`, {
+      const proxyUrl = `${this.baseUrl}`;
+      const payload = {
+        path: `/message/sendText/${this.instance}`,
+        number: formatPhoneForWhatsApp(data.number),
+        text: data.text,
+        delay: data.delay || 1000,
+        linkPreview: data.linkPreview || false,
+      };
+
+      console.log('🛰️ WhatsApp proxy request', { url: proxyUrl, payload });
+
+      const response = await fetch(proxyUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'apikey': this.apiKey,
         },
-        body: JSON.stringify({
-          number: data.number,
-          text: data.text,
-          delay: data.delay || 1000,
-          linkPreview: data.linkPreview || false,
-        })
+        body: JSON.stringify(payload)
       });
 
       if (!response.ok) {
@@ -105,6 +112,7 @@ class WhatsAppService {
       }
 
       const result = await response.json();
+      console.log('✅ WhatsApp proxy response', { status: response.status, result });
       logger.userAction('WhatsApp message sent successfully', { 
         number: data.number, 
         messageLength: data.text.length 
@@ -251,11 +259,15 @@ class WhatsAppService {
   // Test connection
   async testConnection(): Promise<boolean> {
     try {
-      const response = await fetch(`${this.baseUrl}/instance/connectionState/${this.instance}`, {
-        method: 'GET',
+      const response = await fetch(`${this.baseUrl}`, {
+        method: 'POST',
         headers: {
+          'Content-Type': 'application/json',
           'apikey': this.apiKey,
-        }
+        },
+        body: JSON.stringify({
+          path: `/instance/connectionState/${this.instance}`
+        })
       });
 
       if (!response.ok) {

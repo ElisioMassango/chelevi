@@ -472,16 +472,7 @@ const Checkout: React.FC = () => {
                         />
                       </div>
                     </div>
-                    <div className="bg-blue-50 p-4 rounded-lg">
-                      <p className="text-sm text-blue-800">
-                        📍 Você pode marcar sua localização exata no Google Maps para entrega precisa.
-                      </p>
-                    </div>
-                    <div className="bg-green-50 p-4 rounded-lg">
-                      <p className="text-sm text-green-800">
-                        🌍 Entregamos apenas para Moçambique e Portugal. Selecione seu país, província/distrito e cidade.
-                      </p>
-                    </div>
+
                   </div>
                 )}
               </div>
