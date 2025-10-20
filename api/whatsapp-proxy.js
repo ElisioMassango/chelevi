@@ -26,9 +26,9 @@ export default async function handler(req, res) {
     }
 
     // Get API configuration from environment variables
-    const evolutionApiUrl = process.env.EVOLUTION_API_URL || 'http://localhost:8080';
-    const evolutionApiKey = process.env.EVOLUTION_API_KEY || '6F5F007E776E-4441-8B86-AEFC8C3B87B8';
-    const evolutionInstance = process.env.EVOLUTION_INSTANCE || 'Chelevi Store';
+    const evolutionApiUrl = 'http://31.97.47.106:8080';
+    const evolutionApiKey = 'F4109AF2899E-4319-B037-ED42DDDE93E9';
+    const evolutionInstance = 'Chelevi';
 
     // Construct the full URL
     const fullUrl = `${evolutionApiUrl}${path}`;
