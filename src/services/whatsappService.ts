@@ -51,7 +51,7 @@ const MESSAGE_TEMPLATES = {
     `📅 *Eventos especiais*\n\n` +
     `Bem-vindo à família Chelevi! 💜`
 };
-
+//Teste
 // Owner contact information
 const OWNERS = [
   {
