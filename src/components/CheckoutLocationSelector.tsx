@@ -46,7 +46,7 @@ const CheckoutLocationSelector: React.FC<CheckoutLocationSelectorProps> = ({
         city: selectedCity,
       });
     }
-  }, [selectedCountry, selectedState, selectedCity, onLocationChange]);
+  }, [selectedCountry, selectedState, selectedCity]); // Removed onLocationChange from dependencies
 
   return (
     <div className={`space-y-4 ${className}`}>

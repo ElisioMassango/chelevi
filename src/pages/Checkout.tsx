@@ -3,16 +3,17 @@ import { useNavigate } from 'react-router-dom';
 import { MapPin, Mail, CreditCard, Smartphone, Loader2 } from 'lucide-react';
 import { useCart } from '../contexts/CartContext';
 import { useAuth } from '../contexts/AuthContext';
-import { useShippingMethods, useOrderManagement } from '../hooks/useProducts';
+import { apiService } from '../services/api';
 import { BillingInfo } from '../services/api';
 import CheckoutLocationSelector from '../components/CheckoutLocationSelector';
+import PhoneInput from '../components/PhoneInput';
+import { validatePhoneNumber, formatPhoneForWhatsApp } from '../utils/phoneUtils';
 
 const Checkout: React.FC = () => {
   const navigate = useNavigate();
   const [isProcessing, setIsProcessing] = useState(false);
   const [deliveryMethod, setDeliveryMethod] = useState<'delivery' | 'pickup'>('delivery');
   const [paymentMethod, setPaymentMethod] = useState<'mpesa' | 'card'>('mpesa');
-  const [selectedShippingMethod, setSelectedShippingMethod] = useState<string>('');
   const [formData, setFormData] = useState({
     email: '',
     phone: '',
@@ -49,8 +50,6 @@ const Checkout: React.FC = () => {
 
   const { items, total, clearCart, cartData } = useCart();
   const { user } = useAuth();
-  const { methods: shippingMethods, loading: shippingLoading } = useShippingMethods();
-  const { placeOrder } = useOrderManagement();
 
   // Validações de segurança
   React.useEffect(() => {
@@ -126,23 +125,35 @@ const Checkout: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
     setIsProcessing(true);
     if (!user?.id) {
       alert('Please login to place an order');
+      setIsProcessing(false);
       return;
     }
+    
+    // Validate phone number
+    if (!validatePhoneNumber(formData.phone)) {
+      alert('Por favor, insira um número de telefone válido');
+      setIsProcessing(false);
+      return;
+    }
+    
     // Validate billing address
     if (!formData.billingCountry || !formData.billingState || !formData.billingCityId) {
       alert('Por favor, preencha o endereço de cobrança completamente');
       setIsProcessing(false);
       return;
     }
+    
     // Validate billing address field
     if (!formData.billingAddress && !formData.address) {
       alert('Por favor, preencha o endereço de cobrança');
       setIsProcessing(false);
       return;
     }
+    
     // Validate shipping address if not using same address
     if (!formData.useSameAddress) {
       if (!formData.shippingCountry || !formData.shippingState || !formData.shippingCityId) {
@@ -151,6 +162,7 @@ const Checkout: React.FC = () => {
         return;
       }
     }
+    
     try {
       // Ensure all required fields are present
       const billingInfo: BillingInfo = {
@@ -170,39 +182,48 @@ const Checkout: React.FC = () => {
         delivery_country: formData.shippingCountry || formData.billingCountry || '150',
         delivery_address: formData.shippingAddress || formData.billingAddress || 'Address',
       };
+      
       console.log('Billing Info:', billingInfo);
-      const orderData = {
+      
+      // Use orderSave instead of placeOrder
+      const result = await apiService.orderSave({
         paymentType: paymentMethod === 'mpesa' ? 'cod' : 'card',
         billingInfo,
-        couponInfo: cartData?.coupon_info || {},
-        deliveryComment: formData.deliveryComment || '',
-        userId: user.id.toString(),
+        deliveryId: '1', // Simple delivery ID
+        couponInfo: cartData?.coupon_info || null,
+        methodId: null,
         customerId: user.id.toString(),
-        paymentComment: formData.deliveryComment || '',
-        deliveryId: selectedShippingMethod || '1',
-        subTotal: cartData?.final_price ? parseFloat(cartData.final_price) : total,
-      };
-      console.log('Order Data:', orderData);
-      console.log('Cart Data:', cartData);
-      const result = await placeOrder(orderData);
-      console.log('Order placed successfully:', result);
+      });
+      
+      console.log('Order saved successfully:', result);
+      
       navigate('/checkout-success', {
         state: {
-          orderId: result.order_id,
+          orderId: result.data.order_id,
           orderData: {
-            subTotal: orderData.subTotal,
+            subTotal: parseFloat(result.data.subtotal),
+            finalPrice: parseFloat(result.data.final_price),
             items: items,
-            paymentType: orderData.paymentType,
-            billingInfo: orderData.billingInfo,
+            paymentType: paymentMethod === 'mpesa' ? 'cod' : 'card',
+            billingInfo: result.data.billing_information,
+            deliveryInfo: result.data.delivery_information,
+            products: result.data.product,
+            tax: result.data.tax,
+            deliveryCharge: parseFloat(result.data.delivery_charge),
           },
         },
       });
+      
       setTimeout(() => {
         clearCart();
       }, 100);
     } catch (error) {
       console.error('Order processing failed:', error);
-      alert('Failed to place order. Please try again.');
+      navigate('/checkout-failed', {
+        state: {
+          error: error instanceof Error ? error.message : 'Erro desconhecido ao processar pedido',
+        },
+      });
     } finally {
       setIsProcessing(false);
     }
@@ -279,15 +300,12 @@ const Checkout: React.FC = () => {
                     />
                   </div>
                   <div className="form-group">
-                    <label className="form-label">Número de Telefone</label>
-                    <input
-                      type="tel"
-                      name="phone"
+                    <PhoneInput
                       value={formData.phone}
-                      onChange={handleInputChange}
-                      className="form-input"
-                      defaultValue={user?.phone}
+                      onChange={(value) => setFormData(prev => ({ ...prev, phone: value }))}
+                      placeholder="Seu número de telefone"
                       required
+                      label="Número de Telefone"
                     />
                   </div>
                 </div>
@@ -463,35 +481,6 @@ const Checkout: React.FC = () => {
                       <p className="text-sm text-green-800">
                         🌍 Entregamos apenas para Moçambique e Portugal. Selecione seu país, província/distrito e cidade.
                       </p>
-                    </div>
-                    <div className="mt-6">
-                      <h3 className="text-lg font-medium mb-4">Métodos de Envio</h3>
-                      {shippingLoading ? (
-                        <div className="flex items-center justify-center py-4">
-                          <div className="animate-spin w-6 h-6 border-2 border-secondary border-t-transparent rounded-full"></div>
-                        </div>
-                      ) : (
-                        <div className="space-y-3">
-                          {shippingMethods.map((method) => (
-                            <label key={method.id} className="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
-                              <input
-                                type="radio"
-                                name="shippingMethod"
-                                value={method.id.toString()}
-                                checked={selectedShippingMethod === method.id.toString()}
-                                onChange={(e) => setSelectedShippingMethod(e.target.value)}
-                                className="mr-3"
-                              />
-                              <div className="flex-1">
-                                <div className="font-medium">{method.method_name}</div>
-                                <div className="text-sm text-text-secondary">
-                                  Custo: MT{method.cost === '0' ? 'Grátis' : method.cost}
-                                </div>
-                              </div>
-                            </label>
-                          ))}
-                        </div>
-                      )}
                     </div>
                   </div>
                 )}

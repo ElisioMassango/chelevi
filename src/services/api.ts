@@ -1,10 +1,14 @@
 // API Configuration and Base Service
 import { logger } from '../utils/logger';
+import { whatsappService } from './whatsappService';
+import { emailService } from './emailService';
+import { ownerNotificationService } from './ownerNotificationService';
+import { env } from '../config/environment';
 
 const API_CONFIG = {
-  baseUrl: 'https://dashboard.sparktechnology.cloud/api',
-  storeSlug: 'chelevi', // Replace with actual store slug
-  themeId: 'stylique',
+  baseUrl: env.api.baseUrl,
+  storeSlug: env.api.storeSlug,
+  themeId: env.api.themeId,
   headers: {
     'Accept': 'application/json',
     'Content-Type': 'application/json',
@@ -1080,6 +1084,23 @@ class ApiService {
     });
   }
 
+  // Remove from cart
+  async removeFromCart(data: {
+    customerId: string;
+    productId: string;
+    variantId?: string;
+  }): Promise<ApiResponse<{ message: string }>> {
+    return this.request('/remove-cart', {
+      method: 'POST',
+      body: JSON.stringify({
+        theme_id: API_CONFIG.themeId,
+        customer_id: data.customerId,
+        product_id: data.productId,
+
+      }),
+    });
+  }
+
   // Check cart
   async checkCart(customerId: string): Promise<ApiResponse<{ message: string }>> {
     return this.request('/cart-check', {
@@ -1245,6 +1266,110 @@ class ApiService {
       method: 'POST',
       body: JSON.stringify(requestData),
     });
+  }
+
+  // Order save (simpler alternative to place-order)
+  async orderSave(data: {
+    paymentType: string;
+    billingInfo: BillingInfo;
+    deliveryId: string;
+    couponInfo?: any;
+    methodId?: string | null;
+    customerId: string;
+  }): Promise<ApiResponse<{
+    order_id: string;
+    subtotal: string;
+    final_price: string;
+    delivery_charge: string;
+    billing_information: any[];
+    delivery_information: any[];
+    product: any[];
+    tax: any[];
+  }>> {
+    const requestData = {
+      theme_id: API_CONFIG.themeId,
+      payment_type: data.paymentType,
+      billing_info: data.billingInfo,
+      delivery_id: data.deliveryId,
+      coupon_info: data.couponInfo || null,
+      method_id: data.methodId || null,
+      customer_id: data.customerId,
+    };
+
+    console.log('Order Save Request Data:', JSON.stringify(requestData, null, 2));
+
+    const response = await this.request('/order-save', {
+      method: 'POST',
+      body: JSON.stringify(requestData),
+    });
+
+    // Send notifications if order was successful
+    if (response.status === 1 && response.data) {
+      try {
+        const userName = data.billingInfo.firstname || data.billingInfo.lastname || 'Cliente';
+        const phoneNumber = data.billingInfo.billing_user_telephone;
+        const email = data.billingInfo.email;
+        const orderId = response.data.order_id || 'N/A';
+        const total = response.data.final_price || '0';
+        
+        // Prepare products list for notifications
+        const products = response.data.product?.map((item: any) => 
+          `• ${item.name} - Qty: ${item.qty} - MT ${item.final_price}`
+        ).join('\n') || 'Produtos não disponíveis';
+
+        // Build delivery address
+        const deliveryAddress = [
+          data.billingInfo.billing_address,
+          data.billingInfo.billing_city,
+          data.billingInfo.billing_state,
+          data.billingInfo.billing_country
+        ].filter(Boolean).join(', ');
+
+        // Send WhatsApp and Email confirmation to customer
+        if (phoneNumber) {
+          await whatsappService.sendOrderConfirmation(
+            userName,
+            phoneNumber,
+            orderId,
+            total,
+            products
+          );
+        }
+        
+        if (email) {
+          await emailService.sendOrderConfirmation(
+            userName,
+            email,
+            orderId,
+            total,
+            products
+          );
+        }
+
+        // Notify owners about new order
+        await ownerNotificationService.notifyNewOrder(
+          userName,
+          orderId,
+          total,
+          products,
+          deliveryAddress
+        );
+
+        logger.userAction('Order notifications sent successfully', { 
+          orderId, 
+          userName, 
+          total 
+        });
+      } catch (error) {
+        logger.error('Failed to send order notifications', { 
+          error, 
+          orderData: data 
+        });
+        // Don't throw error to avoid breaking the order flow
+      }
+    }
+
+    return response;
   }
 
   // Confirm order

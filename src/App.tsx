@@ -3,6 +3,7 @@ import { Toaster } from 'react-hot-toast';
 import { AuthProvider } from './contexts/AuthContext';
 import { CartProvider } from './contexts/CartContext';
 import { WishlistProvider } from './contexts/WishlistContext';
+import { useScrollToTop } from './hooks/useScrollToTop';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import ChatBot from './components/ChatBot';
@@ -20,10 +21,18 @@ import Orders from './pages/Orders';
 import OrderDetail from './pages/OrderDetail';
 import OrderTracking from './pages/OrderTracking';
 import CheckoutSuccess from './pages/CheckoutSuccess';
+import CheckoutFailed from './pages/CheckoutFailed';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import LocationDemo from './pages/LocationDemo';
 import LGPDPopup from './components/LGPDPopup';
+import WelcomeManager from './components/WelcomeManager';
 import './styles/globals.css';
+
+// Internal component to handle scroll to top
+function ScrollToTop() {
+  useScrollToTop();
+  return null;
+}
 
 function App() {
   return (
@@ -32,6 +41,7 @@ function App() {
         <CartProvider>
           <WishlistProvider>
             <Router>
+              <ScrollToTop />
               <div className="App">
                 <Header />
                 <main className="main-content">
@@ -44,6 +54,7 @@ function App() {
                     <Route path="/cart" element={<Cart />} />
                     <Route path="/checkout" element={<Checkout />} />
                     <Route path="/checkout-success" element={<CheckoutSuccess />} />
+                    <Route path="/checkout-failed" element={<CheckoutFailed />} />
                     <Route path="/profile" element={<Profile />} />
                     <Route path="/orders" element={<Orders />} />
                     <Route path="/orders/:orderId" element={<OrderDetail />} />
@@ -59,6 +70,7 @@ function App() {
                 <Footer />
                 <ChatBot />
                 <LGPDPopup />
+                <WelcomeManager />
               </div>
             </Router>
           </WishlistProvider>

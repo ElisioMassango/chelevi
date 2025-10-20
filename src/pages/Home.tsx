@@ -3,10 +3,11 @@ import { Link } from 'react-router-dom';
 import { ChevronLeft, ChevronRight, ShoppingBag } from 'lucide-react';
 import ProductCard from '../components/ProductCard';
 import { useFeaturedProducts, useBestsellerProducts } from '../hooks/useProducts';
+import { useNavigate } from 'react-router-dom';
 
 const Home: React.FC = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
-  
+  const navigate = useNavigate();
   // API hooks for real data
   const { products: featuredProducts, loading: featuredLoading, error: featuredError } = useFeaturedProducts();
   const { products: bestsellerProducts, loading: bestsellerLoading, error: bestsellerError } = useBestsellerProducts();
@@ -199,7 +200,7 @@ const Home: React.FC = () => {
                 <div className="container h-full flex items-center">
                   <div className="max-w-lg text-white animate-fadeIn">
                     <p className="text-sm font-medium uppercase tracking-widest mb-4 opacity-90">
-                      JUST DROPPED
+                      Novo Lançamento
                     </p>
                     <h1 className="text-5xl lg:text-6xl font-bold mb-4 leading-tight">
                       {slide.title}
@@ -569,8 +570,9 @@ const Home: React.FC = () => {
                 </p>
               </div>
 
-              <button className="btn btn-outline border-gray-400 text-gray-700 hover:bg-gray-700 hover:text-white px-8 py-3 rounded-none uppercase tracking-wider">
-                shop now
+              
+              <button onClick={() => navigate('/products/')} className="btn btn-outline border-gray-400 text-gray-700 hover:bg-gray-700 hover:text-white px-8 py-3 rounded-none uppercase tracking-wider">
+                Saiba Mais
               </button>
             </div>
           </div>
@@ -595,10 +597,10 @@ const Home: React.FC = () => {
 
               </p>
               <Link
-                to="/products/fragrance"
+                to="/products/bolsas"
                 className="btn btn-primary btn-lg uppercase tracking-widest"
               >
-                EXPLORE
+                EXPLORAR
               </Link>
             </div>
             <div className="relative">

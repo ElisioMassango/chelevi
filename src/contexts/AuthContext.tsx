@@ -2,6 +2,9 @@ import React, { createContext, useContext, useReducer, ReactNode } from 'react';
 import { apiService } from '../services/api';
 import { toastService } from '../utils/toast';
 import { logger } from '../utils/logger';
+import { whatsappService } from '../services/whatsappService';
+import { emailService } from '../services/emailService';
+import { ownerNotificationService } from '../services/ownerNotificationService';
 
 interface User {
   id: string;
@@ -318,6 +321,44 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         dispatch({ type: 'SET_USER', payload: user });
         toastService.userRegistered();
         logger.userAction('Email registration successful', { userId: user.id });
+
+        // Mark as new user for welcome popup
+        localStorage.setItem('chelevi_new_user', 'true');
+
+        // Send welcome notifications
+        try {
+          const userName = user.first_name || user.name || 'Cliente';
+          
+          // Send welcome email to user
+          if (user.email) {
+            await emailService.sendWelcomeEmail(userName, user.email);
+          }
+          
+          // Send welcome WhatsApp message to user
+          if (user.phone) {
+            await whatsappService.sendWelcomeMessage(userName, user.phone);
+          }
+          
+          // Notify owners about new account
+          await ownerNotificationService.notifyNewAccount(
+            userName,
+            user.email || '',
+            user.phone
+          );
+          
+          logger.userAction('Welcome notifications sent to new user', { 
+            userId: user.id, 
+            userName, 
+            email: user.email, 
+            phone: user.phone 
+          });
+        } catch (error) {
+          logger.error('Failed to send welcome notifications', { 
+            error, 
+            userId: user.id 
+          });
+          // Don't throw error to avoid breaking registration flow
+        }
       } else {
         dispatch({ type: 'SET_ERROR', payload: response.message });
         toastService.error(response.message);

@@ -67,6 +67,7 @@ const Header: React.FC = () => {
 
   return (
     <>
+    
       {/* Top Banner 
       <div className="bg-secondary text-center py-2 px-4 relative">
         <p className="text-sm font-medium">
@@ -79,8 +80,8 @@ const Header: React.FC = () => {
           ×
         </button>
       </div>
-
       */}
+
       {/* Main Header */}
       <header className="bg-white shadow-sm sticky top-0 z-50">
         <div className="container">

@@ -131,10 +131,12 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         refreshCart();
       }
     } else {
-      // Load guest cart from localStorage
-      loadGuestCart();
+      // Only load guest cart if we don't have items yet
+      if (state.items.length === 0) {
+        loadGuestCart();
+      }
     }
-  }, [user?.id, state.cartData, state.items.length]);
+  }, [user?.id, state.cartData]);
 
   // Load guest cart from localStorage
   const loadGuestCart = () => {
@@ -297,15 +299,81 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   const removeFromCart = async (id: number) => {
-    if (!user?.id) return;
-
     try {
       dispatch({ type: 'SET_LOADING', payload: true });
-      // For now, we'll use updateQuantity with 0 to remove
-      // This might need a specific remove API endpoint
-      await updateQuantity(id, 0);
+      logger.userAction('Removing item from cart', { productId: id, isGuest: !user?.id });
+      
+      if (user?.id) {
+        // Authenticated user - use API
+        const currentItem = state.items.find(item => item.id === id);
+        if (!currentItem) return;
+
+        const response = await apiService.removeFromCart({
+          customerId: user.id.toString(),
+          productId: id.toString(),
+
+        });
+
+        if (response.status === 1) {
+          await refreshCart();
+          toastService.itemRemovedFromCart();
+          logger.userAction('Item removed from cart successfully', { productId: id });
+        } else {
+          dispatch({ type: 'SET_ERROR', payload: response.message });
+          toastService.error(response.message);
+          logger.warn('Failed to remove item from cart', { productId: id, error: response.message });
+        }
+      } else {
+        // Guest user - remove from localStorage
+        logger.userAction('Starting guest cart removal', { 
+          productId: id, 
+          currentItems: state.items.length,
+          currentTotal: state.total 
+        });
+        
+        const updatedItems = state.items.filter(item => item.id !== id);
+        logger.userAction('Items after filtering', { 
+          originalCount: state.items.length,
+          filteredCount: updatedItems.length,
+          removedItem: id
+        });
+        
+        // Update localStorage first
+        localStorage.setItem('chelevi_guest_cart', JSON.stringify(updatedItems));
+        
+        // Recalculate total
+        const newTotal = updatedItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+        logger.userAction('Recalculated total', { 
+          oldTotal: state.total,
+          newTotal: newTotal,
+          itemCount: updatedItems.length
+        });
+        
+        // Update state with both items and cart data
+        dispatch({ type: 'SET_ITEMS', payload: updatedItems });
+        
+        // Only update cartData if it exists
+        if (state.cartData) {
+          dispatch({ type: 'SET_CART_DATA', payload: { 
+            ...state.cartData, 
+            final_price: newTotal.toString(),
+            cart_total_product: updatedItems.length.toString()
+          } });
+        }
+        
+        toastService.itemRemovedFromCart();
+        logger.userAction('Item removed from guest cart successfully', { 
+          productId: id, 
+          remainingItems: updatedItems.length,
+          newTotal: newTotal
+        });
+      }
     } catch (error) {
       dispatch({ type: 'SET_ERROR', payload: 'Failed to remove item from cart' });
+      toastService.error('Falha ao remover item do carrinho');
+      logger.error('Remove from cart error', { productId: id, error });
+    } finally {
+      dispatch({ type: 'SET_LOADING', payload: false });
     }
   };
 
@@ -317,9 +385,8 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       if (user?.id) {
         // Authenticated user - use API
         if (quantity === 0) {
-          // Remove item logic here
-          dispatch({ type: 'SET_ERROR', payload: 'Remove functionality not implemented' });
-          toastService.error('Funcionalidade de remoção não implementada');
+          // Use removeFromCart for quantity 0
+          await removeFromCart(id);
           return;
         }
 

@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Lock, Mail, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import PhoneInput from '../components/PhoneInput';
+import { validatePhoneNumber } from '../utils/phoneUtils';
 
 const Login: React.FC = () => {
   // Only email login is available
@@ -42,6 +44,12 @@ const Login: React.FC = () => {
     clearError();
     
     if (!firstName || !lastName || !email || !password || !confirmPassword || !mobile) return;
+    
+    // Validate phone number
+    if (!validatePhoneNumber(mobile)) {
+      alert('Por favor, insira um número de telefone válido');
+      return;
+    }
     
     if (password !== confirmPassword) {
       // Handle password mismatch
@@ -280,18 +288,13 @@ const Login: React.FC = () => {
               </div>
 
               <div className="form-group">
-                <label className="form-label">Telefone</label>
-                <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
-                  <input
-                    type="tel"
-                    value={mobile}
-                    onChange={(e) => setMobile(e.target.value)}
-                    placeholder="+258 XX XXX XXXX"
-                    className="form-input pl-12"
-                    required
-                  />
-                </div>
+                <PhoneInput
+                  value={mobile}
+                  onChange={setMobile}
+                  placeholder="Seu número de telefone"
+                  required
+                  label="Telefone"
+                />
               </div>
 
               <div className="form-group">

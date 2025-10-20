@@ -1,5 +1,11 @@
 import React, { useState } from 'react';
-import { MapPin, Phone, Mail, Clock, Send, MessageSquare } from 'lucide-react';
+import { MapPin, Phone, Mail, Clock, Send, MessageSquare, Loader2 } from 'lucide-react';
+import { whatsappService } from '../services/whatsappService';
+import { emailService } from '../services/emailService';
+import { ownerNotificationService } from '../services/ownerNotificationService';
+import { toastService } from '../utils/toast';
+import PhoneInput from '../components/PhoneInput';
+import { validatePhoneNumber } from '../utils/phoneUtils';
 
 const Contact: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -9,6 +15,7 @@ const Contact: React.FC = () => {
     subject: '',
     message: ''
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setFormData(prev => ({
@@ -17,19 +24,109 @@ const Contact: React.FC = () => {
     }));    
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle form submission
-    console.log('Contact form submitted:', formData);
-    alert('Thank you for contacting us! We will get back to you soon.');
-    // Reset form
-    setFormData({
-      name: '',
-      email: '',
-      phone: '',
-      subject: '',
-      message: ''
-    });
+    setIsSubmitting(true);
+
+    try {
+      console.log('Contact form submitted:', formData);
+      
+      // Validate phone number if provided
+      if (formData.phone && !validatePhoneNumber(formData.phone)) {
+        toastService.error('Por favor, insira um número de telefone válido');
+        setIsSubmitting(false);
+        return;
+      }
+      
+      // Send notifications to owners
+      await ownerNotificationService.notifyNewContact(
+        formData.name,
+        formData.email,
+        formData.subject,
+        formData.message
+      );
+
+      // Send confirmation to user via email (if email provided)
+      if (formData.email) {
+        try {
+          await emailService.sendEmail({
+            to: formData.email,
+            subject: 'Mensagem Recebida - Chelevi',
+            html: `
+              <!DOCTYPE html>
+              <html lang="pt-BR">
+              <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>Mensagem Recebida - Chelevi</title>
+              </head>
+              <body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f8f9fa;">
+                <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff;">
+                  <div style="background: linear-gradient(135deg, #8B4E6F 0%, #A5697A 100%); padding: 40px 30px; text-align: center;">
+                    <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: 300;">Chelevi</h1>
+                    <p style="color: #f0f0f0; margin: 10px 0 0 0; font-size: 16px;">Mensagem Recebida</p>
+                  </div>
+                  
+                  <div style="padding: 40px 30px;">
+                    <div style="text-align: center; margin-bottom: 30px;">
+                      <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #8B4E6F, #A5697A); border-radius: 50%; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center;">
+                        <span style="color: #ffffff; font-size: 36px;">✅</span>
+                      </div>
+                      <h2 style="color: #2c3e50; margin: 0 0 10px 0; font-size: 24px;">Mensagem Recebida!</h2>
+                      <p style="color: #7f8c8d; margin: 0; font-size: 16px;">Olá ${formData.name}, recebemos a sua mensagem e responderemos em breve!</p>
+                    </div>
+                    
+                    <div style="background-color: #f8f9fa; border-radius: 12px; padding: 25px; margin-bottom: 30px;">
+                      <h3 style="color: #2c3e50; margin: 0 0 15px 0; font-size: 18px;">Resumo da sua mensagem:</h3>
+                      <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                        <span style="color: #7f8c8d;">Assunto:</span>
+                        <span style="color: #2c3e50; font-weight: 600;">${formData.subject}</span>
+                      </div>
+                      <div style="border-top: 1px solid #e9ecef; padding-top: 15px;">
+                        <span style="color: #7f8c8d; display: block; margin-bottom: 5px;">Mensagem:</span>
+                        <p style="color: #2c3e50; margin: 0; line-height: 1.5;">${formData.message}</p>
+                      </div>
+                    </div>
+                    
+                    <div style="text-align: center; margin-top: 30px;">
+                      <p style="color: #7f8c8d; margin: 0; font-size: 14px;">
+                        Obrigado por entrar em contacto connosco! 💜
+                      </p>
+                    </div>
+                  </div>
+                  
+                  <div style="background-color: #2c3e50; padding: 30px; text-align: center;">
+                    <p style="color: #ffffff; margin: 0; font-size: 14px;">
+                      © 2025 Chelevi. Todos os direitos reservados.
+                    </p>
+                  </div>
+                </div>
+              </body>
+              </html>
+            `,
+            type: 'contact_confirmation'
+          });
+        } catch (error) {
+          console.error('Failed to send confirmation email:', error);
+        }
+      }
+
+      toastService.success('Mensagem enviada com sucesso! Responderemos em breve.');
+      
+      // Reset form
+      setFormData({
+        name: '',
+        email: '',
+        phone: '',
+        subject: '',
+        message: ''
+      });
+    } catch (error) {
+      console.error('Failed to send contact form:', error);
+      toastService.error('Erro ao enviar mensagem. Tente novamente.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -138,14 +235,11 @@ const Contact: React.FC = () => {
 
               <div className="grid grid-2 gap-4">
                 <div className="form-group">
-                  <label htmlFor="phone" className="form-label">Número de Telefone</label>
-                  <input
-                    type="tel"
-                    id="phone"
-                    name="phone"
+                  <PhoneInput
                     value={formData.phone}
-                    onChange={handleInputChange}
-                    className="form-input"
+                    onChange={(value) => setFormData(prev => ({ ...prev, phone: value }))}
+                    placeholder="Seu número de telefone (opcional)"
+                    label="Número de Telefone"
                   />
                 </div>
 
@@ -186,10 +280,20 @@ const Contact: React.FC = () => {
 
               <button
                 type="submit"
-                className="btn btn-primary w-full flex items-center justify-center gap-2"
+                disabled={isSubmitting}
+                className="btn btn-primary w-full flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <Send size={18} />
+                {isSubmitting ? (
+                  <>
+                    <Loader2 size={18} className="animate-spin" />
+                    Enviando...
+                  </>
+                ) : (
+                  <>
+                    <Send size={18} />
                     Enviar Mensagem
+                  </>
+                )}
               </button>
             </form>
 
