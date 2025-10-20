@@ -6,7 +6,7 @@
     "rewrites": [
       { "source": "/api/whatsapp-proxy/(.*)", "destination": "/api/whatsapp-proxy" },
       { "source": "/api/email-proxy/(.*)", "destination": "/api/email-proxy" },
-      { "source": "/(?!api/).*", "destination": "/index.html" }
+      { "source": "/(.*)", "destination": "/index.html" }
     ],
     "headers": [
       {
