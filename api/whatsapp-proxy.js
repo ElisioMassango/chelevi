@@ -18,10 +18,23 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { path, ...body } = req.body;
+    const { path, ...body } = (req.body || {});
+    
+    // Support both styles:
+    // 1) POST /api/whatsapp-proxy with { path: '/message/sendText/INSTANCE', ... }
+    // 2) POST /api/whatsapp-proxy/message/sendText/INSTANCE with body {...}
+    let resolvedPath = path;
+    if (!resolvedPath) {
+      const originalUrl = req.url || '';
+      // Remove the prefix '/api/whatsapp-proxy'
+      resolvedPath = originalUrl.replace(/^\/?api\/whatsapp-proxy/, '');
+      if (!resolvedPath.startsWith('/')) {
+        resolvedPath = `/${resolvedPath}`;
+      }
+    }
     
     // Validate required fields
-    if (!path) {
+    if (!resolvedPath || resolvedPath === '/' ) {
       return res.status(400).json({ error: 'Path is required' });
     }
 
@@ -31,11 +44,11 @@ export default async function handler(req, res) {
     const evolutionInstance = process.env.EVOLUTION_INSTANCE || 'Chelevi';
 
     // Construct the full URL
-    const fullUrl = `${evolutionApiUrl}${path}`;
+    const fullUrl = `${evolutionApiUrl}${resolvedPath}`;
 
     console.log('WhatsApp Proxy Request:', {
       url: fullUrl,
-      path: path,
+      path: resolvedPath,
       body: body
     });
 
