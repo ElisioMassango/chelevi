@@ -12,15 +12,5 @@
     "api/email-proxy.js": {
       "maxDuration": 30
     }
-  },
-  "env": {
-    "EVOLUTION_API_URL": "@evolution_api_url",
-    "EVOLUTION_API_KEY": "@evolution_api_key",
-    "EVOLUTION_INSTANCE": "@evolution_instance",
-    "SMTP_HOST": "@smtp_host",
-    "SMTP_PORT": "@smtp_port",
-    "SMTP_USER": "@smtp_user",
-    "SMTP_PASS": "@smtp_pass",
-    "SMTP_FROM": "@smtp_from"
   }
 }
