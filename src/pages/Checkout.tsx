@@ -324,7 +324,7 @@ const Checkout: React.FC = () => {
                     />
                     <MapPin className="mr-3 text-accent" size={20} />
                     <div>
-                      <div className="font-semibold">Entrega para Casa</div>
+                      <div className="font-semibold">Delivery</div>
                       <div className="text-sm text-text-secondary">Entrega grátis dentro de Maputo</div>
                     </div>
                   </label>
@@ -619,7 +619,7 @@ const Checkout: React.FC = () => {
                       <Loader2 size={20} className="animate-spin mr-2" /> Processando...
                     </>
                   ) : (
-                    'Colocar Pedido'
+                    'Finalizar Compra'
                   )}
                 </button>
                 <div className="mt-4 p-3 bg-gray-50 rounded-lg">
