@@ -24,6 +24,7 @@ const ProductDetail: React.FC = () => {
   const [activeTab, setActiveTab] = useState('details');
   const [showReviewForm, setShowReviewForm] = useState(false);
   const [reviewForm, setReviewForm] = useState({ rating: 5, title: '', description: '' });
+  
   // Use variant hook for better variant management
   const { 
     variantInfo, 

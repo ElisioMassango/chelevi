@@ -181,8 +181,8 @@ const Contact: React.FC = () => {
                 <div>
                   <h3 className="font-semibold mb-2">Envie-nos um Email</h3>
                   <p className="text-text-secondary">
-                    info@cheLevivi.com<br />
-                    support@cheLevi.com
+                    info@chelevivi.com<br />
+                    support@chelevi.com
                   </p>
                 </div>    
               </div>
@@ -318,7 +318,7 @@ const Contact: React.FC = () => {
               <div className="bg-white p-6 rounded-lg border">
                 <h3 className="font-semibold mb-3">•	Quanto tempo demora a entrega?</h3>
                 <p className="text-text-secondary">
-                Em Maputo, em apenas 1 a 2 dias. No resto do país, 3 a 5 dias. Sempre com a promessa de chegar com cuidado, como se fosse entregue por mãos amigas.
+                Em Maputo, em apenas 1 a 2 dias. Em outras províncias do país, 3 a 5 dias. Sempre com a promessa de chegar com cuidado, como se fosse entregue por mãos amigas.
                 </p>
               </div>
               

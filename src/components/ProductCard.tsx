@@ -100,10 +100,10 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           }`}>
             <button
               onClick={handleAddToCart}
-              className="w-full bg-text-primary text-white py-2 rounded-md font-medium uppercase tracking-wide text-sm hover:bg-accent transition-colors duration-300 flex items-center justify-center gap-2"
+              className="w-full bg-text-primary text-black py-2 rounded-md font-medium text-black bg-secondary uppercase tracking-wide text-sm hover:bg-accent transition-colors duration-300 flex items-center justify-center gap-2"
             >
               <ShoppingBag size={16} />
-              ADD TO CART
+              ADICIONAR AO CARRINHO
             </button>
           </div>
         </div>

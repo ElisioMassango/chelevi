@@ -17,8 +17,8 @@ class ToastService {
       duration: options?.duration || 4000,
       position: options?.position || 'top-right',
       style: {
-        background: '#10B981',
-        color: '#fff',
+        background: '#EAE9EE',
+        color: '#000000',
         ...options?.style,
       },
       ...options,
@@ -32,8 +32,8 @@ class ToastService {
       duration: options?.duration || 5000,
       position: options?.position || 'top-right',
       style: {
-        background: '#EF4444',
-        color: '#fff',
+        background: '#EAE9EE',
+        color: '#000000',
         ...options?.style,
       },
       ...options,
@@ -48,8 +48,8 @@ class ToastService {
       position: options?.position || 'top-right',
       icon: '⚠️',
       style: {
-        background: '#F59E0B',
-        color: '#fff',
+        background: '#EAE9EE',
+        color: '#000000',
         ...options?.style,
       },
       ...options,

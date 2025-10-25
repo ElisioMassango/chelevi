@@ -95,17 +95,11 @@ const About: React.FC = () => {
               </p>
               <div className="flex gap-6">
                 <div className="text-center">
-                  <div className="text-3xl font-bold text-accent">5</div>
-                  <div className="text-sm text-text-secondary">
-                  Mais de 5 mil mulheres. Infinitas histórias.
-                  </div>
-                </div>
-                <div className="text-center">
                   <div className="text-3xl font-bold text-accent">7+</div>
                   <div className="text-sm text-text-secondary">Capítulos da nossa visão.</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-3xl font-bold text-accent">5</div>
+                  <div className="text-3xl font-bold text-accent">7</div>
                   <div className="text-sm text-text-secondary">
                   Anos a escrever o próximo clássico.
                   </div>

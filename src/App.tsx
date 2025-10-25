@@ -27,6 +27,7 @@ import LocationDemo from './pages/LocationDemo';
 import LGPDPopup from './components/LGPDPopup';
 import WelcomeManager from './components/WelcomeManager';
 import './styles/globals.css';
+import WhatsAppFloatButton from './components/WhatsAppFloatButton';
 
 // Internal component to handle scroll to top
 function ScrollToTop() {
@@ -68,7 +69,7 @@ function App() {
                   </Routes>
                 </main>
                 <Footer />
-                <ChatBot />
+ 
                 <LGPDPopup />
                 <WelcomeManager />
               </div>
@@ -100,6 +101,7 @@ function App() {
           },
         }}
       />
+        <WhatsAppFloatButton />
     </>
   );
 }

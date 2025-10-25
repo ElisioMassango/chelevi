@@ -618,7 +618,7 @@ const Home: React.FC = () => {
       <section className="py-20">
         <div className="container">
           <h2 className="text-4xl lg:text-5xl  text-center mb-16 uppercase tracking-wide text-">
-            SHOP OUR IG
+          Looks Que Inspiram
           </h2>
           
           {/* Instagram Bento Grid Layout */}
