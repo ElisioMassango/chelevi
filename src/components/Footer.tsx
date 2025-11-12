@@ -77,8 +77,8 @@ return (
         <ul className="space-y-2">
           <li><Link to="/orders" className="text-sm text-gray-600 hover:text-gray-900">Estado da Encomenda</Link></li>
           <li><Link to="/shipping" className="text-sm text-gray-600 hover:text-gray-900">Informações de Envio</Link></li>
-          <li><Link to="/returns" className="text-sm text-gray-600 hover:text-gray-900">Trocas e Devoluções</Link></li>
           <li><Link to="/contact" className="text-sm text-gray-600 hover:text-gray-900">Contacte-nos</Link></li>
+          <li><Link to="/terms" className="text-sm text-gray-600 hover:text-gray-900">Termos de Utilização</Link></li>
         </ul>
       </div>
 
@@ -124,8 +124,8 @@ return (
       <div className="mt-6 pt-6 border-t border-gray-200 flex flex-col md:flex-row items-center justify-between gap-4">
         <div className="flex flex-wrap items-center space-x-6 text-sm text-gray-600">
           <Link to="/terms" className="hover:text-gray-900">Termos de Utilização</Link>
-          <Link to="/privacy" className="hover:text-gray-900">Política de Privacidade</Link>
-          <Link to="/refund" className="hover:text-gray-900">Política de Reembolso</Link>
+          <Link to="/privacy-policy" className="hover:text-gray-900">Política de Privacidade</Link>
+          <Link to="/shipping" className="hover:text-gray-900">Informações de Envio</Link>
         </div>
         <p className="text-sm text-gray-500">© 2025 CheLevi. Todos os direitos reservados.</p>
       </div>

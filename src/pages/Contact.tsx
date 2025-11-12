@@ -181,8 +181,8 @@ const Contact: React.FC = () => {
                 <div>
                   <h3 className="font-semibold mb-2">Envie-nos um Email</h3>
                   <p className="text-text-secondary">
-                    info@chelevivi.com<br />
-                    support@chelevi.com
+                    info@chelevi.com<br />
+                    suporte@chelevi.com
                   </p>
                 </div>    
               </div>

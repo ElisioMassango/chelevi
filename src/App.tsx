@@ -23,6 +23,8 @@ import OrderTracking from './pages/OrderTracking';
 import CheckoutSuccess from './pages/CheckoutSuccess';
 import CheckoutFailed from './pages/CheckoutFailed';
 import PrivacyPolicy from './pages/PrivacyPolicy';
+import TermsOfUse from './pages/TermsOfUse';
+import ShippingInfo from './pages/ShippingInfo';
 import LocationDemo from './pages/LocationDemo';
 import LGPDPopup from './components/LGPDPopup';
 import WelcomeManager from './components/WelcomeManager';
@@ -63,6 +65,8 @@ function App() {
                     <Route path="/contact" element={<Contact />} />
                     <Route path="/about" element={<About />} />
                     <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+                    <Route path="/terms" element={<TermsOfUse />} />
+                    <Route path="/shipping" element={<ShippingInfo />} />
                     <Route path="/location-demo" element={<LocationDemo />} />
                     <Route path="/login" element={<Login />} />
                     <Route path="/wishlist" element={<Wishlist />} />
