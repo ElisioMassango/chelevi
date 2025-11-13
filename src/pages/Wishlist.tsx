@@ -3,8 +3,10 @@ import { Link } from 'react-router-dom';
 import { Heart, ShoppingBag, X, ArrowLeft, Star } from 'lucide-react';
 import { useWishlist } from '../contexts/WishlistContext';
 import { useCart } from '../contexts/CartContext';
+import { useTranslation } from '../contexts/LanguageContext';
 
 const Wishlist: React.FC = () => {
+  const t = useTranslation();
   const { items, removeFromWishlist, clearWishlist } = useWishlist();
   const { addToCart } = useCart();
 
@@ -80,13 +82,13 @@ const Wishlist: React.FC = () => {
             <div className="w-32 h-32 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-8">
               <Heart size={64} className="text-gray-300" />
             </div>
-            <h1 className="text-3xl font-bold mb-4 text-gray-800">Sua Lista de Desejos está Vazia</h1>
+            <h1 className="text-3xl font-bold mb-4 text-gray-800">{t.wishlist.emptyTitle}</h1>
             <p className="text-text-secondary mb-8 text-lg">
-              Adicione produtos que você ama à sua lista de desejos para encontrá-los facilmente mais tarde.
+              {t.wishlist.emptyDescription}
             </p>
             <Link to="/products" className="btn btn-primary btn-lg inline-flex items-center gap-2">
               <ArrowLeft size={20} />
-              Descobrir Produtos
+              {t.wishlist.discoverProducts}
             </Link>
           </div>
         </div>
@@ -104,8 +106,8 @@ const Wishlist: React.FC = () => {
               <ArrowLeft size={24} />
             </Link>
             <div>
-              <h1 className="text-3xl font-bold text-gray-800">Lista de Desejos</h1>
-              <p className="text-text-secondary">{items.length} {items.length === 1 ? 'item' : 'itens'} salvos</p>
+              <h1 className="text-3xl font-bold text-gray-800">{t.wishlist.title}</h1>
+              <p className="text-text-secondary">{items.length} {items.length === 1 ? t.wishlist.item : t.wishlist.items} {t.wishlist.itemsSaved}</p>
             </div>
           </div>
           {items.length > 0 && (
@@ -113,7 +115,7 @@ const Wishlist: React.FC = () => {
               onClick={clearWishlist}
               className="text-sm text-red-500 hover:text-red-700 transition-colors font-medium"
             >
-              Limpar Lista
+              {t.wishlist.clearList}
             </button>
           )}
         </div>
@@ -147,7 +149,7 @@ const Wishlist: React.FC = () => {
                     className="w-full bg-text-primary text-white py-2 rounded-md font-medium text-sm hover:bg-accent transition-colors flex items-center justify-center gap-2"
                   >
                     <ShoppingBag size={16} />
-                    Adicionar ao Carrinho
+                    {t.wishlist.addToCart}
                   </button>
                 </div>
               </div>
@@ -184,7 +186,7 @@ const Wishlist: React.FC = () => {
                     </span>
                   </div>
                   <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">
-                    Em estoque
+                    {t.wishlist.inStock}
                   </span>
                 </div>
 
@@ -195,7 +197,7 @@ const Wishlist: React.FC = () => {
                     className="flex-1 btn btn-primary btn-sm flex items-center justify-center gap-2"
                   >
                     <ShoppingBag size={14} />
-                    Adicionar
+                    {t.wishlist.add}
                   </button>
                   <button
                     onClick={() => handleRemoveFromWishlist(item.id)}
@@ -212,16 +214,16 @@ const Wishlist: React.FC = () => {
         {/* Continue Shopping */}
         <div className="mt-12 text-center">
           <div className="bg-white rounded-xl p-8 shadow-sm border max-w-2xl mx-auto">
-            <h3 className="text-xl font-bold mb-4">Continue Descobrindo</h3>
+            <h3 className="text-xl font-bold mb-4">{t.wishlist.continueDiscovering}</h3>
             <p className="text-text-secondary mb-6">
-              Explore nossa coleção completa e encontre mais produtos incríveis para adicionar à sua lista de desejos.
+              {t.wishlist.continueText}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link to="/products" className="btn btn-primary">
-                Ver Todos os Produtos
+                {t.wishlist.viewAllProducts}
               </Link>
               <Link to="/products/cabelo" className="btn btn-outline">
-                Produtos para Cabelo
+                {t.wishlist.hairProducts}
               </Link>
             </div>
           </div>

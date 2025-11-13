@@ -4,8 +4,10 @@ import { Lock, Mail, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import PhoneInput from '../components/PhoneInput';
 import { validatePhoneNumber } from '../utils/phoneUtils';
+import { useTranslation } from '../contexts/LanguageContext';
 
 const Login: React.FC = () => {
+  const t = useTranslation();
   // Only email login is available
   const [step, setStep] = useState<'login' | 'register' | 'forgot-password' | 'verify-otp' | 'reset-password'>('login');
   const [email, setEmail] = useState('');
@@ -141,20 +143,20 @@ const Login: React.FC = () => {
               <img src="https://chelevi.sparktechnology.cloud/chelevi/Logos/Monogram-bege-BLACK.png" alt="CheLevi" className="w-30 h-20" />
             </Link>
             <h2 className="text-2xl font-bold mb-2">
-              {step === 'login' ? 'Bem-vindo de volta' : 
-               step === 'register' ? 'Criar Conta' : 
-               step === 'forgot-password' ? 'Recuperar Senha' :
-               step === 'verify-otp' ? 'Verificar Código' :
-               step === 'reset-password' ? 'Nova Senha' :
-               'Verificar Código'}
+              {step === 'login' ? t.login.welcomeBack : 
+               step === 'register' ? t.login.createAccount : 
+               step === 'forgot-password' ? t.login.recoverPassword :
+               step === 'verify-otp' ? t.login.verifyCode :
+               step === 'reset-password' ? t.login.newPassword :
+               t.login.verifyCode}
             </h2>
             <p className="text-text-secondary">
-              {step === 'login' ? 'Entre na sua conta para continuar' :
-               step === 'register' ? 'Crie sua conta para começar' :
-               step === 'forgot-password' ? 'Digite seu email para recuperar a senha' :
-               step === 'verify-otp' ? 'Digite o código enviado para seu email' :
-               step === 'reset-password' ? 'Digite sua nova senha' :
-               'Digite o código enviado para seu email'}
+              {step === 'login' ? t.login.welcomeText :
+               step === 'register' ? t.login.createAccountText :
+               step === 'forgot-password' ? t.login.recoverPasswordText :
+               step === 'verify-otp' ? t.login.verifyCodeText :
+               step === 'reset-password' ? t.login.newPasswordText :
+               t.login.verifyCodeText}
             </p>
           </div>
 
@@ -170,14 +172,14 @@ const Login: React.FC = () => {
           {step === 'login' && (
             <form onSubmit={handleEmailLogin} className="space-y-6">
               <div className="form-group">
-                <label className="form-label">Email</label>
+                <label className="form-label">{t.auth.email}</label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
                   <input
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="seu.email@exemplo.com"
+                    placeholder={t.login.emailPlaceholder}
                     className="form-input pl-12"
                     required
                   />
@@ -185,14 +187,14 @@ const Login: React.FC = () => {
               </div>
 
               <div className="form-group">
-                <label className="form-label">Senha</label>
+                <label className="form-label">{t.auth.password}</label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
                   <input
                     type={showPassword ? 'text' : 'password'}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Sua senha"
+                    placeholder={t.login.passwordPlaceholder}
                     className="form-input pl-12 pr-12"
                     required
                   />
@@ -214,10 +216,10 @@ const Login: React.FC = () => {
                 {isLoading ? (
                   <>
                     <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2" />
-                    Entrando...
+                    {t.login.entering}
                   </>
                 ) : (
-                  'Entrar'
+                  t.auth.login
                 )}
               </button>
 
@@ -227,7 +229,7 @@ const Login: React.FC = () => {
                   className="text-sm text-accent hover:underline"
                   onClick={() => setStep('forgot-password')}
                 >
-                  Esqueceu a senha?
+                  {t.auth.forgotPassword}
                 </button>
                 <div>
                   <div className="flex justify-between">
@@ -236,7 +238,7 @@ const Login: React.FC = () => {
                       onClick={() => setStep('register')}
                       className="text-sm text-accent hover:underline"
                     >
-                      Não tem conta? Criar conta
+                      {t.auth.noAccount} {t.auth.createAccount}
                     </button>
                   </div>
                 </div>
@@ -248,39 +250,39 @@ const Login: React.FC = () => {
           {step === 'register' && (
             <form onSubmit={handleEmailRegister} className="space-y-6">
               <div className="grid grid-cols-2 gap-4 mb-0">
-                <div className="form-group">
-                  <label className="form-label">Nome</label>
-                  <input
-                    type="text"
-                    value={firstName}
-                    onChange={(e) => setFirstName(e.target.value)}
-                    placeholder="Seu nome"
-                    className="form-input"
-                    required
-                  />
-                </div>
-                <div className="form-group ">
-                  <label className="form-label">Sobrenome</label>
-                  <input
-                    type="text"
-                    value={lastName}
-                    onChange={(e) => setLastName(e.target.value)}
-                    placeholder="Seu sobrenome"
-                    className="form-input"
-                    required
-                  />
-                </div>
+              <div className="form-group">
+                <label className="form-label">{t.auth.firstName}</label>
+                <input
+                  type="text"
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                  placeholder={t.login.firstNamePlaceholder}
+                  className="form-input"
+                  required
+                />
+              </div>
+              <div className="form-group ">
+                <label className="form-label">{t.auth.lastName}</label>
+                <input
+                  type="text"
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
+                  placeholder={t.login.lastNamePlaceholder}
+                  className="form-input"
+                  required
+                />
+              </div>
               </div>
 
               <div className="form-group mt-0">
-                <label className="form-label">Email</label>
+                <label className="form-label">{t.auth.email}</label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
                   <input
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="seu.email@exemplo.com"
+                    placeholder={t.login.emailPlaceholder}
                     className="form-input pl-12"
                     required
                   />
@@ -291,21 +293,21 @@ const Login: React.FC = () => {
                 <PhoneInput
                   value={mobile}
                   onChange={setMobile}
-                  placeholder="Seu número de telefone"
+                  placeholder={t.login.phonePlaceholder}
                   required
-                  label="Telefone"
+                  label={t.auth.phone}
                 />
               </div>
 
               <div className="form-group">
-                <label className="form-label">Senha</label>
+                <label className="form-label">{t.auth.password}</label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
                   <input
                     type={showPassword ? 'text' : 'password'}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Crie uma senha"
+                    placeholder={t.login.createPasswordPlaceholder}
                     className="form-input pl-12 pr-12"
                     required
                   />
@@ -320,14 +322,14 @@ const Login: React.FC = () => {
               </div>
 
               <div className="form-group">
-                <label className="form-label">Confirmar Senha</label>
+                <label className="form-label">{t.auth.confirmPassword}</label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
                   <input
                     type={showConfirmPassword ? 'text' : 'password'}
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
-                    placeholder="Confirme sua senha"
+                    placeholder={t.login.confirmPasswordPlaceholder}
                     className="form-input pl-12 pr-12"
                     required
                   />
@@ -349,10 +351,10 @@ const Login: React.FC = () => {
                 {isLoading ? (
                   <>
                     <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2" />
-                    Criando conta...
+                    {t.login.creating}
                   </>
                 ) : (
-                  'Criar Conta'
+                  t.login.createAccount
                 )}
               </button>
 
@@ -362,7 +364,7 @@ const Login: React.FC = () => {
                   onClick={() => setStep('login')}
                   className="text-sm text-accent hover:underline"
                 >
-                  Já tem conta? Entrar
+                  {t.auth.haveAccount} {t.auth.loginHere}
                 </button>
               </div>
             </form>
@@ -551,13 +553,13 @@ const Login: React.FC = () => {
           {/* Terms */}
           <div className="mt-6 text-center">
             <p className="text-xs text-text-secondary">
-              Ao continuar, você concorda com os nossos{' '}
-              <Link to="/privacy-policy" className="text-accent hover:underline">
-                Termos de Serviço
+              {t.login.termsText}{' '}
+              <Link to="/terms" className="text-accent hover:underline">
+                {t.login.termsOfService}
               </Link>{' '}
-              e{' '}
+              {t.login.and}{' '}
               <Link to="/privacy-policy" className="text-accent hover:underline">
-                Política de Privacidade
+                {t.login.privacyPolicy}
               </Link>
             </p>
           </div>

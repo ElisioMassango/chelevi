@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { X, Shield, Cookie, Eye, Settings } from 'lucide-react';
+import { useTranslation } from '../contexts/LanguageContext';
 
 const LGPDPopup: React.FC = () => {
+  const t = useTranslation();
   const [isVisible, setIsVisible] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
 
@@ -42,8 +44,8 @@ const LGPDPopup: React.FC = () => {
               <Shield className="text-blue-600" size={20} />
             </div>
             <div>
-              <h3 className="font-bold text-lg">Privacidade e Cookies</h3>
-              <p className="text-sm text-text-secondary">LGPD - Lei Geral de Proteção de Dados</p>
+              <h3 className="font-bold text-lg">{t.lgpd.title}</h3>
+              <p className="text-sm text-text-secondary">{t.lgpd.subtitle}</p>
             </div>
           </div>
           <button
@@ -57,8 +59,7 @@ const LGPDPopup: React.FC = () => {
         {/* Content */}
         <div className="p-6">
           <p className="text-text-secondary leading-relaxed mb-4">
-            Utilizamos cookies e tecnologias similares para melhorar sua experiência, personalizar conteúdo 
-            e analisar nosso tráfego. Seus dados são tratados conforme nossa Política de Privacidade.
+            {t.lgpd.description}
           </p>
 
           {/* Cookie Categories */}
@@ -67,13 +68,13 @@ const LGPDPopup: React.FC = () => {
               <div className="flex items-start gap-3">
                 <Cookie className="text-orange-500 mt-1" size={16} />
                 <div>
-                  <h4 className="font-semibold text-sm">Cookies Essenciais</h4>
+                  <h4 className="font-semibold text-sm">{t.lgpd.essentialCookies}</h4>
                   <p className="text-xs text-text-secondary">
-                    Necessários para o funcionamento básico do site
+                    {t.lgpd.essentialDescription}
                   </p>
                   <div className="mt-1">
                     <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">
-                      Sempre Ativo
+                      {t.lgpd.alwaysActive}
                     </span>
                   </div>
                 </div>
@@ -84,9 +85,9 @@ const LGPDPopup: React.FC = () => {
                 <div className="flex-1">
                   <div className="flex items-center justify-between">
                     <div>
-                      <h4 className="font-semibold text-sm">Cookies Analíticos</h4>
+                      <h4 className="font-semibold text-sm">{t.lgpd.analyticalCookies}</h4>
                       <p className="text-xs text-text-secondary">
-                        Nos ajudam a entender como você usa o site
+                        {t.lgpd.analyticalDescription}
                       </p>
                     </div>
                     <label className="relative inline-flex items-center cursor-pointer">
@@ -102,9 +103,9 @@ const LGPDPopup: React.FC = () => {
                 <div className="flex-1">
                   <div className="flex items-center justify-between">
                     <div>
-                      <h4 className="font-semibold text-sm">Cookies de Marketing</h4>
+                      <h4 className="font-semibold text-sm">{t.lgpd.marketingCookies}</h4>
                       <p className="text-xs text-text-secondary">
-                        Para personalizar anúncios e conteúdo
+                        {t.lgpd.marketingDescription}
                       </p>
                     </div>
                     <label className="relative inline-flex items-center cursor-pointer">
@@ -123,7 +124,7 @@ const LGPDPopup: React.FC = () => {
               onClick={handleAccept}
               className="w-full btn btn-primary"
             >
-              Aceitar Todos os Cookies
+              {t.lgpd.acceptAll}
             </button>
             
             <div className="flex gap-2">
@@ -131,13 +132,13 @@ const LGPDPopup: React.FC = () => {
                 onClick={handleCustomize}
                 className="flex-1 btn btn-outline text-sm"
               >
-                {showDetails ? 'Ocultar Detalhes' : 'Personalizar'}
+                {showDetails ? t.lgpd.hideDetails : t.lgpd.customize}
               </button>
               <button
                 onClick={handleDecline}
                 className="flex-1 btn btn-secondary text-sm"
               >
-                Apenas Essenciais
+                {t.lgpd.essentialOnly}
               </button>
             </div>
           </div>
@@ -148,7 +149,7 @@ const LGPDPopup: React.FC = () => {
               href="/privacy-policy"
               className="text-xs text-accent hover:underline"
             >
-              Leia nossa Política de Privacidade completa
+              {t.lgpd.readPrivacyPolicy}
             </a>
           </div>
         </div>

@@ -1,22 +1,26 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Heart, User, Search, ShoppingBag, Menu, X, ChevronDown, Globe, Minus, Plus } from 'lucide-react';
+import { Heart, User, Search, ShoppingBag, Menu, X, Minus, Plus, ChevronRight, ChevronDown } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useCart } from '../contexts/CartContext';
 import { useWishlist } from '../contexts/WishlistContext';
 import { useSearchDebounced } from '../hooks/useSearch';
+import { useTranslation } from '../contexts/LanguageContext';
+import LanguageSelector from './LanguageSelector';
+import { useCategories } from '../hooks/useCategories';
 
 const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [isLanguageOpen, setIsLanguageOpen] = useState(false);
-  const [currentLanguage, setCurrentLanguage] = useState('en');
+  const [expandedCategories, setExpandedCategories] = useState<number[]>([]);
   const { user, logout } = useAuth();
   const { items, updateQuantity, removeFromCart, total } = useCart();
   const { items: wishlistItems } = useWishlist();
   const navigate = useNavigate();
+  const t = useTranslation();
+  const { categories, loading: categoriesLoading } = useCategories();
   
   // Search functionality
   const { 
@@ -54,12 +58,6 @@ const Header: React.FC = () => {
     clearResults();
   };
 
-  const handleLanguageChange = (lang: string) => {
-    setCurrentLanguage(lang);
-    setIsLanguageOpen(false);
-    // Here you would implement language switching logic
-  };
-
   const handleLogout = () => {
     logout();
     navigate('/');
@@ -87,33 +85,8 @@ const Header: React.FC = () => {
         <div className="container">
           {/* Desktop Header */}
           <div className="hidden lg:flex items-center justify-between py-4">
-            {/* Language/Currency Selector */}
-            <div className="relative">
-              <button
-                onClick={() => setIsLanguageOpen(!isLanguageOpen)}
-                className="flex items-center gap-2 text-sm font-medium hover:text-accent transition-colors"
-              >
-                <Globe size={16} />
-                <span>{currentLanguage === 'en' ? 'MZ | EN' : 'MZ | PT'}</span>
-                <ChevronDown size={14} className={`transition-transform ${isLanguageOpen ? 'rotate-180' : ''}`} />
-              </button>
-              {isLanguageOpen && (
-                <div className="absolute top-full left-0 mt-2 bg-white border border-gray rounded-md shadow-lg py-2 w-32">
-                  <button
-                    onClick={() => handleLanguageChange('en')}
-                    className="w-full text-left px-4 py-2 text-sm hover:bg-gray-light transition-colors"
-                  >
-                    MZ | PT
-                  </button>
-                  <button
-                    onClick={() => handleLanguageChange('pt')}
-                    className="w-full text-left px-4 py-2 text-sm hover:bg-gray-light transition-colors"
-                  >
-                    MZ | PT
-                  </button>
-                </div>
-              )}
-            </div>
+            {/* Language Selector */}
+            <LanguageSelector />
 
             {/* Logo */}
             <Link to="/" className="flex flex-col items-center">
@@ -138,16 +111,16 @@ const Header: React.FC = () => {
                   </button>
                   <div className="absolute top-full right-0 mt-2 bg-white border border-gray rounded-md shadow-lg py-2 w-48 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all">
                     <Link to="/profile" className="block px-4 py-2 text-sm hover:bg-gray-light transition-colors">
-                      My Profile
+                      {t.header.myProfile}
                     </Link>
                     <Link to="/orders" className="block px-4 py-2 text-sm hover:bg-gray-light transition-colors">
-                      My Orders
+                      {t.header.myOrders}
                     </Link>
                     <button
                       onClick={handleLogout}
                       className="w-full text-left px-4 py-2 text-sm hover:bg-gray-light transition-colors"
                     >
-                      Logout
+                      {t.nav.logout}
                     </button>
                   </div>
                 </div>
@@ -186,7 +159,7 @@ const Header: React.FC = () => {
                   to="/"
                   className="text-sm font-medium uppercase tracking-wide hover:text-accent transition-colors"
                 >
-                  Início
+                  {t.nav.home}
                 </Link>
               </li>
               <li>
@@ -194,7 +167,7 @@ const Header: React.FC = () => {
                   to="/about"
                   className="text-sm font-medium uppercase tracking-wide hover:text-accent transition-colors"
                 >
-                  Sobre Nós
+                  {t.nav.about}
                 </Link>
               </li>
 
@@ -203,7 +176,7 @@ const Header: React.FC = () => {
                   to="/products/"
                   className="text-sm font-medium uppercase tracking-wide hover:text-accent transition-colors"
                 >
-                  Coleções
+                  {t.nav.products}
                 </Link>
               </li>
               <li>
@@ -211,7 +184,7 @@ const Header: React.FC = () => {
                   to="/contact"
                   className="text-sm font-medium uppercase tracking-wide hover:text-accent transition-colors"
                 >
-                  Contacto
+                  {t.nav.contact}
                 </Link>
               </li>
 
@@ -260,110 +233,228 @@ const Header: React.FC = () => {
               style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0, 0, 0, 0.5)' }}
             />
             <div
-              className="fixed top-0 left-0 h-full w-80 max-w-full bg-white shadow-xl"
+              className="fixed top-0 left-0 h-full w-80 max-w-full bg-white shadow-xl overflow-y-auto"
               style={{ position: 'fixed', top: 0, left: 0, width: '320px', height: '100vh', backgroundColor: 'white', zIndex: 10000 }}
             >
-              <div className="flex items-center justify-between p-6 border-b">
-                <h2 className="text-lg font-bold">Menu</h2>
-                <button onClick={() => {
-                  console.log('Closing menu...');
-                  setIsMenuOpen(false);
-                }}>
-                  <X size={24} />
+              {/* Header do Menu Mobile */}
+              <div className="flex items-center justify-between p-4 border-b bg-gray-50 sticky top-0 z-10">
+                <h2 className="text-lg font-bold text-gray-900">{t.header.menu}</h2>
+                <button 
+                  onClick={() => setIsMenuOpen(false)}
+                  className="p-2 hover:bg-gray-200 rounded-full transition-colors"
+                >
+                  <X size={24} className="text-gray-700" />
                 </button>
               </div>
 
-              <nav className="p-6">
-                <ul className="space-y-6">
-                  <li>
-                    <Link
-                      to="/"
-                      className="block text-lg font-medium hover:text-accent transition-colors"
-                      onClick={() => setIsMenuOpen(false)}
-                    >
-                      Início
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      to="/about"
-                      className="block text-lg font-medium hover:text-accent transition-colors"
-                      onClick={() => setIsMenuOpen(false)}
-                    >
-                      Sobre Nós
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      to="/products/"
-                      className="block text-lg font-medium hover:text-accent transition-colors"
-                      onClick={() => setIsMenuOpen(false)}
-                    >
-                      Coleções
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      to="/contact"
-                      className="block text-lg font-medium hover:text-accent transition-colors"
-                      onClick={() => setIsMenuOpen(false)}
-                    >
-                      Contacto
-                    </Link>
-                  </li>
-                
-                </ul>
-
-
-                <div className="mt-8 pt-8 border-t space-y-4">
-                  {user ? (
-                    <>
-                      <Link
-                        to="/profile"
-                        className="block text-lg font-medium hover:text-accent transition-colors"
-                        onClick={() => setIsMenuOpen(false)}
-                      >
-                        Perfil
-                      </Link>
-                      <Link
-                        to="/orders"
-                        className="block text-lg font-medium hover:text-accent transition-colors"
-                        onClick={() => setIsMenuOpen(false)}
-                      >
-                        Meus Pedidos
-                      </Link>
-                      <button
-                        onClick={() => {
-                          handleLogout();
-                          setIsMenuOpen(false);
-                        }}
-                        className="block w-full text-left text-lg font-medium hover:text-accent transition-colors"
-                      >
-                        Logout
-                      </button>
-                    </>
-                  ) : (
-                    <Link
-                      to="/login"
-                      className="block text-lg font-medium hover:text-accent transition-colors"
-                      onClick={() => setIsMenuOpen(false)}
-                    >
-                      Login
-                    </Link>
-                    
-                  )}
-
-                  <Link
-                    to="/wishlist"
-                    className="flex items-center gap-2 text-lg font-medium hover:text-accent transition-colors"
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    <Heart size={20} />
-                    Wishlist ({wishlistItems.length})
-                  </Link>
-                  
+              <div className="overflow-y-auto pb-20">
+                {/* Search Box */}
+                <div className="p-4 border-b bg-white">
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                    <input
+                      type="text"
+                      placeholder={t.header.searchPlaceholder}
+                      value={searchQuery}
+                      onChange={handleSearchChange}
+                      onClick={() => {
+                        setIsMenuOpen(false);
+                        setIsSearchOpen(true);
+                      }}
+                      className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-sm"
+                    />
+                  </div>
                 </div>
-              </nav>
+
+                {/* Language Selector */}
+                <div className="p-4 border-b bg-white">
+                  <LanguageSelector />
+                </div>
+
+                {/* User Profile Info (when logged in) */}
+                {user && (
+                  <div className="p-4 border-b bg-gradient-to-r from-gray-50 to-gray-100">
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center">
+                        <User className="text-gray-700" size={24} />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-semibold text-gray-900 truncate">
+                          {user.first_name && user.last_name 
+                            ? `${user.first_name} ${user.last_name}`
+                            : user.name || user.email?.split('@')[0] || t.header.user}
+                        </p>
+                        <p className="text-sm text-gray-600 truncate">{user.email}</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Navigation Links */}
+                <nav className="p-4">
+                  <ul className="space-y-1">
+                    <li>
+                      <Link
+                        to="/"
+                        className="flex items-center justify-between py-3 px-3 text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-accent rounded-lg transition-colors"
+                        onClick={() => setIsMenuOpen(false)}
+                      >
+                        <span>{t.nav.home}</span>
+                        <ChevronRight size={18} className="text-gray-400" />
+                      </Link>
+                    </li>
+                    <li>
+                      <Link
+                        to="/about"
+                        className="flex items-center justify-between py-3 px-3 text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-accent rounded-lg transition-colors"
+                        onClick={() => setIsMenuOpen(false)}
+                      >
+                        <span>{t.nav.about}</span>
+                        <ChevronRight size={18} className="text-gray-400" />
+                      </Link>
+                    </li>
+                    
+                    {/* Collections with Categories */}
+                    <li>
+                      <div className="py-3 px-3">
+                        <button
+                          onClick={() => {
+                            const routeSlug = 'products';
+                            const category = categories.find((c: any) => {
+                              const slug = c.slug?.split('/').pop()?.toLowerCase() || c.name.toLowerCase();
+                              return slug === routeSlug.toLowerCase();
+                            });
+                            if (category) {
+                              navigate(`/products/${routeSlug}`);
+                              setIsMenuOpen(false);
+                            } else {
+                              navigate('/products');
+                              setIsMenuOpen(false);
+                            }
+                          }}
+                          className="flex items-center justify-between w-full text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-accent rounded-lg transition-colors"
+                        >
+                          <span>{t.nav.products}</span>
+                          <ChevronRight size={18} className="text-gray-400" />
+                        </button>
+                        
+                        {/* Categories List */}
+                        {categories.length > 0 && (
+                          <div className="mt-2 ml-4 space-y-1">
+                            {categories.slice(0, 6).map((category: any) => {
+                              const routeSlug = category.slug?.split('/').pop()?.toLowerCase() || category.name.toLowerCase();
+                              return (
+                                <Link
+                                  key={category.id}
+                                  to={`/products/${routeSlug}`}
+                                  className="block py-2 px-3 text-sm text-gray-600 hover:bg-gray-50 hover:text-accent rounded-md transition-colors"
+                                  onClick={() => setIsMenuOpen(false)}
+                                >
+                                  {category.name}
+                                  {category.total_product && (
+                                    <span className="text-xs text-gray-400 ml-2">({category.total_product})</span>
+                                  )}
+                                </Link>
+                              );
+                            })}
+                            {categories.length > 6 && (
+                              <Link
+                                to="/products"
+                                className="block py-2 px-3 text-sm text-primary font-medium hover:bg-gray-50 rounded-md transition-colors"
+                                onClick={() => setIsMenuOpen(false)}
+                              >
+                                {t.header.viewAllCategories}
+                              </Link>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    </li>
+
+                    <li>
+                      <Link
+                        to="/contact"
+                        className="flex items-center justify-between py-3 px-3 text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-accent rounded-lg transition-colors"
+                        onClick={() => setIsMenuOpen(false)}
+                      >
+                        <span>{t.nav.contact}</span>
+                        <ChevronRight size={18} className="text-gray-400" />
+                      </Link>
+                    </li>
+                  </ul>
+
+                  {/* Wishlist */}
+                  <div className="mt-4 pt-4 border-t">
+                    <Link
+                      to="/wishlist"
+                      className="flex items-center justify-between py-3 px-3 text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-accent rounded-lg transition-colors"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      <div className="flex items-center gap-2">
+                        <Heart size={20} className={wishlistItems.length > 0 ? 'fill-current text-red-500' : ''} />
+                        <span>{t.nav.wishlist}</span>
+                      </div>
+                      {wishlistItems.length > 0 && (
+                        <span className="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">
+                          {wishlistItems.length}
+                        </span>
+                      )}
+                    </Link>
+                  </div>
+
+                  {/* User Account Section */}
+                  <div className="mt-4 pt-4 border-t space-y-1">
+                    {user ? (
+                      <>
+                        <Link
+                          to="/profile"
+                          className="flex items-center justify-between py-3 px-3 text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-accent rounded-lg transition-colors"
+                          onClick={() => setIsMenuOpen(false)}
+                        >
+                          <div className="flex items-center gap-2">
+                            <User size={18} />
+                            <span>{t.nav.profile}</span>
+                          </div>
+                          <ChevronRight size={18} className="text-gray-400" />
+                        </Link>
+                        <Link
+                          to="/orders"
+                          className="flex items-center justify-between py-3 px-3 text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-accent rounded-lg transition-colors"
+                          onClick={() => setIsMenuOpen(false)}
+                        >
+                          <div className="flex items-center gap-2">
+                            <ShoppingBag size={18} />
+                            <span>{t.nav.orders}</span>
+                          </div>
+                          <ChevronRight size={18} className="text-gray-400" />
+                        </Link>
+                        <button
+                          onClick={() => {
+                            handleLogout();
+                            setIsMenuOpen(false);
+                          }}
+                          className="w-full flex items-center justify-between py-3 px-3 text-base font-medium text-red-600 hover:bg-red-50 rounded-lg transition-colors text-left"
+                        >
+                          <span>{t.nav.logout}</span>
+                          <ChevronRight size={18} className="text-red-400" />
+                        </button>
+                      </>
+                    ) : (
+                      <Link
+                        to="/login"
+                        className="flex items-center justify-between py-3 px-3 text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-accent rounded-lg transition-colors"
+                        onClick={() => setIsMenuOpen(false)}
+                      >
+                        <div className="flex items-center gap-2">
+                          <User size={18} />
+                          <span>{t.nav.login}</span>
+                        </div>
+                        <ChevronRight size={18} className="text-gray-400" />
+                      </Link>
+                    )}
+                  </div>
+                </nav>
+              </div>
             </div>
           </div>
         )}
@@ -376,7 +467,7 @@ const Header: React.FC = () => {
                 <Search size={20} className="text-gray-400" />
                 <input
                   type="text"
-                  placeholder="Buscar produtos..."
+                  placeholder={t.header.searchPlaceholder}
                   value={searchQuery}
                   onChange={handleSearchChange}
                   className="flex-1 text-lg outline-none"
@@ -392,11 +483,11 @@ const Header: React.FC = () => {
                   {isSearching ? (
                     <div className="flex items-center justify-center py-8">
                       <div className="animate-spin w-6 h-6 border-2 border-secondary border-t-transparent rounded-full"></div>
-                      <span className="ml-2 text-gray-500">Buscando...</span>
+                      <span className="ml-2 text-gray-500">{t.header.searching}</span>
                     </div>
                   ) : searchError ? (
                     <div className="text-center py-8">
-                      <p className="text-red-500 mb-2">Erro na busca</p>
+                      <p className="text-red-500 mb-2">{t.header.searchError}</p>
                       <p className="text-sm text-gray-500">{searchError}</p>
                     </div>
                   ) : searchResults.length > 0 ? (
@@ -426,8 +517,8 @@ const Header: React.FC = () => {
                     ))
                   ) : hasSearched ? (
                     <div className="text-center py-8">
-                      <p className="text-gray-500">Nenhum produto encontrado</p>
-                      <p className="text-sm text-gray-400 mt-1">Tente usar palavras-chave diferentes</p>
+                      <p className="text-gray-500">{t.header.noResults}</p>
+                      <p className="text-sm text-gray-400 mt-1">{t.header.tryDifferent}</p>
                     </div>
                   ) : null}
                 </div>
@@ -443,7 +534,7 @@ const Header: React.FC = () => {
             <div className="fixed top-0 right-0 h-full w-96 max-w-full bg-white shadow-xl overflow-y-auto">
               <div className="p-6 border-b">
                 <div className="flex items-center justify-between">
-                  <h2 className="text-xl font-bold">Carrinho ({totalItems})</h2>
+                  <h2 className="text-xl font-bold">{t.header.cart} ({totalItems})</h2>
                   <button onClick={() => setIsCartOpen(false)}>
                     <X size={24} />
                   </button>
@@ -481,7 +572,7 @@ const Header: React.FC = () => {
                               onClick={() => removeFromCart(item.id)}
                               className="ml-auto text-red-500 hover:text-red-700 text-sm"
                             >
-                              Remover
+                              {t.common.remove}
                             </button>
                           </div>
                         </div>
@@ -491,7 +582,7 @@ const Header: React.FC = () => {
                 ) : (
                   <div className="text-center py-12">
                     <ShoppingBag size={48} className="mx-auto mb-4 text-gray-300" />
-                    <p className="text-gray-500">O seu carrinho está vazio</p>
+                    <p className="text-gray-500">{t.header.emptyCart}</p>
                   </div>
                 )}
               </div>
@@ -499,7 +590,7 @@ const Header: React.FC = () => {
               {items.length > 0 && (
                 <div className="border-t p-6 space-y-4">
                   <div className="flex justify-between font-bold text-lg">
-                    <span>Total:</span>
+                    <span>{t.header.total}:</span>
                     <span>MT{total.toFixed(2)}</span>
                   </div>
                   <Link
@@ -507,14 +598,14 @@ const Header: React.FC = () => {
                     className="btn btn-primary w-full"
                     onClick={() => setIsCartOpen(false)}
                   >
-                    Checkout
+                    {t.nav.checkout}
                   </Link>
                   <Link
                     to="/cart"
                     className="btn btn-outline w-full"
                     onClick={() => setIsCartOpen(false)}
                   >
-                    Ver Carrinho
+                    {t.header.viewCart}
                   </Link>
                 </div>
               )}

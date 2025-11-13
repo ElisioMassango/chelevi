@@ -1,13 +1,15 @@
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { AlertCircle, ArrowLeft, RefreshCw, Home, ShoppingBag } from 'lucide-react';
+import { useTranslation } from '../contexts/LanguageContext';
 
 const CheckoutFailed: React.FC = () => {
+  const t = useTranslation();
   const location = useLocation();
   const navigate = useNavigate();
   
   // Get error message from navigation state
-  const errorMessage = location.state?.error || 'Ocorreu um erro inesperado durante o processamento do seu pedido.';
+  const errorMessage = location.state?.error || t.checkoutFailed.defaultError;
 
   const handleRetry = () => {
     navigate('/checkout');
@@ -32,7 +34,7 @@ const CheckoutFailed: React.FC = () => {
           
           {/* Error Title */}
           <h1 className="text-3xl font-bold text-gray-900 mb-4">
-            Pedido Não Processado
+            {t.checkoutFailed.title}
           </h1>
           
           {/* Error Message */}
@@ -44,7 +46,7 @@ const CheckoutFailed: React.FC = () => {
           
           {/* Help Text */}
           <p className="text-gray-600 mb-8">
-            Não se preocupe! Os seus produtos ainda estão no carrinho e pode tentar novamente.
+            {t.checkoutFailed.helpText}
           </p>
         </div>
 
@@ -56,7 +58,7 @@ const CheckoutFailed: React.FC = () => {
             className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-3 px-4 rounded-lg font-semibold hover:from-purple-700 hover:to-pink-700 transition-all duration-200 flex items-center justify-center space-x-2"
           >
             <RefreshCw size={20} />
-            <span>Tentar Novamente</span>
+            <span>{t.checkoutFailed.tryAgain}</span>
           </button>
 
           {/* Secondary Actions */}
@@ -66,7 +68,7 @@ const CheckoutFailed: React.FC = () => {
               className="bg-white border border-gray-300 text-gray-700 py-3 px-4 rounded-lg font-medium hover:bg-gray-50 transition-colors flex items-center justify-center space-x-2"
             >
               <ShoppingBag size={18} />
-              <span>Ver Carrinho</span>
+              <span>{t.checkoutFailed.viewCart}</span>
             </button>
             
             <button
@@ -74,7 +76,7 @@ const CheckoutFailed: React.FC = () => {
               className="bg-white border border-gray-300 text-gray-700 py-3 px-4 rounded-lg font-medium hover:bg-gray-50 transition-colors flex items-center justify-center space-x-2"
             >
               <Home size={18} />
-              <span>Início</span>
+              <span>{t.checkoutFailed.home}</span>
             </button>
           </div>
         </div>
@@ -82,10 +84,10 @@ const CheckoutFailed: React.FC = () => {
         {/* Help Section */}
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
           <h3 className="text-sm font-semibold text-blue-900 mb-2">
-            Precisa de Ajuda?
+            {t.checkoutFailed.needHelp}
           </h3>
           <p className="text-sm text-blue-800 mb-3">
-            Se o problema persistir, entre em contacto connosco:
+            {t.checkoutFailed.helpText}
           </p>
           <div className="space-y-1 text-sm text-blue-800">
             <p>📧 Email: info@chelevi.com</p>
@@ -100,7 +102,7 @@ const CheckoutFailed: React.FC = () => {
             className="text-gray-500 hover:text-gray-700 transition-colors flex items-center justify-center space-x-2 mx-auto"
           >
             <ArrowLeft size={16} />
-            <span>Voltar</span>
+            <span>{t.checkoutFailed.back}</span>
           </button>
         </div>
       </div>

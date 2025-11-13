@@ -1,7 +1,10 @@
 import React from 'react';
 import { Truck, MapPin, Clock, Package, CheckCircle, AlertCircle, Info, Globe } from 'lucide-react';
+import { useTranslation } from '../contexts/LanguageContext';
 
 const ShippingInfo: React.FC = () => {
+  const t = useTranslation();
+  
   return (
     <div className="shipping-info-page py-12">
       <div className="container max-w-4xl">
@@ -10,9 +13,9 @@ const ShippingInfo: React.FC = () => {
           <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
             <Truck className="text-blue-600" size={32} />
           </div>
-          <h1 className="text-4xl font-bold mb-4">Informações de Envio</h1>
+          <h1 className="text-4xl font-bold mb-4">{t.shippingInfo.title}</h1>
           <p className="text-xl text-text-secondary">
-            Entregamos com cuidado e atenção aos detalhes
+            {t.shippingInfo.subtitle}
           </p>
         </div>
 
@@ -22,12 +25,10 @@ const ShippingInfo: React.FC = () => {
             <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-6 rounded-lg mb-6">
               <h2 className="text-2xl font-bold mb-4 flex items-center gap-3">
                 <Package className="text-blue-600" size={24} />
-                Visão Geral
+                {t.shippingInfo.overview}
               </h2>
               <p className="text-text-secondary leading-relaxed">
-                Na Chelevi, acreditamos que cada entrega deve ser uma experiência especial. 
-                Trabalhamos com parceiros de confiança para garantir que os seus produtos cheguem 
-                em perfeitas condições e no prazo prometido.
+                {t.shippingInfo.overviewText}
               </p>
             </div>
           </section>
@@ -36,33 +37,33 @@ const ShippingInfo: React.FC = () => {
           <section className="mb-8">
             <h2 className="text-2xl font-bold mb-4 flex items-center gap-3">
               <Clock className="text-green-600" size={24} />
-              Prazos de Entrega
+              {t.shippingInfo.deliveryTimes}
             </h2>
             
             <div className="grid md:grid-cols-2 gap-6 mb-6">
               <div className="border border-green-200 bg-green-50 p-6 rounded-lg">
                 <div className="flex items-center gap-3 mb-3">
                   <MapPin className="text-green-600" size={24} />
-                  <h3 className="text-lg font-semibold">Maputo</h3>
+                  <h3 className="text-lg font-semibold">{t.shippingInfo.maputo}</h3>
                 </div>
                 <p className="text-text-secondary mb-2">
-                  <strong className="text-green-700">1-2 dias úteis</strong>
+                  <strong className="text-green-700">{t.shippingInfo.maputoTime}</strong>
                 </p>
                 <p className="text-sm text-text-secondary">
-                  Entregas rápidas na capital com rastreamento em tempo real
+                  {t.shippingInfo.maputoDescription}
                 </p>
               </div>
 
               <div className="border border-blue-200 bg-blue-50 p-6 rounded-lg">
                 <div className="flex items-center gap-3 mb-3">
                   <Globe className="text-blue-600" size={24} />
-                  <h3 className="text-lg font-semibold">Outras Províncias</h3>
+                  <h3 className="text-lg font-semibold">{t.shippingInfo.otherProvinces}</h3>
                 </div>
                 <p className="text-text-secondary mb-2">
-                  <strong className="text-blue-700">3-5 dias úteis</strong>
+                  <strong className="text-blue-700">{t.shippingInfo.otherProvincesTime}</strong>
                 </p>
                 <p className="text-sm text-text-secondary">
-                  Entregas para todo o território nacional com segurança
+                  {t.shippingInfo.otherProvincesDescription}
                 </p>
               </div>
             </div>
@@ -72,9 +73,7 @@ const ShippingInfo: React.FC = () => {
                 <AlertCircle className="text-yellow-600 mt-0.5" size={20} />
                 <div>
                   <p className="text-sm text-yellow-800">
-                    <strong>Nota:</strong> Os prazos de entrega começam a contar após a confirmação 
-                    do pagamento e processamento do pedido. Em períodos de alta demanda (feriados, 
-                    promoções), os prazos podem ser ligeiramente estendidos.
+                    <strong>{t.shippingInfo.note}</strong> {t.shippingInfo.noteText}
                   </p>
                 </div>
               </div>

@@ -1,7 +1,11 @@
 import React from 'react';
 import { FileText, Scale, AlertCircle, CheckCircle, XCircle, Shield } from 'lucide-react';
+import { useTranslation } from '../contexts/LanguageContext';
+import { Link } from 'react-router-dom';
 
 const TermsOfUse: React.FC = () => {
+  const t = useTranslation();
+  
   return (
     <div className="terms-of-use-page py-12">
       <div className="container max-w-4xl">
@@ -10,9 +14,9 @@ const TermsOfUse: React.FC = () => {
           <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-6">
             <FileText className="text-purple-600" size={32} />
           </div>
-          <h1 className="text-4xl font-bold mb-4">Termos de Utilização</h1>
+          <h1 className="text-4xl font-bold mb-4">{t.terms.title}</h1>
           <p className="text-xl text-text-secondary">
-            Última atualização: Janeiro de 2025
+            {t.terms.lastUpdated}
           </p>
         </div>
 
@@ -21,18 +25,16 @@ const TermsOfUse: React.FC = () => {
           <section className="mb-8">
             <h2 className="text-2xl font-bold mb-4 flex items-center gap-3">
               <Scale className="text-purple-600" size={24} />
-              Introdução
+              {t.terms.introduction}
             </h2>
             <p className="text-text-secondary leading-relaxed mb-4">
-              Bem-vindo à Chelevi. Estes Termos de Utilização ("Termos") regem o seu acesso e uso do nosso 
-              website, produtos e serviços. Ao aceder ou utilizar os nossos serviços, você concorda em 
-              cumprir e estar vinculado a estes Termos.
+              {t.terms.introText}
             </p>
             <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-4">
               <div className="flex items-start gap-3">
                 <AlertCircle className="text-yellow-600 mt-0.5" size={20} />
                 <p className="text-sm text-yellow-800">
-                  <strong>Importante:</strong> Se não concordar com estes Termos, não deve utilizar os nossos serviços.
+                  <strong>{t.terms.important}</strong> {t.terms.importantText}
                 </p>
               </div>
             </div>
@@ -40,43 +42,41 @@ const TermsOfUse: React.FC = () => {
 
           {/* Acceptance of Terms */}
           <section className="mb-8">
-            <h2 className="text-2xl font-bold mb-4">1. Aceitação dos Termos</h2>
+            <h2 className="text-2xl font-bold mb-4">1. {t.terms.acceptance}</h2>
             <p className="text-text-secondary leading-relaxed mb-4">
-              Ao criar uma conta, fazer uma compra ou utilizar qualquer um dos nossos serviços, você 
-              confirma que:
+              {t.terms.acceptanceText}
             </p>
             <ul className="list-disc list-inside space-y-2 text-text-secondary">
-              <li>Leu e compreendeu estes Termos</li>
-              <li>Concorda em cumprir todos os Termos e condições</li>
-              <li>Tem pelo menos 18 anos de idade ou tem autorização parental</li>
-              <li>É responsável por todas as atividades na sua conta</li>
+              <li>{t.terms.acceptanceList1}</li>
+              <li>{t.terms.acceptanceList2}</li>
+              <li>{t.terms.acceptanceList3}</li>
+              <li>{t.terms.acceptanceList4}</li>
             </ul>
           </section>
 
           {/* Account Registration */}
           <section className="mb-8">
-            <h2 className="text-2xl font-bold mb-4">2. Registo de Conta</h2>
+            <h2 className="text-2xl font-bold mb-4">2. {t.terms.accountRegistration}</h2>
             <div className="space-y-4">
               <div>
-                <h3 className="text-lg font-semibold mb-3">2.1. Criação de Conta</h3>
+                <h3 className="text-lg font-semibold mb-3">2.1. {t.terms.accountCreation}</h3>
                 <p className="text-text-secondary leading-relaxed mb-3">
-                  Para fazer compras e aceder a certas funcionalidades, pode ser necessário criar uma conta. 
-                  Você concorda em:
+                  {t.terms.accountCreationText}
                 </p>
                 <ul className="list-disc list-inside space-y-2 text-text-secondary">
-                  <li>Fornecer informações precisas, completas e atualizadas</li>
-                  <li>Manter a segurança da sua palavra-passe</li>
-                  <li>Notificar-nos imediatamente de qualquer uso não autorizado</li>
-                  <li>Ser responsável por todas as atividades na sua conta</li>
+                  <li>{t.terms.accountList1}</li>
+                  <li>{t.terms.accountList2}</li>
+                  <li>{t.terms.accountList3}</li>
+                  <li>{t.terms.accountList4}</li>
                 </ul>
               </div>
               <div>
-                <h3 className="text-lg font-semibold mb-3">2.2. Privacidade</h3>
+                <h3 className="text-lg font-semibold mb-3">2.2. {t.terms.privacy}</h3>
                 <p className="text-text-secondary leading-relaxed">
-                  O tratamento dos seus dados pessoais é regido pela nossa 
-                  <a href="/privacy-policy" className="text-primary hover:underline ml-1">
-                    Política de Privacidade
-                  </a>.
+                  {t.terms.privacyText}{' '}
+                  <Link to="/privacy-policy" className="text-primary hover:underline">
+                    {t.footer.privacyPolicy}
+                  </Link>.
                 </p>
               </div>
             </div>
@@ -84,34 +84,30 @@ const TermsOfUse: React.FC = () => {
 
           {/* Products and Services */}
           <section className="mb-8">
-            <h2 className="text-2xl font-bold mb-4">3. Produtos e Serviços</h2>
+            <h2 className="text-2xl font-bold mb-4">3. {t.terms.products}</h2>
             <div className="space-y-4">
               <div>
-                <h3 className="text-lg font-semibold mb-3">3.1. Disponibilidade</h3>
+                <h3 className="text-lg font-semibold mb-3">3.1. {t.terms.availability}</h3>
                 <p className="text-text-secondary leading-relaxed">
-                  Fazemos o nosso melhor para garantir que as informações sobre produtos, preços e 
-                  disponibilidade sejam precisas. No entanto, reservamo-nos o direito de:
+                  {t.terms.availabilityText}
                 </p>
                 <ul className="list-disc list-inside space-y-2 text-text-secondary mt-3">
-                  <li>Corrigir erros, imprecisões ou omissões</li>
-                  <li>Alterar ou descontinuar produtos a qualquer momento</li>
-                  <li>Limitar quantidades de produtos por pedido</li>
-                  <li>Recusar ou cancelar pedidos a nosso critério</li>
+                  <li>{t.terms.availabilityList1}</li>
+                  <li>{t.terms.availabilityList2}</li>
+                  <li>{t.terms.availabilityList3}</li>
+                  <li>{t.terms.availabilityList4}</li>
                 </ul>
               </div>
               <div>
-                <h3 className="text-lg font-semibold mb-3">3.2. Preços</h3>
+                <h3 className="text-lg font-semibold mb-3">3.2. {t.terms.prices}</h3>
                 <p className="text-text-secondary leading-relaxed">
-                  Todos os preços são exibidos em Meticais (MT) e incluem IVA quando aplicável. 
-                  Reservamo-nos o direito de alterar preços a qualquer momento, mas os preços aplicáveis 
-                  serão os exibidos no momento do pedido.
+                  {t.terms.pricesText}
                 </p>
               </div>
               <div>
-                <h3 className="text-lg font-semibold mb-3">3.3. Imagens de Produtos</h3>
+                <h3 className="text-lg font-semibold mb-3">3.3. {t.terms.productImages}</h3>
                 <p className="text-text-secondary leading-relaxed">
-                  Fazemos esforços para exibir cores e imagens dos produtos com precisão, mas não 
-                  garantimos que as cores exibidas no seu ecrã sejam exatas.
+                  {t.terms.productImagesText}
                 </p>
               </div>
             </div>
@@ -119,49 +115,48 @@ const TermsOfUse: React.FC = () => {
 
           {/* Orders and Payment */}
           <section className="mb-8">
-            <h2 className="text-2xl font-bold mb-4">4. Pedidos e Pagamento</h2>
+            <h2 className="text-2xl font-bold mb-4">4. {t.terms.orders}</h2>
             <div className="space-y-4">
               <div>
-                <h3 className="text-lg font-semibold mb-3">4.1. Processamento de Pedidos</h3>
+                <h3 className="text-lg font-semibold mb-3">4.1. {t.terms.orderProcessing}</h3>
                 <p className="text-text-secondary leading-relaxed mb-3">
-                  Ao fazer um pedido, você:
+                  {t.terms.orderProcessingText}
                 </p>
                 <ul className="list-disc list-inside space-y-2 text-text-secondary">
-                  <li>Oferece comprar os produtos ao preço e condições indicados</li>
-                  <li>Confirma que todas as informações fornecidas são precisas</li>
-                  <li>Autoriza-nos a processar o pagamento</li>
-                  <li>Reconhece que receberá confirmação por email e WhatsApp</li>
+                  <li>{t.terms.orderList1}</li>
+                  <li>{t.terms.orderList2}</li>
+                  <li>{t.terms.orderList3}</li>
+                  <li>{t.terms.orderList4}</li>
                 </ul>
               </div>
               <div>
-                <h3 className="text-lg font-semibold mb-3">4.2. Métodos de Pagamento</h3>
+                <h3 className="text-lg font-semibold mb-3">4.2. {t.terms.paymentMethods}</h3>
                 <p className="text-text-secondary leading-relaxed mb-3">
-                  Aceitamos os seguintes métodos de pagamento:
+                  {t.terms.paymentMethodsText}
                 </p>
                 <div className="grid md:grid-cols-2 gap-3">
                   <div className="bg-gray-50 p-4 rounded-lg">
                     <CheckCircle className="text-green-600 inline mr-2" size={18} />
-                    <span className="text-text-secondary">Cartão de Crédito/Débito</span>
+                    <span className="text-text-secondary">{t.terms.paymentMethod1}</span>
                   </div>
                   <div className="bg-gray-50 p-4 rounded-lg">
                     <CheckCircle className="text-green-600 inline mr-2" size={18} />
-                    <span className="text-text-secondary">Transferência Bancária</span>
+                    <span className="text-text-secondary">{t.terms.paymentMethod2}</span>
                   </div>
                   <div className="bg-gray-50 p-4 rounded-lg">
                     <CheckCircle className="text-green-600 inline mr-2" size={18} />
-                    <span className="text-text-secondary">M-Pesa</span>
+                    <span className="text-text-secondary">{t.terms.paymentMethod3}</span>
                   </div>
                   <div className="bg-gray-50 p-4 rounded-lg">
                     <CheckCircle className="text-green-600 inline mr-2" size={18} />
-                    <span className="text-text-secondary">Pagamento na Entrega</span>
+                    <span className="text-text-secondary">{t.terms.paymentMethod4}</span>
                   </div>
                 </div>
               </div>
               <div>
-                <h3 className="text-lg font-semibold mb-3">4.3. Confirmação de Pedido</h3>
+                <h3 className="text-lg font-semibold mb-3">4.3. {t.terms.orderConfirmation}</h3>
                 <p className="text-text-secondary leading-relaxed">
-                  A confirmação do pedido será enviada por email e WhatsApp após o processamento bem-sucedido 
-                  do pagamento. O pedido só será considerado aceite após a confirmação.
+                  {t.terms.orderConfirmationText}
                 </p>
               </div>
             </div>
@@ -169,47 +164,47 @@ const TermsOfUse: React.FC = () => {
 
           {/* Shipping and Delivery */}
           <section className="mb-8">
-            <h2 className="text-2xl font-bold mb-4">5. Envio e Entrega</h2>
+            <h2 className="text-2xl font-bold mb-4">5. {t.terms.shipping}</h2>
             <p className="text-text-secondary leading-relaxed mb-4">
-              Para informações detalhadas sobre envio e entrega, consulte a nossa página de 
-              <a href="/shipping" className="text-primary hover:underline ml-1">
-                Informações de Envio
-              </a>.
+              {t.terms.shippingText}{' '}
+              <Link to="/shipping" className="text-primary hover:underline">
+                {t.footer.shippingInfo}
+              </Link>.
             </p>
             <div className="bg-blue-50 p-6 rounded-lg">
-              <h4 className="font-semibold mb-3">Resumo:</h4>
+              <h4 className="font-semibold mb-3">{t.terms.shippingSummary}</h4>
               <ul className="list-disc list-inside space-y-2 text-text-secondary">
-                <li>Prazos de entrega: 1-2 dias em Maputo, 3-5 dias noutras províncias</li>
-                <li>Os custos de envio são calculados no checkout</li>
-                <li>Você receberá informações de rastreamento por WhatsApp</li>
-                <li>É responsável por fornecer um endereço de entrega preciso</li>
+                <li>{t.terms.shippingList1}</li>
+                <li>{t.terms.shippingList2}</li>
+                <li>{t.terms.shippingList3}</li>
+                <li>{t.terms.shippingList4}</li>
               </ul>
             </div>
           </section>
 
           {/* Returns and Refunds */}
           <section className="mb-8">
-            <h2 className="text-2xl font-bold mb-4">6. Devoluções e Reembolsos</h2>
+            <h2 className="text-2xl font-bold mb-4">6. {t.terms.returns}</h2>
             <div className="space-y-4">
               <div>
-                <h3 className="text-lg font-semibold mb-3">6.1. Política de Devolução</h3>
+                <h3 className="text-lg font-semibold mb-3">6.1. {t.terms.returnPolicy}</h3>
                 <p className="text-text-secondary leading-relaxed mb-3">
-                  Aceitamos devoluções dentro de 30 dias após a compra, desde que:
+                  {t.terms.returnPolicyText}
                 </p>
                 <ul className="list-disc list-inside space-y-2 text-text-secondary">
-                  <li>Os produtos estejam em estado original, sem uso e com etiquetas</li>
-                  <li>Tenha o recibo ou confirmação de compra</li>
-                  <li>Os produtos não sejam itens personalizados ou íntimos</li>
+                  <li>{t.terms.returnList1}</li>
+                  <li>{t.terms.returnList2}</li>
+                  <li>{t.terms.returnList3}</li>
                 </ul>
               </div>
               <div>
-                <h3 className="text-lg font-semibold mb-3">6.2. Processo de Devolução</h3>
+                <h3 className="text-lg font-semibold mb-3">6.2. {t.terms.returnProcess}</h3>
                 <p className="text-text-secondary leading-relaxed">
-                  Para iniciar uma devolução, contacte-nos através do nosso 
-                  <a href="/contact" className="text-primary hover:underline ml-1">
-                    formulário de contacto
-                  </a> ou WhatsApp. 
-                  Processaremos o reembolso após receber e inspecionar o produto devolvido.
+                  {t.terms.returnProcessText}{' '}
+                  <Link to="/contact" className="text-primary hover:underline">
+                    {t.contact.sendMessage}
+                  </Link>{' '}
+                  {t.terms.returnProcessText2}
                 </p>
               </div>
             </div>
@@ -217,18 +212,15 @@ const TermsOfUse: React.FC = () => {
 
           {/* Intellectual Property */}
           <section className="mb-8">
-            <h2 className="text-2xl font-bold mb-4">7. Propriedade Intelectual</h2>
+            <h2 className="text-2xl font-bold mb-4">7. {t.terms.intellectualProperty}</h2>
             <p className="text-text-secondary leading-relaxed mb-4">
-              Todo o conteúdo do nosso website, incluindo mas não limitado a textos, gráficos, logótipos, 
-              imagens, software e compilações de dados, é propriedade da Chelevi ou dos seus fornecedores 
-              de conteúdo e está protegido por leis de direitos autorais e outras leis de propriedade intelectual.
+              {t.terms.intellectualPropertyText}
             </p>
             <div className="bg-red-50 border-l-4 border-red-400 p-4">
               <div className="flex items-start gap-3">
                 <XCircle className="text-red-600 mt-0.5" size={20} />
                 <p className="text-sm text-red-800">
-                  <strong>Proibido:</strong> Reproduzir, distribuir, modificar ou criar trabalhos derivados 
-                  do nosso conteúdo sem autorização prévia por escrito.
+                  <strong>{t.terms.prohibited}</strong> {t.terms.prohibitedText}
                 </p>
               </div>
             </div>
@@ -236,70 +228,65 @@ const TermsOfUse: React.FC = () => {
 
           {/* User Conduct */}
           <section className="mb-8">
-            <h2 className="text-2xl font-bold mb-4">8. Conduta do Utilizador</h2>
+            <h2 className="text-2xl font-bold mb-4">8. {t.terms.userConduct}</h2>
             <p className="text-text-secondary leading-relaxed mb-4">
-              Você concorda em NÃO:
+              {t.terms.userConductText}
             </p>
             <div className="grid md:grid-cols-2 gap-4">
               <div className="border border-red-200 p-4 rounded-lg bg-red-50">
                 <XCircle className="text-red-600 inline mr-2" size={18} />
-                <span className="text-text-secondary text-sm">Usar o site para fins ilegais</span>
+                <span className="text-text-secondary text-sm">{t.terms.conductList1}</span>
               </div>
               <div className="border border-red-200 p-4 rounded-lg bg-red-50">
                 <XCircle className="text-red-600 inline mr-2" size={18} />
-                <span className="text-text-secondary text-sm">Tentar aceder a áreas restritas</span>
+                <span className="text-text-secondary text-sm">{t.terms.conductList2}</span>
               </div>
               <div className="border border-red-200 p-4 rounded-lg bg-red-50">
                 <XCircle className="text-red-600 inline mr-2" size={18} />
-                <span className="text-text-secondary text-sm">Interferir com a segurança do site</span>
+                <span className="text-text-secondary text-sm">{t.terms.conductList3}</span>
               </div>
               <div className="border border-red-200 p-4 rounded-lg bg-red-50">
                 <XCircle className="text-red-600 inline mr-2" size={18} />
-                <span className="text-text-secondary text-sm">Transmitir vírus ou código malicioso</span>
+                <span className="text-text-secondary text-sm">{t.terms.conductList4}</span>
               </div>
             </div>
           </section>
 
           {/* Limitation of Liability */}
           <section className="mb-8">
-            <h2 className="text-2xl font-bold mb-4">9. Limitação de Responsabilidade</h2>
+            <h2 className="text-2xl font-bold mb-4">9. {t.terms.liability}</h2>
             <p className="text-text-secondary leading-relaxed mb-4">
-              Na medida máxima permitida por lei, a Chelevi não será responsável por:
+              {t.terms.liabilityText}
             </p>
             <ul className="list-disc list-inside space-y-2 text-text-secondary">
-              <li>Danos diretos, indiretos, incidentais ou consequenciais</li>
-              <li>Perda de lucros, dados ou oportunidades de negócio</li>
-              <li>Interrupções no serviço ou indisponibilidade do website</li>
-              <li>Erros ou omissões no conteúdo</li>
+              <li>{t.terms.liabilityList1}</li>
+              <li>{t.terms.liabilityList2}</li>
+              <li>{t.terms.liabilityList3}</li>
+              <li>{t.terms.liabilityList4}</li>
             </ul>
           </section>
 
           {/* Indemnification */}
           <section className="mb-8">
-            <h2 className="text-2xl font-bold mb-4">10. Indemnização</h2>
+            <h2 className="text-2xl font-bold mb-4">10. {t.terms.indemnification}</h2>
             <p className="text-text-secondary leading-relaxed">
-              Você concorda em indemnizar e isentar a Chelevi, seus funcionários, diretores e agentes 
-              de qualquer reclamação, dano, obrigação, perda, responsabilidade, custo ou dívida, 
-              incluindo honorários advocatícios, decorrentes do seu uso do website ou violação destes Termos.
+              {t.terms.indemnificationText}
             </p>
           </section>
 
           {/* Modifications */}
           <section className="mb-8">
-            <h2 className="text-2xl font-bold mb-4">11. Modificações dos Termos</h2>
+            <h2 className="text-2xl font-bold mb-4">11. {t.terms.modifications}</h2>
             <p className="text-text-secondary leading-relaxed">
-              Reservamo-nos o direito de modificar estes Termos a qualquer momento. As alterações entrarão 
-              em vigor imediatamente após a publicação. O uso continuado dos nossos serviços após as 
-              modificações constitui aceitação dos Termos atualizados.
+              {t.terms.modificationsText}
             </p>
           </section>
 
           {/* Governing Law */}
           <section className="mb-8">
-            <h2 className="text-2xl font-bold mb-4">12. Lei Aplicável</h2>
+            <h2 className="text-2xl font-bold mb-4">12. {t.terms.governingLaw}</h2>
             <p className="text-text-secondary leading-relaxed">
-              Estes Termos são regidos pelas leis de Moçambique. Qualquer disputa será resolvida nos 
-              tribunais competentes de Maputo, Moçambique.
+              {t.terms.governingLawText}
             </p>
           </section>
 
@@ -307,10 +294,10 @@ const TermsOfUse: React.FC = () => {
           <section className="mb-8">
             <h2 className="text-2xl font-bold mb-4 flex items-center gap-3">
               <Shield className="text-blue-600" size={24} />
-              Contacto
+              {t.terms.contact}
             </h2>
             <p className="text-text-secondary mb-4">
-              Se tiver questões sobre estes Termos de Utilização, contacte-nos:
+              {t.terms.contactText}
             </p>
             <div className="bg-gray-50 p-6 rounded-lg">
               <div className="grid md:grid-cols-2 gap-4">
@@ -339,11 +326,9 @@ const TermsOfUse: React.FC = () => {
             <div className="flex items-start gap-3">
               <CheckCircle className="text-green-600 mt-0.5" size={24} />
               <div>
-                <h3 className="font-semibold text-green-900 mb-2">Aceitação dos Termos</h3>
+                <h3 className="font-semibold text-green-900 mb-2">{t.terms.acknowledgment}</h3>
                 <p className="text-sm text-green-800">
-                  Ao utilizar os nossos serviços, você confirma que leu, compreendeu e concorda em 
-                  cumprir estes Termos de Utilização. Se não concordar com qualquer parte destes Termos, 
-                  não deve utilizar os nossos serviços.
+                  {t.terms.acknowledgmentText}
                 </p>
               </div>
             </div>

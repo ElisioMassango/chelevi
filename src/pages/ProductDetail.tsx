@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { Heart, Star, ShoppingBag, Minus, Plus } from 'lucide-react';
+import { Heart, Star, ShoppingBag, Minus, Plus, Clock } from 'lucide-react';
 import { useCart } from '../contexts/CartContext';
 import { useWishlist } from '../contexts/WishlistContext';
 import { useAuth } from '../contexts/AuthContext';
@@ -8,12 +8,16 @@ import { useProductDetail } from '../hooks/useProducts';
 import { useProductVariants } from '../hooks/useProductVariants';
 import { apiService } from '../services/api';
 import ProductCard from '../components/ProductCard';
+import { useTranslation } from '../contexts/LanguageContext';
+import { reservationService } from '../services/reservationService';
+import ReservationPopup from '../components/ReservationPopup';
 
 /**
  * This component has been refactored to satisfy React's Rules of Hooks.
  * All hooks are called unconditionally and before any early return.
  */
 const ProductDetail: React.FC = () => {
+  const t = useTranslation();
   // Router params
   const { id } = useParams<{ id: string }>();
 
@@ -24,6 +28,7 @@ const ProductDetail: React.FC = () => {
   const [activeTab, setActiveTab] = useState('details');
   const [showReviewForm, setShowReviewForm] = useState(false);
   const [reviewForm, setReviewForm] = useState({ rating: 5, title: '', description: '' });
+  const [showReservationPopup, setShowReservationPopup] = useState(false);
   
   // Use variant hook for better variant management
   const { 
@@ -105,10 +110,19 @@ const ProductDetail: React.FC = () => {
     };
   };
 
+  // Check if product is out of stock
+  const isOutOfStock = product ? reservationService.isOutOfStock(product.id) : false;
+
   // Add to cart handler
   const handleAddToCart = () => {
-    const variantId = getSelectedVariantId();
     if (!product) return;
+    
+    if (isOutOfStock) {
+      setShowReservationPopup(true);
+      return;
+    }
+    
+    const variantId = getSelectedVariantId();
     
     // Get size note using the new hook
     const sizeNote = getSizeNote(selectedVariant, (productData as any).variant || []);
@@ -149,7 +163,7 @@ const ProductDetail: React.FC = () => {
   const handleReviewSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) {
-      alert('Você precisa estar logado para avaliar um produto.');
+      alert(t.productDetail.loginToReview);
       return;
     }
     if (!product) return;
@@ -164,14 +178,14 @@ const ProductDetail: React.FC = () => {
       if (response.status === 1) {
         setReviewForm({ rating: 5, title: '', description: '' });
         setShowReviewForm(false);
-        alert('Avaliação adicionada com sucesso!');
+        alert(t.productDetail.reviewSuccess);
         window.location.reload();
       } else {
-        alert('Erro ao adicionar avaliação: ' + response.message);
+        alert(t.productDetail.reviewError + ' ' + response.message);
       }
     } catch (err) {
       console.error('Error submitting rating:', err);
-      alert('Erro ao adicionar avaliação. Tente novamente.');
+      alert(t.productDetail.reviewErrorGeneric);
     }
   };
 
@@ -204,8 +218,8 @@ const ProductDetail: React.FC = () => {
       <div className="product-detail-page py-12">
         <div className="container">
           <div className="text-center">
-            <h1 className="text-2xl font-bold mb-4">Produto não encontrado</h1>
-            <p className="text-text-secondary">O produto que você está procurando não existe ou foi removido.</p>
+            <h1 className="text-2xl font-bold mb-4">{t.productDetail.productNotFound}</h1>
+            <p className="text-text-secondary">{t.productDetail.productNotFoundText}</p>
             {error && <p className="text-red-500 mt-2">Erro: {error}</p>}
           </div>
         </div>
@@ -218,8 +232,8 @@ const ProductDetail: React.FC = () => {
       <div className="product-detail-page py-12">
         <div className="container">
           <div className="text-center">
-            <h1 className="text-2xl font-bold mb-4">Dados do produto inválidos</h1>
-            <p className="text-text-secondary">Os dados do produto não estão no formato esperado.</p>
+            <h1 className="text-2xl font-bold mb-4">{t.productDetail.invalidProductData}</h1>
+            <p className="text-text-secondary">{t.productDetail.invalidProductDataText}</p>
           </div>
         </div>
       </div>
@@ -272,7 +286,7 @@ const ProductDetail: React.FC = () => {
                 {loadingVariant && Object.keys(selectedVariant).length > 0 ? (
                   <div className="flex items-center gap-2">
                     <div className="animate-spin w-4 h-4 border-2 border-secondary border-t-transparent rounded-full"></div>
-                    <span className="text-lg">Carregando preço...</span>
+                    <span className="text-lg">{t.productDetail.loadingPrice}</span>
                   </div>
                 ) : (() => {
                   const priceInfo = getProductPrice();
@@ -305,7 +319,7 @@ const ProductDetail: React.FC = () => {
                   ))}
                   <span className="ml-2 font-semibold">{product.average_rating}</span>
                 </div>
-                <span className="text-text-secondary">({productReviews.length} reviews)</span>
+                <span className="text-text-secondary">({productReviews.length} {t.productDetail.reviews})</span>
               </div>
             </div>
             {/* Variant Selection */}
@@ -334,7 +348,7 @@ const ProductDetail: React.FC = () => {
                 {/* Selected Variants Summary */}
                 {Object.keys(selectedVariant).length > 0 && (
                   <div className="p-3 bg-gray-50 rounded-lg">
-                    <h4 className="font-medium mb-2">Selecionado:</h4>
+                    <h4 className="font-medium mb-2">{t.productDetail.selected}</h4>
                     <div className="space-y-1">
                       {Object.entries(selectedVariant).map(([variantName, variantId]) => {
                         const variantGroup = (productData as any).variant.find((vg: any) => vg.variant_name === variantName);
@@ -365,7 +379,7 @@ const ProductDetail: React.FC = () => {
             )}
             {/* Quantity Selector */}
             <div>
-              <h3 className="font-semibold mb-3">Quantidade</h3>
+              <h3 className="font-semibold mb-3">{t.productDetail.quantity}</h3>
               <div className="flex items-center gap-4">
                 <div className="flex items-center border border-gray-300 rounded-md">
                   <button
@@ -387,15 +401,36 @@ const ProductDetail: React.FC = () => {
                 </div>
               </div>
             </div>
+            {/* Out of Stock Badge */}
+            {isOutOfStock && (
+              <div className="mb-4 p-4 bg-orange-50 border border-orange-200 rounded-lg flex items-center gap-3">
+                <Clock className="text-orange-600" size={24} />
+                <div>
+                  <p className="font-semibold text-orange-900">{t.productDetail.availableSoon}</p>
+                  <p className="text-sm text-orange-700">{t.productDetail.availableSoonText}</p>
+                </div>
+              </div>
+            )}
+
             {/* Action Buttons */}
             <div className="flex gap-4">
-              <button
-                onClick={handleAddToCart}
-                className="btn btn-primary btn-lg flex-1 flex items-center justify-center gap-2"
-              >
-                <ShoppingBag size={20} />
-                ADICIONAR AO CARRINHO
-              </button>
+              {isOutOfStock ? (
+                <button
+                  onClick={() => setShowReservationPopup(true)}
+                  className="btn btn-lg flex-1 flex items-center justify-center gap-2 bg-orange-500 hover:bg-orange-600 text-white"
+                >
+                  <Clock size={20} />
+                  {t.productDetail.reserve}
+                </button>
+              ) : (
+                <button
+                  onClick={handleAddToCart}
+                  className="btn btn-primary btn-lg flex-1 flex items-center justify-center gap-2"
+                >
+                  <ShoppingBag size={20} />
+                  {t.productDetail.addToCart}
+                </button>
+              )}
               <button
                 onClick={handleWishlistToggle}
                 className={`btn btn-lg w-14 flex items-center justify-center ${
@@ -439,7 +474,7 @@ const ProductDetail: React.FC = () => {
                     : 'border-transparent text-text-secondary hover:text-text-primary'
                 }`}
               >
-                Detalhes
+                {t.productDetail.description}
               </button>
               <button
                 onClick={() => setActiveTab('ingredients')}
@@ -449,7 +484,7 @@ const ProductDetail: React.FC = () => {
                     : 'border-transparent text-text-secondary hover:text-text-primary'
                 }`}
               >
-                Material
+                {t.productDetail.specifications}
               </button>
             </nav>
           </div>
@@ -468,7 +503,7 @@ const ProductDetail: React.FC = () => {
             )}
             {activeTab === 'ingredients' && (
               <div>
-                <h4 className="font-semibold mb-4">Especificações:</h4>
+                <h4 className="font-semibold mb-4">{t.productDetail.specifications}:</h4>
                 <div
                   className="text-text-secondary leading-relaxed"
                   dangerouslySetInnerHTML={{ __html: product.specification }}
@@ -480,27 +515,27 @@ const ProductDetail: React.FC = () => {
         {/* Ratings Section */}
         <div className="mb-16">
           <div className="flex items-center justify-between mb-8">
-            <h2 className="text-2xl font-bold">Avaliações dos Clientes</h2>
+            <h2 className="text-2xl font-bold">{t.productDetail.reviewsTab}</h2>
             {user ? (
               <button 
                 onClick={() => setShowReviewForm(!showReviewForm)}
                 className="btn btn-secondary"
               >
-                {showReviewForm ? 'Cancelar' : 'Avaliar Produto'}
+                {showReviewForm ? t.productDetail.cancelReview : t.productDetail.writeReview}
               </button>
             ) : (
               <div className="text-sm text-text-secondary">
-                <span>Faça login para avaliar este produto</span>
+                <span>{t.productDetail.loginToReview}</span>
               </div>
             )}
           </div>
           {/* Rating Form */}
           {showReviewForm && (
             <div className="mb-8 p-6 bg-gray-50 rounded-lg">
-              <h3 className="text-lg font-semibold mb-4">Adicionar Avaliação</h3>
+              <h3 className="text-lg font-semibold mb-4">{t.productDetail.writeReview}</h3>
               <form onSubmit={handleReviewSubmit} className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium mb-2">Avaliação</label>
+                  <label className="block text-sm font-medium mb-2">{t.productDetail.rating}</label>
                   <div className="flex items-center gap-2">
                     {[1, 2, 3, 4, 5].map((star) => (
                       <button
@@ -523,33 +558,33 @@ const ProductDetail: React.FC = () => {
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-2">Título</label>
+                  <label className="block text-sm font-medium mb-2">{t.productDetail.reviewTitle}</label>
                   <input
                     type="text"
                     value={reviewForm.title}
                     onChange={(e) => setReviewForm((prev) => ({ ...prev, title: e.target.value }))}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-secondary"
-                    placeholder="Ex: Excelente produto!"
+                    placeholder={t.productDetail.reviewTitlePlaceholder}
                     required
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-2">Descrição</label>
+                  <label className="block text-sm font-medium mb-2">{t.productDetail.reviewDescription}</label>
                   <textarea
                     value={reviewForm.description}
                     onChange={(e) => setReviewForm((prev) => ({ ...prev, description: e.target.value }))}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-secondary"
                     rows={4}
-                    placeholder="Conte-nos sobre sua experiência com este produto..."
+                    placeholder={t.productDetail.reviewDescriptionPlaceholder}
                     required
                   />
                 </div>
                 <div className="flex gap-3">
                   <button type="submit" className="btn btn-primary">
-                    Enviar Avaliação
+                    {t.productDetail.submitReview}
                   </button>
                   <button type="button" onClick={() => setShowReviewForm(false)} className="btn btn-secondary">
-                    Cancelar
+                    {t.productDetail.cancelReview}
                   </button>
                 </div>
               </form>
@@ -596,7 +631,7 @@ const ProductDetail: React.FC = () => {
         </div>
         {/* You May Also Like */}
         <div>
-          <h2 className="text-2xl font-bold text-center mb-12">Você Também Pode Gostar</h2>
+          <h2 className="text-2xl font-bold text-center mb-12">{t.productDetail.relatedProducts}</h2>
           <div className="grid grid-4 gap-8">
             {relatedProducts.map((relProd) => (
               <ProductCard key={relProd.id} product={relProd} />
@@ -604,6 +639,17 @@ const ProductDetail: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Reservation Popup */}
+      {product && (
+        <ReservationPopup
+          isOpen={showReservationPopup}
+          onClose={() => setShowReservationPopup(false)}
+          productId={product.id}
+          productName={product.name}
+          productImage={product.cover_image_url}
+        />
+      )}
     </div>
   );
 };

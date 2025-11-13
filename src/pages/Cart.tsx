@@ -2,8 +2,10 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Minus, Plus, X, ShoppingBag, Heart, Truck, Shield, ArrowLeft } from 'lucide-react';
 import { useCart } from '../contexts/CartContext';
+import { useTranslation } from '../contexts/LanguageContext';
 
 const Cart: React.FC = () => {
+  const t = useTranslation();
   const { 
     items, 
     total, 
@@ -36,13 +38,13 @@ const Cart: React.FC = () => {
       <div className="cart-page py-20 min-h-screen bg-gray-50">
         <div className="container">
           <div className="text-center">
-            <h1 className="text-2xl font-bold mb-4 text-red-600">Erro ao carregar carrinho</h1>
+            <h1 className="text-2xl font-bold mb-4 text-red-600">{t.cart.errorLoading}</h1>
             <p className="text-text-secondary mb-8">{error}</p>
             <button 
               onClick={refreshCart}
               className="btn btn-primary"
             >
-              Tentar Novamente
+              {t.cart.tryAgain}
             </button>
           </div>
         </div>
@@ -58,13 +60,13 @@ const Cart: React.FC = () => {
             <div className="w-32 h-32 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-8">
               <ShoppingBag size={64} className="text-gray-300" />
             </div>
-            <h1 className="text-3xl font-bold mb-4 text-gray-800">Seu Carrinho está Vazio</h1>
+            <h1 className="text-3xl font-bold mb-4 text-gray-800">{t.cart.emptyTitle}</h1>
             <p className="text-text-secondary mb-8 text-lg">
-              Parece que você ainda não adicionou nenhum item ao seu carrinho.
+              {t.cart.emptyDescription}
             </p>
             <Link to="/products" className="btn btn-primary btn-lg inline-flex items-center gap-2">
               <ArrowLeft size={20} />
-              Continuar Comprando
+              {t.cart.continueShopping}
             </Link>
           </div>
         </div>
@@ -82,15 +84,15 @@ const Cart: React.FC = () => {
               <ArrowLeft size={24} />
             </Link>
             <div>
-              <h1 className="text-3xl font-bold text-gray-800">Carrinho de Compras</h1>
-              <p className="text-text-secondary">{items.length} {items.length === 1 ? 'item' : 'itens'} no carrinho</p>
+              <h1 className="text-3xl font-bold text-gray-800">{t.cart.title}</h1>
+              <p className="text-text-secondary">{items.length} {items.length === 1 ? t.cart.item : t.cart.items} {t.cart.itemsInCart}</p>
             </div>
           </div>
           <button
             onClick={clearCart}
             className="text-sm text-red-500 hover:text-red-700 transition-colors font-medium"
           >
-            Limpar Carrinho
+            {t.cart.clearCart}
           </button>
         </div>
 
@@ -118,15 +120,15 @@ const Cart: React.FC = () => {
                         </h3>
                         {item.variant && (
                           <p className="text-sm text-text-secondary">
-                            Variante: {item.variant}
+                            {t.cart.variant} {item.variant}
                           </p>
                         )}
                         <div className="flex items-center gap-2 mt-2">
                           <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">
-                            Em estoque
+                            {t.cart.inStock}
                           </span>
                           <span className="text-xs text-text-secondary">
-                            Entrega grátis
+                            {t.cart.freeDelivery}
                           </span>
                         </div>
                       </div>
@@ -166,7 +168,7 @@ const Cart: React.FC = () => {
                         </div>
                         {item.quantity > 1 && (
                           <p className="text-sm text-text-secondary">
-                            MT{item.price} cada
+                            MT{item.price} {t.cart.each}
                           </p>
                         )}
                       </div>
@@ -180,11 +182,11 @@ const Cart: React.FC = () => {
             <div className="bg-white rounded-xl p-6 shadow-sm border">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="font-semibold text-lg mb-2">Continue Comprando</h3>
-                  <p className="text-text-secondary">Descubra mais produtos incríveis</p>
+                  <h3 className="font-semibold text-lg mb-2">{t.cart.continueShoppingTitle}</h3>
+                  <p className="text-text-secondary">{t.cart.continueShoppingText}</p>
                 </div>
                 <Link to="/products" className="btn btn-outline">
-                  Ver Produtos
+                  {t.cart.viewProducts}
                 </Link>
               </div>
             </div>
@@ -193,21 +195,21 @@ const Cart: React.FC = () => {
           {/* Order Summary */}
           <div className="lg:col-span-1">
             <div className="bg-white rounded-xl p-6 shadow-sm border sticky top-4">
-              <h2 className="text-xl font-bold mb-6 text-gray-800">Resumo do Pedido</h2>
+              <h2 className="text-xl font-bold mb-6 text-gray-800">{t.cart.orderSummary}</h2>
 
               {/* Benefits */}
               <div className="space-y-3 mb-6 p-4 bg-green-50 rounded-lg">
                 <div className="flex items-center gap-3 text-green-700">
                   <Truck size={20} />
-                  <span className="text-sm font-medium">Entrega grátis</span>
+                  <span className="text-sm font-medium">{t.cart.freeShipping}</span>
                 </div>
                 <div className="flex items-center gap-3 text-green-700">
                   <Shield size={20} />
-                  <span className="text-sm font-medium">Compra 100% segura</span>
+                  <span className="text-sm font-medium">{t.cart.securePurchase}</span>
                 </div>
                 <div className="flex items-center gap-3 text-green-700">
                   <Heart size={20} />
-                  <span className="text-sm font-medium">Garantia de qualidade</span>
+                  <span className="text-sm font-medium">{t.cart.qualityGuarantee}</span>
                 </div>
               </div>
 
@@ -216,7 +218,7 @@ const Cart: React.FC = () => {
                 <div className="flex gap-2">
                   <input
                     type="text"
-                    placeholder="Código do cupom"
+                    placeholder={t.cart.couponCode}
                     className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary"
                     id="couponCode"
                   />
@@ -231,7 +233,7 @@ const Cart: React.FC = () => {
                     }}
                     className="btn btn-secondary px-6"
                   >
-                    Aplicar
+                    {t.cart.apply}
                   </button>
                 </div>
                 {cartData?.coupon_info && cartData.coupon_info.coupon_id > 0 && (
@@ -239,10 +241,10 @@ const Cart: React.FC = () => {
                     <div className="flex items-center justify-between">
                       <div>
                         <span className="text-green-700 font-medium text-sm">
-                          Cupom Aplicado: {cartData.coupon_info.coupon_name}
+                          {t.cart.couponApplied} {cartData.coupon_info.coupon_name}
                         </span>
                         <p className="text-green-600 text-xs mt-1">
-                          Código: {cartData.coupon_info.coupon_code}
+                          {t.cart.code} {cartData.coupon_info.coupon_code}
                         </p>
                       </div>
                       <div className="text-right">
@@ -252,7 +254,7 @@ const Cart: React.FC = () => {
                         <p className="text-green-600 text-xs">
                           {cartData.coupon_info.coupon_discount_type === 'percentage' 
                             ? `${cartData.coupon_info.coupon_discount_number}% OFF`
-                            : 'Desconto Fixo'
+                            : t.cart.fixedDiscount
                           }
                         </p>
                       </div>
@@ -264,30 +266,30 @@ const Cart: React.FC = () => {
               {/* Price Breakdown */}
               <div className="space-y-4 mb-6">
                 <div className="flex justify-between text-gray-600">
-                  <span>Subtotal ({items.length} {items.length === 1 ? 'item' : 'itens'})</span>
+                  <span>{t.cart.subtotal} ({items.length} {items.length === 1 ? t.cart.item : t.cart.items})</span>
                   <span>MT{cartData?.sub_total?.toFixed(2) || total.toFixed(2)}</span>
                 </div>
                 {cartData?.coupon_info && cartData.coupon_info.coupon_id > 0 && (
                   <div className="flex justify-between text-green-600">
-                    <span>Desconto ({cartData.coupon_info.coupon_name})</span>
+                    <span>{t.cart.discount} ({cartData.coupon_info.coupon_name})</span>
                     <span>-MT{parseFloat(cartData.coupon_info.coupon_discount_amount).toFixed(2)}</span>
                   </div>
                 )}
                 <div className="flex justify-between text-gray-600">
-                  <span>Frete</span>
-                  <span className="text-green-600 font-medium">Grátis</span>
+                  <span>{t.cart.shipping}</span>
+                  <span className="text-green-600 font-medium">{t.cart.free}</span>
                 </div>
                 <div className="flex justify-between text-gray-600">
-                  <span>Impostos</span>
+                  <span>{t.cart.taxes}</span>
                   <span>MT{cartData?.total_tax_price || (total * 0.17).toFixed(2)}</span>
                 </div>
                 <div className="border-t pt-4">
                   <div className="flex justify-between font-bold text-xl text-gray-800">
-                    <span>Total</span>
+                    <span>{t.cart.total}</span>
                     <span>MT{cartData?.final_price || (total * 1.17).toFixed(2)}</span>
                   </div>
                   <p className="text-sm text-text-secondary mt-1">
-                    Impostos incluídos
+                    {t.cart.taxesIncluded}
                   </p>
                 </div>
               </div>
@@ -298,21 +300,21 @@ const Cart: React.FC = () => {
                   to="/checkout"
                   className="btn btn-primary w-full text-lg py-4"
                 >
-                  Finalizar Compra
+                  {t.cart.checkout}
                 </Link>
 
                 <Link
                   to="/products"
                   className="btn btn-outline w-full text-center block"
                 >
-                  Continuar Comprando
+                  {t.cart.continueShopping}
                 </Link>
               </div>
 
               {/* Security Notice */}
               <div className="mt-6 p-3 bg-gray-50 rounded-lg">
                 <p className="text-xs text-text-secondary text-center">
-                  🔒 Suas informações estão protegidas com criptografia SSL
+                  {t.cart.sslProtected}
                 </p>
               </div>
             </div>

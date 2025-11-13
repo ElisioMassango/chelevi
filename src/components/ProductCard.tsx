@@ -1,19 +1,26 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Heart, Star, ShoppingBag } from 'lucide-react';
+import { Heart, Star, ShoppingBag, Clock } from 'lucide-react';
 import { useWishlist } from '../contexts/WishlistContext';
 import { useCart } from '../contexts/CartContext';
+import { useTranslation } from '../contexts/LanguageContext';
 import { Product } from '../services/api';
+import { reservationService } from '../services/reservationService';
+import ReservationPopup from './ReservationPopup';
 
 interface ProductCardProps {
   product: Product;
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
+  const t = useTranslation();
   const [isHovered, setIsHovered] = useState(false);
   const [currentImage, setCurrentImage] = useState(product.cover_image_url);
+  const [showReservationPopup, setShowReservationPopup] = useState(false);
   const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
   const { addToCart } = useCart();
+  
+  const isOutOfStock = reservationService.isOutOfStock(product.id);
 
   const handleWishlistToggle = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -35,6 +42,11 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
     e.preventDefault();
     e.stopPropagation();
     
+    if (isOutOfStock) {
+      setShowReservationPopup(true);
+      return;
+    }
+    
     addToCart({
       id: product.id,
       name: product.name,
@@ -42,6 +54,12 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
       image: product.cover_image_url,
       quantity: 1
     });
+  };
+
+  const handleReserve = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setShowReservationPopup(true);
   };
 
   const handleMouseEnter = () => {
@@ -56,12 +74,13 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   };
 
   return (
-    <Link to={`/product/${product.id}`} className="group">
-      <div 
-        className="card overflow-hidden"
-        onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleMouseLeave}
-      >
+    <>
+      <Link to={`/product/${product.id}`} className="group">
+        <div 
+          className="card overflow-hidden"
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
+        >
         {/* Product Image */}
         <div className="relative aspect-square overflow-hidden">
           <img
@@ -71,10 +90,20 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           />
           
           {/* Badge - Show if product is trending */}
-          {product.trending === 1 && (
+          {product.trending === 1 && !isOutOfStock && (
             <div className="absolute top-3 left-3">
               <span className="bg-secondary text-text-primary px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide">
-                TRENDING
+                {t.productCard.trending}
+              </span>
+            </div>
+          )}
+
+          {/* Out of Stock Badge */}
+          {isOutOfStock && (
+            <div className="absolute top-3 left-3">
+              <span className="bg-orange-500 text-white px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide flex items-center gap-1">
+                <Clock size={12} />
+                {t.productCard.availableSoon}
               </span>
             </div>
           )}
@@ -94,17 +123,27 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             />
           </button>
 
-          {/* Quick Add to Cart - Shows on Hover */}
+          {/* Quick Add to Cart / Reserve - Shows on Hover */}
           <div className={`absolute bottom-3 left-3 right-3 transition-all duration-300 ${
             isHovered ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
           }`}>
-            <button
-              onClick={handleAddToCart}
-              className="w-full bg-text-primary text-black py-2 rounded-md font-medium text-black bg-secondary uppercase tracking-wide text-sm hover:bg-accent transition-colors duration-300 flex items-center justify-center gap-2"
-            >
-              <ShoppingBag size={16} />
-              ADICIONAR AO CARRINHO
-            </button>
+            {isOutOfStock ? (
+              <button
+                onClick={handleReserve}
+                className="w-full bg-orange-500 text-white py-2 rounded-md font-medium uppercase tracking-wide text-sm hover:bg-orange-600 transition-colors duration-300 flex items-center justify-center gap-2"
+              >
+                <Clock size={16} />
+                {t.productCard.reserve}
+              </button>
+            ) : (
+              <button
+                onClick={handleAddToCart}
+                className="w-full bg-text-primary text-black py-2 rounded-md font-medium text-black bg-secondary uppercase tracking-wide text-sm hover:bg-accent transition-colors duration-300 flex items-center justify-center gap-2"
+              >
+                <ShoppingBag size={16} />
+                {t.productCard.addToCart}
+              </button>
+            )}
           </div>
         </div>
 
@@ -149,7 +188,17 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           </div>
         </div>
       </div>
-    </Link>
+      </Link>
+
+      {/* Reservation Popup */}
+      <ReservationPopup
+        isOpen={showReservationPopup}
+        onClose={() => setShowReservationPopup(false)}
+        productId={product.id}
+        productName={product.name}
+        productImage={product.cover_image_url}
+      />
+    </>
   );
 };
 

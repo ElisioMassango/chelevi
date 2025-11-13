@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ChevronLeft, ChevronRight, ShoppingBag } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ShoppingBag, ArrowRight } from 'lucide-react';
 import ProductCard from '../components/ProductCard';
 import { useFeaturedProducts, useBestsellerProducts } from '../hooks/useProducts';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from '../contexts/LanguageContext';
 
 const Home: React.FC = () => {
+  const t = useTranslation();
   const [currentSlide, setCurrentSlide] = useState(0);
   const navigate = useNavigate();
   // API hooks for real data
@@ -22,7 +24,7 @@ const Home: React.FC = () => {
       secondImage: "https://chelevi.sparktechnology.cloud/chelevi/Products/IMG_1300.PNG",
       rating: 4.8,
       reviews: 245,
-      badge: "NOVIDADE",
+      badge: t.homeExtended.badgeNew,
       colors: [],
       category: "bolsas"
     },
@@ -34,7 +36,7 @@ const Home: React.FC = () => {
       secondImage: "https://chelevi.sparktechnology.cloud/chelevi/Banners/IMG_0646.JPG",
       rating: 4.9,
       reviews: 128,
-      badge: "MAIS VENDIDO",
+      badge: t.homeExtended.badgeBestseller,
       colors: [],
       category: "sapatos"
     },
@@ -46,7 +48,7 @@ const Home: React.FC = () => {
       secondImage: "https://chelevi.sparktechnology.cloud/chelevi/Banners/IMG_1251.JPG",
       rating: 4.7,
       reviews: 89,
-      badge: "FAVORITO",
+      badge: t.homeExtended.badgeFavorite,
       colors: [],
       category: "bolsas"
     }
@@ -59,10 +61,10 @@ const Home: React.FC = () => {
   const heroSlides = [
     {
       id: 1,
-      title: "EDILEYNE",
-      subtitle: "BOLSAS PREMIUM",
-      description: "Há nomes que definem um legado. Esta coleção não é sobre moda, é sobre o poder que escolhemos carregar, a identidade que revelamos ao mundo. Não se usa. Afirma-se.",
-      buttonText: "O Ícone",
+      title: t.homeExtended.heroTitle,
+      subtitle: t.homeExtended.heroSubtitle,
+      description: t.homeExtended.heroDescription,
+      buttonText: t.homeExtended.heroButton,
       image: "https://chelevi.sparktechnology.cloud/chelevi/Banners/IMG_1276.JPG",
       link: "/products/bolsas"
     }
@@ -71,8 +73,8 @@ const Home: React.FC = () => {
   const collections = [
     {
       id: 1,
-      category: "Elegância que nunca sai de moda.",
-      title: "Coleção",
+      category: t.homeExtended.collectionCategory,
+      title: t.homeExtended.collectionTitle,
       buttonText: "",
       image: "https://chelevi.sparktechnology.cloud/chelevi/Banners/IMG_2065.PNG",
       link: "/products/bolsas",
@@ -81,7 +83,7 @@ const Home: React.FC = () => {
     {
       id: 2,
       category: "",
-      title: "Tendências",
+      title: t.homeExtended.trendsTitle,
       buttonText: "",
       image: "https://chelevi.sparktechnology.cloud/chelevi/Banners/IMG_6392.JPG",
       link: "/products/sapatos",
@@ -90,7 +92,7 @@ const Home: React.FC = () => {
     {
       id: 3,
       category: "",
-      title: "Novidades",
+      title: t.homeExtended.newArrivalsTitle,
       buttonText: "",
       image: "https://chelevi.sparktechnology.cloud/chelevi/Banners/IMG_0647.JPG",
       link: "/products/sapatos",
@@ -99,8 +101,8 @@ const Home: React.FC = () => {
     {
       id: 4,
       category: "",
-      title: "Coleção",
-      buttonText: "O seu próximo acessório espera por si.",
+      title: t.homeExtended.collectionTitle,
+      buttonText: t.homeExtended.collectionButtonText,
       image: "https://chelevi.sparktechnology.cloud/chelevi/Banners/IMG_1276.JPG",
       link: "/products/bolsas",
       size: "hero"
@@ -200,7 +202,7 @@ const Home: React.FC = () => {
                 <div className="container h-full flex items-center">
                   <div className="max-w-lg text-white animate-fadeIn">
                     <p className="text-sm font-medium uppercase tracking-widest mb-4 opacity-90">
-                      Novo Lançamento
+                      {t.homeExtended.newLaunch}
                     </p>
                     <h1 className="text-5xl lg:text-6xl font-bold mb-4 leading-tight">
                       {slide.title}
@@ -350,10 +352,10 @@ const Home: React.FC = () => {
         <div className="container">
           <div className="text-center mb-16">
             <h2 className="text-4xl lg:text-5xl font-bold mb-4 tracking-wide">
-            O Coração do Atelier.
+            {t.homeExtended.atelierTitle}
             </h2>
             <p className="text-center text-text-secondary mb-8 text-lg">
-            Da arte do desenho à perícia da mão que cose, cada peça é uma sinfonia de dedicação. As nossas coleções não são produzidas, são compostas e pensadas para a mulher que reconhece a beleza que reside no detalhe
+            {t.homeExtended.atelierDescription}
             </p>
           </div>
           
@@ -415,7 +417,7 @@ const Home: React.FC = () => {
 
           <div className="text-center mt-12">
             <Link to="/products" className="btn btn-outline btn-lg uppercase tracking-widest">
-              VER TODOS OS PRODUTOS
+              {t.homeExtended.viewAllProducts}
             </Link>
           </div>
         </div>
@@ -427,10 +429,10 @@ const Home: React.FC = () => {
         <div className="container">
           <div className="text-center mb-16">
             <h2 className="text-4xl lg:text-5xl font-bold mb-4 tracking-wide">
-            A Alma em Movimento.
+            {t.homeExtended.videoTitle}
             </h2>
             <p className="text-xl text-text-secondary max-w-3xl mx-auto">
-            Uma peça <strong>CheLevi</strong>  não é estática. Ganha vida nas suas mãos, em cada gesto, em cada passo. Os nossos vídeos não mostram acessórios. Mostram energia, detalhe e a alma vibrante da marca.
+            {t.homeExtended.videoDescription}
             </p>
           </div>
 
@@ -472,10 +474,10 @@ const Home: React.FC = () => {
   <div className="container">
     <div className="text-center mb-16">
       <h2 className="text-4xl lg:text-5xl font-bold mb-4 tracking-wide">
-      O Coração do Atelier.
+      {t.homeExtended.bestsellersTitle}
       </h2>
       <p className="text-center text-text-secondary mb-8 text-lg">
-        Os produtos favoritos dos nossos clientes
+        {t.homeExtended.bestsellersSubtitle}
       </p>
     </div>
 
@@ -530,7 +532,7 @@ const Home: React.FC = () => {
 
     <div className="text-center mt-12">
       <Link to="/products" className="btn btn-primary btn-lg uppercase tracking-widest">
-        VER MAIS VENDIDOS
+        {t.homeExtended.viewBestsellers}
       </Link>
     </div>
   </div>
@@ -546,7 +548,7 @@ const Home: React.FC = () => {
               <div className="bg-gradient-to-br  rounded-3xl p-8 h-106 flex items-center justify-center">
                 <img
                   src="https://chelevi.sparktechnology.cloud/chelevi/Banners/IMG_2065.PNG"
-                  alt="poder, elegância e identidade"
+                  alt={t.homeExtended.imageAltPower}
                   className="w-full h-full object-cover rounded-2xl"
                 />
               </div>
@@ -555,24 +557,22 @@ const Home: React.FC = () => {
             {/* Right side - Content */}
             <div className="space-y-6">
               <h2 className="text-4xl lg:text-5xl  text-black uppercase tracking-wide">
-              Uma Vida, Uma Peça.
+              {t.homeExtended.lifePieceTitle}
               </h2>
               
               <div className="space-y-4 text-gray-600">
                 <p className="text-lg leading-relaxed">
-                As suas conquistas, as suas noites, os seus sonhos, cada peça {' '}
-                  <span className="font-semibold text-gray-800">CheLevi</span>{' '}é um fragmento da sua vida. Não as criamos para as vitrinas; criamo-las para as suas mãos, para a sua jornada. Para serem as guardiãs silenciosas da sua história.
-                 
+                {t.homeExtended.lifePieceDescription}
                 </p>
                 
                 <p className="leading-relaxed font-semibold">
-                Encontre a sua Guardiã
+                {t.homeExtended.findGuardian}
                 </p>
               </div>
 
               
               <button onClick={() => navigate('/products/')} className="btn btn-outline border-gray-400 text-gray-700 hover:bg-gray-700 hover:text-white px-8 py-3 rounded-none uppercase tracking-wider">
-                Saiba Mais
+                {t.homeExtended.learnMore}
               </button>
             </div>
           </div>
@@ -580,35 +580,61 @@ const Home: React.FC = () => {
       </section>
       
 
-      {/* The Cosmic Universe */}
-      <section className="py-20 bg-gray-500 text-white overflow-hidden">
-        <div className="container">
-          <div className="grid grid-cols-2 gap-16 items-center">
-            <div className="space-y-8 animate-slideUp">
-              <h2 className="text-4xl lg:text-5xl font-semi bold tracking-wide uppercase">
-                O
-                <br />
-                <span className="text-secondary text-white">UNIVERSO CHELEVI</span>
-              </h2>
-              <p className="text-xl opacity-90 leading-relaxed">
-              Cada peça é uma constelação. Juntas, formam um universo de estilo e poder.
-              <br />
-              Aqui não se encontram apenas acessórios, encontram-se afirmações. Cada uma delas à espera de ser a sua.
+      {/* The Cosmic Universe - Modern & International */}
+      <section className="relative py-16 md:py-24 lg:py-32 bg-gradient-to-br from-gray-900 via-gray-800 to-black overflow-hidden">
+        {/* Background Effects */}
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute top-0 right-0 w-96 h-96 bg-white rounded-full blur-3xl"></div>
+          <div className="absolute bottom-0 left-0 w-96 h-96 bg-white rounded-full blur-3xl"></div>
+        </div>
+        
+        {/* Pattern Overlay */}
+        <div className="absolute inset-0 opacity-5">
+          <div className="absolute inset-0" style={{
+            backgroundImage: `url("")`,
+          }}></div>
+        </div>
 
+        <div className="container relative z-10 px-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center">
+            {/* Content */}
+            <div className="text-white space-y-6 md:space-y-8 order-2 lg:order-1 animate-slideUp">
+              <div className="inline-block">
+                <span className="text-xs md:text-sm font-semibold tracking-widest uppercase text-gray-400 mb-2 block">
+                  {t.homeExtended.universeTitle.split(' ')[0]}
+                </span>
+              </div>
+              <h2 className="text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold leading-tight tracking-tight">
+                <span className="block">{t.homeExtended.universeTitle}</span>
+                <span className="block text-gray-300 mt-2">{t.homeExtended.universeSubtitle}</span>
+              </h2>
+              <p className="text-base md:text-lg lg:text-xl text-gray-300 leading-relaxed max-w-2xl">
+                {t.homeExtended.universeDescription}
               </p>
-              <Link
-                to="/products/bolsas"
-                className="btn btn-primary btn-lg uppercase tracking-widest"
-              >
-                EXPLORAR
-              </Link>
+              <div className="pt-2">
+                <Link
+                  to="/products/bolsas"
+                  className="group inline-flex items-center gap-2 px-6 md:px-8 py-3 md:py-4 bg-white text-gray-900 font-semibold rounded-lg hover:bg-gray-100 transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl uppercase tracking-wider text-sm md:text-base"
+                >
+                  {t.homeExtended.explore}
+                  <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
+                </Link>
+              </div>
             </div>
-            <div className="relative">
-              <img
-                src="https://chelevi.sparktechnology.cloud/chelevi/Banners/IMG_1276.JPG"
-                alt="Cosmic Universe Collection"
-                className="w-full h-96 object-cover rounded-2xl"
-              />
+            
+            {/* Image */}
+            <div className="relative order-1 lg:order-2">
+              <div className="relative rounded-2xl md:rounded-3xl overflow-hidden shadow-2xl">
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent z-10"></div>
+                <img
+                  src="https://chelevi.sparktechnology.cloud/chelevi/Banners/IMG_1276.JPG"
+                  alt={t.homeExtended.imageAltUniverse}
+                  className="w-full h-[300px] md:h-[400px] lg:h-[500px] xl:h-[600px] object-cover"
+                />
+              </div>
+              {/* Decorative Elements */}
+              <div className="absolute -bottom-4 -right-4 w-20 h-20 md:w-32 md:h-32 bg-white/10 rounded-full blur-3xl hidden md:block"></div>
+              <div className="absolute -top-4 -left-4 w-16 h-16 md:w-24 md:h-24 bg-white/5 rounded-full blur-2xl hidden lg:block"></div>
             </div>
           </div>
         </div>
@@ -618,7 +644,7 @@ const Home: React.FC = () => {
       <section className="py-20">
         <div className="container">
           <h2 className="text-4xl lg:text-5xl  text-center mb-16 uppercase tracking-wide text-">
-          Looks Que Inspiram
+          {t.homeExtended.instagramTitle}
           </h2>
           
           {/* Instagram Bento Grid Layout */}
@@ -630,7 +656,7 @@ const Home: React.FC = () => {
             >
               <img
                 src={instagramPosts[0].image}
-                alt="Instagram post"
+                alt={t.homeExtended.imageAltInstagram}
                 className="w-full h-full object-cover"
               />
               <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all duration-300 flex items-center justify-center">
@@ -648,7 +674,7 @@ const Home: React.FC = () => {
             >
               <img
                 src={instagramPosts[1].image}
-                alt="Instagram post"
+                alt={t.homeExtended.imageAltInstagram}
                 className="w-full h-full object-cover"
               />
               <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all duration-300 flex items-center justify-center">
@@ -665,7 +691,7 @@ const Home: React.FC = () => {
             >
               <img
                 src={instagramPosts[2].image}
-                alt="Instagram post"
+                alt={t.homeExtended.imageAltInstagram}
                 className="w-full h-full object-cover"
               />
               <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all duration-300 flex items-center justify-center">
@@ -683,7 +709,7 @@ const Home: React.FC = () => {
             >
               <img
                 src={instagramPosts[3].image}
-                alt="Instagram post"
+                alt={t.homeExtended.imageAltInstagram}
                 className="w-full h-full object-cover"
               />
               <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all duration-300 flex items-center justify-center">
@@ -700,7 +726,7 @@ const Home: React.FC = () => {
             >
               <img
                 src={instagramPosts[4].image}
-                alt="Instagram post"
+                alt={t.homeExtended.imageAltInstagram}
                 className="w-full h-full object-cover"
               />
               <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all duration-300 flex items-center justify-center">
@@ -717,7 +743,7 @@ const Home: React.FC = () => {
             >
               <img
                 src={instagramPosts[5].image}
-                alt="Instagram post"
+                alt={t.homeExtended.imageAltInstagram}
                 className="w-full h-full object-cover"
               />
               <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all duration-300 flex items-center justify-center">
@@ -735,7 +761,7 @@ const Home: React.FC = () => {
             >
               <img
                 src={instagramPosts[1].image}
-                alt="Instagram post"
+                alt={t.homeExtended.imageAltInstagram}
                 className="w-full h-full object-cover"
               />
               <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all duration-300 flex items-center justify-center">
@@ -753,7 +779,7 @@ const Home: React.FC = () => {
             >
               <img
                 src={instagramPosts[2].image}
-                alt="Instagram post"
+                alt={t.homeExtended.imageAltInstagram}
                 className="w-full h-full object-cover"
               />
               <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all duration-300 flex items-center justify-center">
@@ -772,7 +798,7 @@ const Home: React.FC = () => {
               rel="noopener noreferrer"
               className="btn btn-outline btn-lg uppercase tracking-widest border-black-400 text-black hover:bg-black hover:text-white"
             >
-              FOLLOW @CheLevi
+              {t.homeExtended.followInstagram}
             </a>
           </div>
         </div>

@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
-import { MapPin, Phone, Mail, Clock, Send, MessageSquare, Loader2 } from 'lucide-react';
-import { whatsappService } from '../services/whatsappService';
+import { MapPin, Phone, Mail, Send, MessageSquare, Loader2, HelpCircle, ChevronDown, ChevronUp } from 'lucide-react';
 import { emailService } from '../services/emailService';
 import { ownerNotificationService } from '../services/ownerNotificationService';
 import { toastService } from '../utils/toast';
 import PhoneInput from '../components/PhoneInput';
 import { validatePhoneNumber } from '../utils/phoneUtils';
+import { useTranslation } from '../contexts/LanguageContext';
 
 const Contact: React.FC = () => {
+  const t = useTranslation();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -16,6 +17,7 @@ const Contact: React.FC = () => {
     message: ''
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [expandedFaq, setExpandedFaq] = useState<number | null>(null);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setFormData(prev => ({
@@ -33,7 +35,7 @@ const Contact: React.FC = () => {
       
       // Validate phone number if provided
       if (formData.phone && !validatePhoneNumber(formData.phone)) {
-        toastService.error('Por favor, insira um número de telefone válido');
+        toastService.error(t.contact.error || 'Por favor, insira um número de telefone válido');
         setIsSubmitting(false);
         return;
       }
@@ -111,7 +113,7 @@ const Contact: React.FC = () => {
         }
       }
 
-      toastService.success('Mensagem enviada com sucesso! Responderemos em breve.');
+      toastService.success(t.contact.success);
       
       // Reset form
       setFormData({
@@ -123,238 +125,337 @@ const Contact: React.FC = () => {
       });
     } catch (error) {
       console.error('Failed to send contact form:', error);
-      toastService.error('Erro ao enviar mensagem. Tente novamente.');
+      toastService.error(t.contact.error);
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  return (
-    <div className="contact-page py-12">
-      <div className="container max-w-6xl">
-        {/* Header */}
-        <div className="text-center mb-16">
-          <h1 className="text-4xl lg:text-5xl font-bold mb-6">Estamos aqui.</h1>
-          <p className="text-xl text-text-secondary max-w-2xl mx-auto">
-          Mais do que uma marca, somos uma confidente. Se uma dúvida a inquieta, se uma história precisa de ser partilhada, ou se simplesmente procura um conselho de estilo, a nossa linha está aberta. Para si.
-          </p>
-        </div>
+  const faqs = [
+    {
+      question: 'Quanto tempo demora a entrega?',
+      answer: 'Em Maputo, em apenas 1 a 2 dias. Em outras províncias do país, 3 a 5 dias. Sempre com a promessa de chegar com cuidado, como se fosse entregue por mãos amigas.'
+    },
+    {
+      question: 'Como posso acompanhar o meu pedido?',
+      answer: 'Receberá um link de rastreio pelo WhatsApp e poderá acompanhar o seu pedido a qualquer momento na sua conta CheLevi.'
+    },
+    {
+      question: 'Qual é a vossa política de devolução?',
+      answer: 'Aceitamos devoluções até 30 dias após a compra. Confiamos na qualidade das nossas criações, mas queremos que cada escolha sua seja feita com a mesma confiança e prazer de usar CheLevi.'
+    },
+    {
+      question: 'Como posso rastrear meu pedido?',
+      answer: 'Uma vez que seu pedido é enviado, receberás um link de rastreamento via WhatsApp. Também podes rastrear o teu pedido entrando em teu conta e visualizando o teu histórico de pedidos.'
+    },
+    {
+      question: 'Enviam para fora de Moçambique?',
+      answer: 'Sim, enviamos para Portugal. Em breve estaremos também noutros países, para que a CheLevi continue a aproximar-se de quem partilha o nosso olhar sobre a elegância.'
+    }
+  ];
 
-        <div className="grid lg:grid-cols-2 gap-16">
-          {/* Contact Information */}
-          <div className="space-y-8">
-            <div>
-              <h2 className="text-2xl font-bold mb-6">Bloco de Apoio:</h2>
-              <p className="text-text-secondary mb-8 leading-relaxed">
-                Tem perguntas sobre nossos produtos, precisa de ajuda com seu pedido ou quer saber mais sobre a CheLevi? 
-                Gostaríamos de ouvir de si! A nossa equipa está pronta para ajudá-la.
+  return (
+    <div className="contact-page">
+      {/* Hero Section - Modern */}
+      <section className="relative py-8 md:py-16 lg:py-24 overflow-hidden bg-gradient-to-br from-gray-900 via-gray-800 to-black">
+        {/* Background Image - Desktop */}
+        <div className="absolute inset-0 hidden md:block">
+          <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/70 z-10"></div>
+          <img 
+            src="https://chelevi.sparktechnology.cloud/chelevi/Banners/IMG_1276.JPG"
+            alt="Contact CheLevi"
+            className="w-full h-full object-cover opacity-30"
+          />
+        </div>
+        
+        {/* Mobile: Image First */}
+        <div className="relative z-20 md:hidden">
+          <div className="container px-4 mb-6">
+            <div className="relative rounded-2xl overflow-hidden shadow-2xl">
+              <img 
+                src="https://chelevi.sparktechnology.cloud/chelevi/Banners/IMG_1276.JPG"
+                alt="Contact CheLevi"
+                className="w-full h-[250px] md:h-[400px] object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
+            </div>
+          </div>
+        </div>
+        
+        {/* Text Content - Mobile: After Image, Desktop: Over Background */}
+        <div className="container relative z-10 px-4">
+          <div className="max-w-4xl mx-auto text-center">
+            <div className="inline-block mb-4">
+              <span className="text-sm md:text-base font-semibold tracking-widest uppercase text-gray-400">
+                {t.contact.subtitle}
+              </span>
+            </div>
+            <h1 className="text-3xl md:text-5xl lg:text-6xl xl:text-7xl font-bold mb-4 md:mb-8 text-white leading-tight">
+              {t.contact.title}
+            </h1>
+            <p className="text-base md:text-xl lg:text-2xl text-gray-300 leading-relaxed max-w-3xl mx-auto">
+              {t.contact.description}
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* Main Content */}
+      <div className="py-12 md:py-16 lg:py-20 bg-white">
+        <div className="container max-w-7xl px-4 sm:px-6 lg:px-8">
+
+          <div className="grid lg:grid-cols-2 gap-8 md:gap-12 lg:gap-16">
+            {/* Contact Information - Mobile: Second, Desktop: First */}
+            <div className="space-y-8 order-2 lg:order-1">
+              <div className="mb-8">
+                <h2 className="text-2xl md:text-3xl font-bold mb-4 text-gray-900 flex items-center gap-2">
+                  <HelpCircle size={28} className="text-gray-700" />
+                  {t.contact.supportBlock}
+                </h2>
+                <p className="text-base md:text-lg text-gray-600 leading-relaxed">
+                  {t.contact.supportDescription}
+                </p>
+              </div>
+
+              {/* Contact Methods - Modern Cards */}
+              <div className="space-y-4">
+                <div className="group bg-gradient-to-br from-white to-gray-50 p-6 md:p-8 rounded-2xl border-2 border-gray-100 hover:border-gray-300 hover:shadow-xl transition-all duration-300">
+                  <div className="flex items-start gap-4">
+                    <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                      <MapPin className="text-white" size={24} />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="font-bold text-lg mb-2 text-gray-900">{t.contact.visitUs}</h3>
+                      <p className="text-sm md:text-base text-gray-600 leading-relaxed">
+                        Rua da Resistência n° 1550, R/C.<br />
+                        Maputo, Mozambique<br />
+                        <span className="text-gray-500 italic">As portas estão abertas.</span>
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="group bg-gradient-to-br from-white to-gray-50 p-6 md:p-8 rounded-2xl border-2 border-gray-100 hover:border-gray-300 hover:shadow-xl transition-all duration-300">
+                  <div className="flex items-start gap-4">
+                    <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                      <Phone className="text-white" size={24} />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="font-bold text-lg mb-2 text-gray-900">{t.contact.callUs}</h3>
+                      <p className="text-sm text-gray-500 mb-2">Uma conversa está à distância de uma chamada.</p>
+                      <a href="tel:+258852232423" className="text-base md:text-lg font-semibold text-gray-900 hover:text-green-600 transition-colors">
+                        +258 85 2232423
+                      </a>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="group bg-gradient-to-br from-white to-gray-50 p-6 md:p-8 rounded-2xl border-2 border-gray-100 hover:border-gray-300 hover:shadow-xl transition-all duration-300">
+                  <div className="flex items-start gap-4">
+                    <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                      <Mail className="text-white" size={24} />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="font-bold text-lg mb-2 text-gray-900">{t.contact.emailUs}</h3>
+                      <div className="space-y-1">
+                        <a href="mailto:info@chelevi.com" className="block text-sm md:text-base text-gray-600 hover:text-purple-600 transition-colors">
+                          info@chelevi.com
+                        </a>
+                        <a href="mailto:suporte@chelevi.com" className="block text-sm md:text-base text-gray-600 hover:text-purple-600 transition-colors">
+                          suporte@chelevi.com
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="group bg-gradient-to-br from-white to-gray-50 p-6 md:p-8 rounded-2xl border-2 border-gray-100 hover:border-gray-300 hover:shadow-xl transition-all duration-300">
+                  <div className="flex items-start gap-4">
+                    <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-green-600 to-green-700 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                      <MessageSquare className="text-white" size={24} />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="font-bold text-lg mb-2 text-gray-900">{t.contact.whatsapp}</h3>
+                      <a href="https://wa.me/258852232423" target="_blank" rel="noopener noreferrer" className="block text-base md:text-lg font-semibold text-gray-900 hover:text-green-600 transition-colors mb-1">
+                        +258 85 2232423
+                      </a>
+                      <p className="text-sm text-gray-500">Disponível 24/7 para suporte instantâneo</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Contact Form - Modern Design - Mobile: First, Desktop: Second */}
+            <div className="bg-gradient-to-br from-white to-gray-50 p-6 md:p-8 lg:p-10 rounded-2xl border-2 border-gray-100 shadow-lg order-1 lg:order-2">
+              <div className="mb-6 md:mb-8">
+                <h2 className="text-2xl md:text-3xl font-bold mb-2 text-gray-900 flex items-center gap-2">
+                  <MessageSquare size={28} className="text-gray-700" />
+                  {t.contact.sendMessage}
+                </h2>
+                <p className="text-sm md:text-base text-gray-600">
+                  Preencha o formulário abaixo e entraremos em contacto o mais breve possível.
+                </p>
+              </div>
+              
+              <form onSubmit={handleSubmit} className="space-y-5 md:space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
+                  <div className="form-group">
+                    <label htmlFor="name" className="block text-sm font-semibold text-gray-700 mb-2">
+                      {t.contact.name} *
+                    </label>
+                    <input
+                      type="text"
+                      id="name"
+                      name="name"
+                      value={formData.name}
+                      onChange={handleInputChange}
+                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition-all"
+                      required
+                    />
+                  </div>
+                  
+                  <div className="form-group">
+                    <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-2">
+                      {t.contact.email} *
+                    </label>
+                    <input
+                      type="email"
+                      id="email"
+                      name="email"
+                      value={formData.email}
+                      onChange={handleInputChange}
+                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition-all"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
+                  <div className="form-group">
+                    <PhoneInput
+                      value={formData.phone}
+                      onChange={(value) => setFormData(prev => ({ ...prev, phone: value }))}
+                      placeholder={t.contact.phone + ' (opcional)'}
+                      label={t.contact.phone}
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label htmlFor="subject" className="block text-sm font-semibold text-gray-700 mb-2">
+                      {t.contact.subject} *
+                    </label>
+                    <select
+                      id="subject"
+                      name="subject"
+                      value={formData.subject}
+                      onChange={handleInputChange}
+                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition-all bg-white"
+                      required
+                    >
+                      <option value="">Selecione um assunto</option>
+                      <option value="product-inquiry">Inquérito de Produto</option>
+                      <option value="order-support">Suporte de Pedido</option>
+                      <option value="shipping">Pergunta de Envio</option>
+                      <option value="return">Retornos e Trocas</option>
+                      <option value="feedback">Feedback</option>
+                      <option value="other">Outro</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="message" className="block text-sm font-semibold text-gray-700 mb-2">
+                    {t.contact.message} *
+                  </label>
+                  <textarea
+                    id="message"
+                    name="message"
+                    value={formData.message}
+                    onChange={handleInputChange}
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition-all resize-none"
+                    rows={6}
+                    placeholder="Por favor, descreva como podemos ajudá-lo..."
+                    required
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="w-full bg-gradient-to-r from-gray-900 to-gray-800 text-white py-4 px-6 rounded-lg font-semibold hover:from-gray-800 hover:to-gray-700 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98]"
+                >
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 size={20} className="animate-spin" />
+                      <span>{t.contact.sending}</span>
+                    </>
+                  ) : (
+                    <>
+                      <Send size={20} />
+                      <span>{t.contact.send}</span>
+                    </>
+                  )}
+                </button>
+              </form>
+
+              {/* Alternative Contact */}
+              <div className="mt-8 pt-8 border-t border-gray-200 text-center">    
+                <p className="text-sm md:text-base text-gray-600 mb-4">{t.contact.immediateAssistance}</p>  
+                <a 
+                  href="https://wa.me/258852232423" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition-all duration-300 shadow-md hover:shadow-lg"
+                >
+                  <MessageSquare size={18} />
+                  {t.contact.startLiveChat}
+                </a>
+              </div>
+            </div>
+          </div>
+
+          {/* FAQ Section - Modern Accordion */}
+          <div className="mt-16 md:mt-20 lg:mt-24">
+            <div className="text-center mb-12 md:mb-16">
+              <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 md:mb-6 text-gray-900 flex items-center justify-center gap-3">
+                <HelpCircle size={32} className="text-gray-700" />
+                {t.contact.faq}
+              </h2>
+              <p className="text-base md:text-lg text-gray-600 max-w-3xl mx-auto leading-relaxed px-4">
+                {t.contact.faqDescription}
               </p>
             </div>
-
-            {/* Contact Methods */}
-            <div className="space-y-6">
-              <div className="flex items-start gap-4 p-6 bg-white rounded-lg border">
-                <MapPin className="text-secondary mt-1" size={24} />
-                <div>
-                  <h3 className="font-semibold mb-2">Visite-nos</h3>
-                  <p className="text-text-secondary">
-                  Rua da Resistência n° 1550, R/C. <br />
-                    Maputo, Mozambique <br />
-                    As portas estão abertas.
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-4 p-6 bg-white rounded-lg border">
-                <Phone className="text-secondary mt-1" size={24} />
-                <div>
-                  <h3 className="font-semibold mb-2">Ligue-nos</h3>
-                  <p>Uma conversa está à distância de uma chamada. </p>
-                  <p className="text-text-secondary">
-                  +258 85 2232423.<br />
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-4 p-6 bg-white rounded-lg border">
-                <Mail className="text-secondary mt-1" size={24} />
-                <div>
-                  <h3 className="font-semibold mb-2">Envie-nos um Email</h3>
-                  <p className="text-text-secondary">
-                    info@chelevi.com<br />
-                    suporte@chelevi.com
-                  </p>
-                </div>    
-              </div>
-
-              <div className="flex items-start gap-4 p-6 bg-white rounded-lg border">
-                <MessageSquare className="text-secondary mt-1" size={24} />
-                <div>
-                      <h3 className="font-semibold mb-2">WhatsApp</h3>
-                  <p className="text-text-secondary">
-                    +258 85 2232423.<br />
-                    Disponível 24/7 para suporte instantâneo
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Contact Form */}
-          <div className="bg-white p-8 rounded-lg border">
-            <h2 className="text-2xl font-bold mb-6">Envie-nos uma Mensagem</h2>
             
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="grid grid-2 gap-4">
-                <div className="form-group">
-                  <label htmlFor="name" className="form-label">Nome Completo *</label>
-                  <input
-                    type="text"
-                    id="name"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleInputChange}
-                    className="form-input"
-                    required
-                  />
-                </div>
-                
-                <div className="form-group">
-                  <label htmlFor="email" className="form-label">Endereço de Email *</label>
-                  <input
-                    type="email"
-                    id="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleInputChange}
-                    className="form-input"
-                    required
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-2 gap-4">
-                <div className="form-group">
-                  <PhoneInput
-                    value={formData.phone}
-                    onChange={(value) => setFormData(prev => ({ ...prev, phone: value }))}
-                    placeholder="Seu número de telefone (opcional)"
-                    label="Número de Telefone"
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label htmlFor="subject" className="form-label">Assunto *</label>
-                  <select
-                    id="subject"
-                    name="subject"
-                    value={formData.subject}
-                    onChange={handleInputChange}
-                    className="form-select"
-                    required
+            <div className="max-w-4xl mx-auto space-y-4">
+              {faqs.map((faq, index) => (
+                <div
+                  key={index}
+                  className="bg-white border-2 border-gray-100 rounded-xl overflow-hidden hover:border-gray-300 transition-all duration-300 hover:shadow-lg"
+                >
+                  <button
+                    onClick={() => setExpandedFaq(expandedFaq === index ? null : index)}
+                    className="w-full px-6 md:px-8 py-5 md:py-6 flex items-center justify-between text-left hover:bg-gray-50 transition-colors"
                   >
-                    <option value="">Selecione um assunto</option>
-                    <option value="product-inquiry">Inquérito de Produto</option>
-                    <option value="order-support">Suporte de Pedido</option>
-                    <option value="shipping">Pergunta de Envio</option>
-                    <option value="return">Retornos e Trocas</option>
-                    <option value="feedback">Feedback</option>
-                    <option value="other">Outro</option>
-                  </select>
+                    <h3 className="text-base md:text-lg font-bold text-gray-900 pr-4 flex-1">
+                      {faq.question}
+                    </h3>
+                    {expandedFaq === index ? (
+                      <ChevronUp size={20} className="text-gray-600 flex-shrink-0" />
+                    ) : (
+                      <ChevronDown size={20} className="text-gray-600 flex-shrink-0" />
+                    )}
+                  </button>
+                  {expandedFaq === index && (
+                    <div className="px-6 md:px-8 pb-5 md:pb-6">
+                      <p className="text-sm md:text-base text-gray-600 leading-relaxed">
+                        {faq.answer}
+                      </p>
+                    </div>
+                  )}
                 </div>
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="message" className="form-label">Mensagem *</label>
-                <textarea
-                  id="message"
-                  name="message"
-                  value={formData.message}
-                  onChange={handleInputChange}
-                  className="form-textarea"
-                  rows={5}
-                  placeholder="Por favor, descreva como podemos ajudá-lo..."
-                  required
-                />
-              </div>
-
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="btn btn-primary w-full flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {isSubmitting ? (
-                  <>
-                    <Loader2 size={18} className="animate-spin" />
-                    Enviando...
-                  </>
-                ) : (
-                  <>
-                    <Send size={18} />
-                    Enviar Mensagem
-                  </>
-                )}
-              </button>
-            </form>
-
-            {/* Alternative Contact */}
-            <div className="mt-8 pt-8 border-t text-center">    
-              <p className="text-text-secondary mb-4">Precisa de assistência imediata?</p>  
-              <button className="btn btn-secondary">
-                Iniciar Chat ao Vivo
-              </button>
+              ))}
             </div>
-          </div>
-        </div>
-
-        {/* FAQ Section */}
-        <div className="mt-20">
-          <h2 className="text-3xl font-bold text-center mb-12">Questões Frequentes (FAQ)</h2>
-          <p className="text-text-secondary mb-8 leading-relaxed">
-          A elegância reside na clareza. Aqui, reunimos as respostas para as suas questões, permitindo-lhe uma experiência tão fluida e serena quanto as nossas peças.
-          </p>
-          <div className="grid lg:grid-cols-2 gap-8">
-            <div className="space-y-6">
-              <div className="bg-white p-6 rounded-lg border">
-                <h3 className="font-semibold mb-3">•	Quanto tempo demora a entrega?</h3>
-                <p className="text-text-secondary">
-                Em Maputo, em apenas 1 a 2 dias. Em outras províncias do país, 3 a 5 dias. Sempre com a promessa de chegar com cuidado, como se fosse entregue por mãos amigas.
-                </p>
-              </div>
-              
-              <div className="bg-white p-6 rounded-lg border">
-                <h3 className="font-semibold mb-3">•	Como posso acompanhar o meu pedido?</h3>
-                <p className="text-text-secondary">
-                Receberá um link de rastreio pelo WhatsApp e poderá acompanhar o seu pedido a qualquer momento na sua conta CheLevi.
-                </p>
-              </div>
-
-              <div className="bg-white p-6 rounded-lg border">
-                <h3 className="font-semibold mb-3">•	Qual é a vossa política de devolução?</h3>
-                <p className="text-text-secondary">
-                Aceitamos devoluções até 30 dias após a compra. Confiamos na qualidade das nossas criações, mas queremos que cada escolha sua seja feita com a mesma confiança e prazer de usar CheLevi.
-                </p>
-              </div>
-            </div>
-
-            <div className="space-y-6">
-              <div className="bg-white p-6 rounded-lg border">
-                <h3 className="font-semibold mb-3">Como posso rastrear meu pedido?</h3>
-                <p className="text-text-secondary">
-                  Uma vez que seu pedido é enviado, receberás um link de rastreamento via WhatsApp.Também podes 
-                  rastrear o teu pedido entrando em teu conta e visualizando o teu histórico de pedidos.
-                </p>
-              </div>
-              
-              <div className="bg-white p-6 rounded-lg border">
-                <h3 className="font-semibold mb-3">Enviam para fora de Moçambique?</h3>
-                <p className="text-text-secondary">
-                Sim, enviamos para Portugal. Em breve estaremos também noutros países, para que a CheLevi continue a aproximar-se de quem partilha o nosso olhar sobre a elegância
-                </p>
-              </div>
-            </div>
-            
-
           </div>
         </div>
       </div>

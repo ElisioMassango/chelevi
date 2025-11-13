@@ -3,6 +3,7 @@ import { Toaster } from 'react-hot-toast';
 import { AuthProvider } from './contexts/AuthContext';
 import { CartProvider } from './contexts/CartContext';
 import { WishlistProvider } from './contexts/WishlistContext';
+import { LanguageProvider } from './contexts/LanguageContext';
 import { useScrollToTop } from './hooks/useScrollToTop';
 import Header from './components/Header';
 import Footer from './components/Footer';
@@ -28,6 +29,7 @@ import ShippingInfo from './pages/ShippingInfo';
 import LocationDemo from './pages/LocationDemo';
 import LGPDPopup from './components/LGPDPopup';
 import WelcomeManager from './components/WelcomeManager';
+import NewsletterPopup from './components/NewsletterPopup';
 import './styles/globals.css';
 import WhatsAppFloatButton from './components/WhatsAppFloatButton';
 
@@ -40,14 +42,15 @@ function ScrollToTop() {
 function App() {
   return (
     <>
-      <AuthProvider>
-        <CartProvider>
-          <WishlistProvider>
-            <Router>
-              <ScrollToTop />
-              <div className="App">
-                <Header />
-                <main className="main-content">
+      <LanguageProvider>
+        <AuthProvider>
+          <CartProvider>
+            <WishlistProvider>
+              <Router>
+                <ScrollToTop />
+                <div className="App">
+                  <Header />
+                  <main className="main-content">
                   <Routes>
                     <Route path="/" element={<Home />} />
                     <Route path="/products" element={<Products />} />
@@ -76,11 +79,13 @@ function App() {
  
                 <LGPDPopup />
                 <WelcomeManager />
+                <NewsletterPopup />
               </div>
             </Router>
           </WishlistProvider>
         </CartProvider>
       </AuthProvider>
+      </LanguageProvider>
       <Toaster
         position="top-right"
         toastOptions={{

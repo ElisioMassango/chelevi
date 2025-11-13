@@ -8,8 +8,10 @@ import { BillingInfo } from '../services/api';
 import CheckoutLocationSelector from '../components/CheckoutLocationSelector';
 import PhoneInput from '../components/PhoneInput';
 import { validatePhoneNumber, formatPhoneForWhatsApp } from '../utils/phoneUtils';
+import { useTranslation } from '../contexts/LanguageContext';
 
 const Checkout: React.FC = () => {
+  const t = useTranslation();
   const navigate = useNavigate();
   const [isProcessing, setIsProcessing] = useState(false);
   const [deliveryMethod, setDeliveryMethod] = useState<'delivery' | 'pickup'>('delivery');
@@ -128,28 +130,28 @@ const Checkout: React.FC = () => {
     
     setIsProcessing(true);
     if (!user?.id) {
-      alert('Please login to place an order');
+      alert(t.checkout.loginRequired);
       setIsProcessing(false);
       return;
     }
     
     // Validate phone number
     if (!validatePhoneNumber(formData.phone)) {
-      alert('Por favor, insira um número de telefone válido');
+      alert(t.checkout.invalidPhone);
       setIsProcessing(false);
       return;
     }
     
     // Validate billing address
     if (!formData.billingCountry || !formData.billingState || !formData.billingCityId) {
-      alert('Por favor, preencha o endereço de cobrança completamente');
+      alert(t.checkout.fillBillingAddress);
       setIsProcessing(false);
       return;
     }
     
     // Validate billing address field
     if (!formData.billingAddress && !formData.address) {
-      alert('Por favor, preencha o endereço de cobrança');
+      alert(t.checkout.fillBillingAddressField);
       setIsProcessing(false);
       return;
     }
@@ -157,7 +159,7 @@ const Checkout: React.FC = () => {
     // Validate shipping address if not using same address
     if (!formData.useSameAddress) {
       if (!formData.shippingCountry || !formData.shippingState || !formData.shippingCityId) {
-        alert('Por favor, preencha o endereço de entrega completamente');
+        alert(t.checkout.fillShippingAddress);
         setIsProcessing(false);
         return;
       }
@@ -221,7 +223,7 @@ const Checkout: React.FC = () => {
       console.error('Order processing failed:', error);
       navigate('/checkout-failed', {
         state: {
-          error: error instanceof Error ? error.message : 'Erro desconhecido ao processar pedido',
+          error: error instanceof Error ? error.message : t.checkout.unknownError,
         },
       });
     } finally {
@@ -230,9 +232,8 @@ const Checkout: React.FC = () => {
   };
 
   const subtotal = total;
-  const tax = total * 0.17;
   const shipping = 0;
-  const grandTotal = subtotal + tax + shipping;
+  const grandTotal = subtotal + shipping;
 
   return (
     <div className="checkout-page py-12">
@@ -241,31 +242,31 @@ const Checkout: React.FC = () => {
           <div className="bg-white rounded-2xl p-8 max-w-md w-full mx-4 text-center">
             <div className="mb-6">
               <Loader2 size={48} className="animate-spin text-secondary mx-auto mb-4" />
-              <h3 className="text-xl font-bold mb-2">Processando seu pedido...</h3>
+              <h3 className="text-xl font-bold mb-2">{t.checkout.processing}</h3>
               <p className="text-text-secondary">
-                Estamos finalizando sua compra. Isso pode levar alguns segundos.
+                {t.checkout.processingText}
               </p>
             </div>
             <div className="space-y-2 text-sm text-text-secondary">
-              <p>✓ Validando informações de pagamento</p>
-              <p>✓ Confirmando disponibilidade dos produtos</p>
-              <p>⏳ Processando transação...</p>
+              <p>{t.checkout.validatingPayment}</p>
+              <p>{t.checkout.confirmingProducts}</p>
+              <p>{t.checkout.processingTransaction}</p>
             </div>
           </div>
         </div>
       )}
       <div className="container max-w-6xl">
-        <h1 className="text-3xl font-bold mb-8">Checkout</h1>
+        <h1 className="text-3xl font-bold mb-8">{t.checkout.title}</h1>
         <form onSubmit={handleSubmit}>
           <div className="grid lg:grid-cols-2 gap-12">
             <div className="space-y-8">
               <div className="bg-white p-6 rounded-lg border">
                 <h2 className="text-xl font-semibold mb-6 flex items-center gap-2">
-                  <Mail size={20} /> Contact Information
+                  <Mail size={20} /> {t.checkout.contactInformation}
                 </h2>
                 <div className="grid grid-2 gap-4">
                   <div className="form-group">
-                    <label className="form-label">Nome</label>
+                    <label className="form-label">{t.checkout.firstName}</label>
                     <input
                       type="text"
                       name="firstName"
@@ -276,7 +277,7 @@ const Checkout: React.FC = () => {
                     />
                   </div>
                   <div className="form-group">
-                    <label className="form-label">Sobrenome</label>
+                    <label className="form-label">{t.checkout.lastName}</label>
                     <input
                       type="text"
                       name="lastName"
@@ -289,7 +290,7 @@ const Checkout: React.FC = () => {
                 </div>
                 <div className="grid grid-2 gap-4">
                   <div className="form-group">
-                    <label className="form-label">Endereço de Email</label>
+                    <label className="form-label">{t.checkout.email}</label>
                     <input
                       type="email"
                       name="email"
@@ -303,15 +304,15 @@ const Checkout: React.FC = () => {
                     <PhoneInput
                       value={formData.phone}
                       onChange={(value) => setFormData(prev => ({ ...prev, phone: value }))}
-                      placeholder="Seu número de telefone"
+                      placeholder={t.checkout.phonePlaceholder}
                       required
-                      label="Número de Telefone"
+                      label={t.checkout.phone}
                     />
                   </div>
                 </div>
               </div>
               <div className="bg-white p-6 rounded-lg border">
-                <h2 className="text-xl font-semibold mb-6">Método de Entrega</h2>
+                <h2 className="text-xl font-semibold mb-6">{t.checkout.deliveryMethod}</h2>
                 <div className="space-y-4">
                   <label className="flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50">
                     <input
@@ -324,8 +325,8 @@ const Checkout: React.FC = () => {
                     />
                     <MapPin className="mr-3 text-accent" size={20} />
                     <div>
-                      <div className="font-semibold">Delivery</div>
-                      <div className="text-sm text-text-secondary">Entrega grátis dentro de Maputo</div>
+                      <div className="font-semibold">{t.checkout.delivery}</div>
+                      <div className="text-sm text-text-secondary">{t.checkout.deliveryDescription}</div>
                     </div>
                   </label>
                   <label className="flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50">
@@ -339,8 +340,8 @@ const Checkout: React.FC = () => {
                     />
                     <div className="mr-3 text-accent">🏪</div>
                     <div>
-                      <div className="font-semibold">Levantar na Loja</div>
-                      <div className="text-sm text-text-secondary">Levantar na loja</div>
+                      <div className="font-semibold">{t.checkout.pickup}</div>
+                      <div className="text-sm text-text-secondary">{t.checkout.pickupDescription}</div>
                     </div>
                   </label>
                 </div>
@@ -593,10 +594,6 @@ const Checkout: React.FC = () => {
                   <div className="flex justify-between">
                     <span>Frete</span>
                     <span className="text-success">Grátis</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Imposto (17%)</span>
-                    <span>MT{tax.toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between font-bold text-lg border-t pt-3">
                     <span>Total</span>

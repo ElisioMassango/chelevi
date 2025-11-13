@@ -57,6 +57,21 @@ const OWNER_MESSAGE_TEMPLATES = {
     `💬 *Para mais detalhes:*\n` +
     `• Email: info@chelevi.com\n` +
     `• WhatsApp: +258 84 12 34 567\n\n` +
+    `✨ *Chelevi* - Sistema de Notificações`,
+
+  // New reservation notification
+  NEW_RESERVATION: (productId: number, productName: string, userName: string, email: string, phone: string, quantity: number) => 
+    `📦 *NOVA RESERVA DE PRODUTO*\n\n` +
+    `🛍️ *Produto:* ${productName}\n` +
+    `🆔 *ID do Produto:* ${productId}\n\n` +
+    `👤 *Cliente:*\n` +
+    `• Nome: ${userName}\n` +
+    `• Email: ${email}\n` +
+    `• Telefone: ${phone}\n\n` +
+    `📊 *Quantidade Desejada:* ${quantity}\n\n` +
+    `💬 *Para mais detalhes:*\n` +
+    `• Email: info@chelevi.com\n` +
+    `• WhatsApp: +258 84 12 34 567\n\n` +
     `✨ *Chelevi* - Sistema de Notificações`
 };
 
@@ -368,6 +383,40 @@ class OwnerNotificationService {
       logger.error('Failed to notify owners about newsletter subscription', { 
         error, 
         email 
+      });
+    }
+  }
+
+  // Notify owners about new reservation
+  async notifyNewReservation(
+    productId: number,
+    productName: string,
+    userName: string,
+    email: string,
+    phone: string,
+    quantity: number
+  ): Promise<void> {
+    try {
+      const whatsappMessage = OWNER_MESSAGE_TEMPLATES.NEW_RESERVATION(
+        productId, productName, userName, email, phone, quantity
+      );
+
+      // Send WhatsApp notification to owners
+      await this.sendWhatsAppToOwners(whatsappMessage);
+
+      logger.userAction('Owner notification sent for new reservation', { 
+        productId,
+        productName,
+        userName,
+        email,
+        quantity
+      });
+    } catch (error) {
+      logger.error('Failed to notify owners about new reservation', { 
+        error, 
+        productId,
+        productName,
+        userName
       });
     }
   }
