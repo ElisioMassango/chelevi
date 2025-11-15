@@ -4,6 +4,7 @@ import { AuthProvider } from './contexts/AuthContext';
 import { CartProvider } from './contexts/CartContext';
 import { WishlistProvider } from './contexts/WishlistContext';
 import { LanguageProvider } from './contexts/LanguageContext';
+import { CurrencyProvider } from './contexts/CurrencyContext';
 import { useScrollToTop } from './hooks/useScrollToTop';
 import Header from './components/Header';
 import Footer from './components/Footer';
@@ -43,10 +44,11 @@ function App() {
   return (
     <>
       <LanguageProvider>
-        <AuthProvider>
-          <CartProvider>
-            <WishlistProvider>
-              <Router>
+        <CurrencyProvider>
+          <AuthProvider>
+            <CartProvider>
+              <WishlistProvider>
+                <Router>
                 <ScrollToTop />
                 <div className="App">
                   <Header />
@@ -81,10 +83,11 @@ function App() {
                 <WelcomeManager />
                 <NewsletterPopup />
               </div>
-            </Router>
-          </WishlistProvider>
-        </CartProvider>
-      </AuthProvider>
+                </Router>
+              </WishlistProvider>
+            </CartProvider>
+          </AuthProvider>
+        </CurrencyProvider>
       </LanguageProvider>
       <Toaster
         position="top-right"

@@ -2,6 +2,7 @@ import React from "react";
 import { Heart, Award, Users, Globe, Leaf, Shield, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useTranslation } from '../contexts/LanguageContext';
+import SEO from '../components/SEO';
 
 const About: React.FC = () => {
   const t = useTranslation();
@@ -72,9 +73,39 @@ const About: React.FC = () => {
     },
   ];
 
+  // SEO Structured Data for About Page
+  const aboutStructuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'AboutPage',
+    name: 'Sobre a CheLevi',
+    description: t.about.heroText,
+    url: 'https://chelevi.sparktechnology.cloud/about',
+    mainEntity: {
+      '@type': 'Organization',
+      name: 'CheLevi',
+      description: t.about.heroText,
+      foundingDate: '2018',
+      numberOfEmployees: '10-50',
+      address: {
+        '@type': 'PostalAddress',
+        streetAddress: 'Rua da Resistência n° 1550, R/C',
+        addressLocality: 'Maputo',
+        addressCountry: 'MZ'
+      }
+    }
+  };
+
   return (
-    <div className="about-page">
-      {/* Hero Section - Modern & International */}
+    <>
+      <SEO
+        title="Sobre Nós - CheLevi | Nossa História e Valores"
+        description={t.about.heroText || "Conheça a história da CheLevi, uma marca de moda elegante e sofisticada. Descubra nossos valores, nossa jornada e o que nos torna únicos."}
+        keywords="CheLevi, sobre nós, história, valores, moda, elegância, Moçambique"
+        image="https://chelevi.sparktechnology.cloud/chelevi/Banners/IMG_2065.PNG"
+        structuredData={aboutStructuredData}
+      />
+      <div className="about-page">
+        {/* Hero Section - Modern & International */}
       <section className="relative py-16 md:py-24 lg:py-32 overflow-hidden bg-gradient-to-br from-gray-900 via-gray-800 to-black">
         {/* Background Pattern */}
         <div className="absolute inset-0 opacity-10">
@@ -292,7 +323,8 @@ const About: React.FC = () => {
           </div>
         </div>
       </section>
-    </div>
+      </div>
+    </>
   );
 };
 

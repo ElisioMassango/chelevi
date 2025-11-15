@@ -1,0 +1,34 @@
+# robots.txt for CheLevi
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://chelevi.sparktechnology.cloud/sitemap.xml
+
+# Disallow admin and private areas
+Disallow: /admin/
+Disallow: /api/
+Disallow: /checkout/
+Disallow: /checkout-success/
+Disallow: /checkout-failed/
+Disallow: /profile/
+Disallow: /orders/
+Disallow: /order-tracking/
+Disallow: /wishlist/
+Disallow: /login/
+
+# Allow important pages
+Allow: /
+Allow: /products
+Allow: /product/
+Allow: /about
+Allow: /contact
+Allow: /privacy-policy
+Allow: /terms
+Allow: /shipping
+
+# Crawl-delay
+Crawl-delay: 1
+
+
+

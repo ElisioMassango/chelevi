@@ -6,11 +6,14 @@ import { useWishlist } from '../contexts/WishlistContext';
 import { useAuth } from '../contexts/AuthContext';
 import { useProductDetail } from '../hooks/useProducts';
 import { useProductVariants } from '../hooks/useProductVariants';
-import { apiService } from '../services/api';
+// Review section commented out - apiService no longer needed
+// import { apiService } from '../services/api';
 import ProductCard from '../components/ProductCard';
 import { useTranslation } from '../contexts/LanguageContext';
 import { reservationService } from '../services/reservationService';
 import ReservationPopup from '../components/ReservationPopup';
+import SEO from '../components/SEO';
+import { useCurrency } from '../contexts/CurrencyContext';
 
 /**
  * This component has been refactored to satisfy React's Rules of Hooks.
@@ -18,6 +21,7 @@ import ReservationPopup from '../components/ReservationPopup';
  */
 const ProductDetail: React.FC = () => {
   const t = useTranslation();
+  const { formatPrice } = useCurrency();
   // Router params
   const { id } = useParams<{ id: string }>();
 
@@ -26,8 +30,9 @@ const ProductDetail: React.FC = () => {
   const [selectedVariant, setSelectedVariant] = useState<{ [key: string]: number }>({});
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState('details');
-  const [showReviewForm, setShowReviewForm] = useState(false);
-  const [reviewForm, setReviewForm] = useState({ rating: 5, title: '', description: '' });
+  // Review section commented out
+  // const [showReviewForm, setShowReviewForm] = useState(false);
+  // const [reviewForm, setReviewForm] = useState({ rating: 5, title: '', description: '' });
   const [showReservationPopup, setShowReservationPopup] = useState(false);
   
   // Use variant hook for better variant management
@@ -49,7 +54,8 @@ const ProductDetail: React.FC = () => {
   // Derive product, images, reviews, and related products from the response
   const product = productData?.product_info;
   const productImages = productData?.product_image || [];
-  const productReviews = productData?.product_Review || [];
+  // Review section commented out
+  // const productReviews = productData?.product_Review || [];
   const relatedProducts = productData?.releted_products || [];
 
   // Event handlers for variants
@@ -83,35 +89,41 @@ const ProductDetail: React.FC = () => {
 
   // Get the price from first variant if product has variants
   const getProductPrice = () => {
-    if (!product) return { price: '0', salePrice: '0', currency: 'MT' };
+    if (!product) return { price: 0, salePrice: null };
     
     if (product.variant_product === 1 && (productData as any).variant && (productData as any).variant.length > 0) {
       // For variant products, use variant info if available
       if (variantInfo) {
         return {
-          price: variantInfo.price,
-          salePrice: variantInfo.sale_price,
-          currency: variantInfo.currency
+          price: parseFloat(variantInfo.price.toString()),
+          salePrice: variantInfo.sale_price ? parseFloat(variantInfo.sale_price.toString()) : null
         };
       }
       // Fallback to product price for variant products
       return {
-        price: product.final_price || product.price,
-        salePrice: product.sale_price,
-        currency: 'MT'
+        price: parseFloat((product.final_price || product.price || '0').toString()),
+        salePrice: product.sale_price ? parseFloat(product.sale_price.toString()) : null
       };
     }
     
     // Default product pricing for non-variant products
     return {
-      price: product.final_price || product.price,
-      salePrice: product.sale_price,
-      currency: 'MT'
+      price: parseFloat((product.final_price || product.price || '0').toString()),
+      salePrice: product.sale_price ? parseFloat(product.sale_price.toString()) : null
     };
   };
 
   // Check if product is out of stock
   const isOutOfStock = product ? reservationService.isOutOfStock(product.id) : false;
+
+  // Get product price for SEO
+  const getProductPriceForSEO = () => {
+    if (!product) return '0';
+    const priceInfo = getProductPrice();
+    return priceInfo.salePrice && priceInfo.salePrice !== priceInfo.price 
+      ? priceInfo.salePrice.toString() 
+      : priceInfo.price.toString();
+  };
 
   // Add to cart handler
   const handleAddToCart = () => {
@@ -159,7 +171,8 @@ const ProductDetail: React.FC = () => {
     }
   };
 
-  // Review submit handler
+  // Review submit handler - commented out
+  /*
   const handleReviewSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) {
@@ -188,6 +201,7 @@ const ProductDetail: React.FC = () => {
       alert(t.productDetail.reviewErrorGeneric);
     }
   };
+  */
 
   // Determine display images with fallback
   const displayImages = productImages.length > 0
@@ -229,20 +243,41 @@ const ProductDetail: React.FC = () => {
 
   if (!product) {
     return (
-      <div className="product-detail-page py-12">
-        <div className="container">
-          <div className="text-center">
-            <h1 className="text-2xl font-bold mb-4">{t.productDetail.invalidProductData}</h1>
-            <p className="text-text-secondary">{t.productDetail.invalidProductDataText}</p>
+      <>
+        <SEO
+          title="Produto - CheLevi"
+          description="Produto não encontrado"
+        />
+        <div className="product-detail-page py-12">
+          <div className="container">
+            <div className="text-center">
+              <h1 className="text-2xl font-bold mb-4">{t.productDetail.invalidProductData}</h1>
+              <p className="text-text-secondary">{t.productDetail.invalidProductDataText}</p>
+            </div>
           </div>
         </div>
-      </div>
+      </>
     );
   }
 
   return (
-    <div className="product-detail-page py-12">
-      <div className="container">
+    <>
+      <SEO
+        title={`${product.name} - CheLevi`}
+        description={product.description || `${product.name} - Moda elegante e sofisticada da CheLevi. Descubra qualidade e estilo.`}
+        keywords={`${product.name}, CheLevi, moda, bolsas, acessórios, ${product.category_name || ''}`}
+        image={product.cover_image_url}
+        type="product"
+        product={{
+          name: product.name,
+          price: getProductPriceForSEO(),
+          image: product.cover_image_url,
+          description: product.description || `${product.name} - Moda elegante e sofisticada da CheLevi`,
+          availability: isOutOfStock ? 'out of stock' : 'in stock'
+        }}
+      />
+      <div className="product-detail-page py-12">
+        <div className="container">
         <div className="grid grid-2 gap-16 mb-16">
           {/* Product Images */}
           <div className="space-y-4">
@@ -293,10 +328,10 @@ const ProductDetail: React.FC = () => {
                   const displayPrice = priceInfo.salePrice && priceInfo.salePrice !== priceInfo.price ? priceInfo.salePrice : priceInfo.price;
                   return (
                     <>
-                      <span className="text-2xl font-bold">{priceInfo.currency}{displayPrice}</span>
+                      <span className="text-2xl font-bold">{formatPrice(displayPrice)}</span>
                       {priceInfo.salePrice && priceInfo.salePrice !== priceInfo.price && (
                         <span className="text-xl text-text-secondary line-through">
-                          {priceInfo.currency}{priceInfo.price}
+                          {formatPrice(priceInfo.price)}
                         </span>
                       )}
                     </>
@@ -319,7 +354,8 @@ const ProductDetail: React.FC = () => {
                   ))}
                   <span className="ml-2 font-semibold">{product.average_rating}</span>
                 </div>
-                <span className="text-text-secondary">({productReviews.length} {t.productDetail.reviews})</span>
+                {/* Review count commented out */}
+                {/* <span className="text-text-secondary">({productReviews.length} {t.productDetail.reviews})</span> */}
               </div>
             </div>
             {/* Variant Selection */}
@@ -513,6 +549,7 @@ const ProductDetail: React.FC = () => {
           </div>
         </div>
         {/* Ratings Section */}
+        {/* 
         <div className="mb-16">
           <div className="flex items-center justify-between mb-8">
             <h2 className="text-2xl font-bold">{t.productDetail.reviewsTab}</h2>
@@ -530,6 +567,7 @@ const ProductDetail: React.FC = () => {
             )}
           </div>
           {/* Rating Form */}
+          {/* 
           {showReviewForm && (
             <div className="mb-8 p-6 bg-gray-50 rounded-lg">
               <h3 className="text-lg font-semibold mb-4">{t.productDetail.writeReview}</h3>
@@ -620,7 +658,7 @@ const ProductDetail: React.FC = () => {
                     />
                     <div className="flex-1">
                       <h5 className="font-medium">{product.name}</h5>
-                      <p className="text-sm text-text-secondary">MT{product.price}</p>
+                      <p className="text-sm text-text-secondary">{formatPriceWithCurrency(product.price)}</p>
                     </div>
                     <button className="btn btn-sm btn-primary">Add to Cart</button>
                   </div>
@@ -629,6 +667,7 @@ const ProductDetail: React.FC = () => {
             ))}
           </div>
         </div>
+        */}
         {/* You May Also Like */}
         <div>
           <h2 className="text-2xl font-bold text-center mb-12">{t.productDetail.relatedProducts}</h2>
@@ -650,7 +689,8 @@ const ProductDetail: React.FC = () => {
           productImage={product.cover_image_url}
         />
       )}
-    </div>
+      </div>
+    </>
   );
 };
 

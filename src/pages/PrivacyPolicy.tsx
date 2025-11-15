@@ -1,12 +1,19 @@
 import React from 'react';
 import { Shield, Eye, Lock, Users, Mail, Phone } from 'lucide-react';
 import { useTranslation } from '../contexts/LanguageContext';
+import SEO from '../components/SEO';
 
 const PrivacyPolicy: React.FC = () => {
   const t = useTranslation();
   
   return (
-    <div className="privacy-policy-page py-12">
+    <>
+      <SEO
+        title="Política de Privacidade - CheLevi"
+        description="Conheça a Política de Privacidade da CheLevi. Saiba como protegemos e utilizamos os seus dados pessoais."
+        keywords="CheLevi, política de privacidade, privacidade, proteção de dados, LGPD"
+      />
+      <div className="privacy-policy-page py-12">
       <div className="container max-w-4xl">
         {/* Header */}
         <div className="text-center mb-12">
@@ -219,7 +226,8 @@ const PrivacyPolicy: React.FC = () => {
           </section>
         </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 };
 

@@ -46,7 +46,8 @@ class ReservationService {
           data.name,
           data.email,
           data.phone,
-          data.quantity
+          data.quantity,
+          data.country || 'mocambique'
         );
       } catch (error) {
         logger.warn('Failed to send owner notification', { error });
@@ -129,6 +130,10 @@ class ReservationService {
               <div style="margin-bottom: 10px;">
                 <span style="color: #7f8c8d;">Quantidade:</span>
                 <span style="color: #2c3e50; font-weight: 600; margin-left: 10px;">${data.quantity}</span>
+              </div>
+              <div style="margin-bottom: 10px;">
+                <span style="color: #7f8c8d;">País:</span>
+                <span style="color: #2c3e50; font-weight: 600; margin-left: 10px;">${data.country === 'portugal' ? '🇵🇹 Portugal' : '🇲🇿 Moçambique'}</span>
               </div>
               <div style="margin-bottom: 10px;">
                 <span style="color: #7f8c8d;">Contato:</span>

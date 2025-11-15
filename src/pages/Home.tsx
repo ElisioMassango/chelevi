@@ -5,6 +5,7 @@ import ProductCard from '../components/ProductCard';
 import { useFeaturedProducts, useBestsellerProducts } from '../hooks/useProducts';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from '../contexts/LanguageContext';
+import SEO from '../components/SEO';
 
 const Home: React.FC = () => {
   const t = useTranslation();
@@ -13,6 +14,45 @@ const Home: React.FC = () => {
   // API hooks for real data
   const { products: featuredProducts, loading: featuredLoading, error: featuredError } = useFeaturedProducts();
   const { products: bestsellerProducts, loading: bestsellerLoading, error: bestsellerError } = useBestsellerProducts();
+
+  // SEO Structured Data for Homepage
+  const homeStructuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'Store',
+    name: 'CheLevi',
+    description: 'Moda elegante e sofisticada. Descubra bolsas exclusivas, acessórios únicos e peças que refletem o seu estilo. Entrega em Moçambique e Portugal.',
+    url: 'https://chelevi.sparktechnology.cloud',
+    logo: 'https://chelevi.sparktechnology.cloud/chelevi/Logos/CHE-LEVI-02.png',
+    image: 'https://chelevi.sparktechnology.cloud/chelevi/Banners/IMG_1276.JPG',
+    telephone: '+258 85 2232423',
+    email: 'info@chelevi.com',
+    address: {
+      '@type': 'PostalAddress',
+      streetAddress: 'Rua da Resistência n° 1550, R/C',
+      addressLocality: 'Maputo',
+      addressRegion: 'Maputo',
+      postalCode: '1100',
+      addressCountry: 'MZ'
+    },
+    geo: {
+      '@type': 'GeoCoordinates',
+      latitude: '-25.969248',
+      longitude: '32.573230'
+    },
+    openingHours: 'Mo-Sa 09:00-18:00',
+    priceRange: '$$',
+    currenciesAccepted: 'MZN, EUR',
+    paymentAccepted: 'Cash, Credit Card, M-Pesa',
+    sameAs: [
+      'https://www.instagram.com/chelevi',
+      'https://www.facebook.com/chelevi'
+    ],
+    aggregateRating: {
+      '@type': 'AggregateRating',
+      ratingValue: '4.8',
+      reviewCount: '150'
+    }
+  };
 
   // Fallback products if API fails
   const fallbackProducts = [
@@ -182,8 +222,16 @@ const Home: React.FC = () => {
   };
 
   return (
-    <div className="home-page">
-      {/* Hero Carousel */}
+    <>
+      <SEO
+        title="CheLevi - Moda Elegante e Sofisticada | Bolsas Exclusivas"
+        description="Descubra a elegância e sofisticação da CheLevi. Moda premium, bolsas exclusivas e acessórios únicos. Entrega em Moçambique e Portugal. Qualidade e estilo em cada peça."
+        keywords="CheLevi, moda, bolsas, acessórios, elegância, sofisticação, Moçambique, Portugal, e-commerce, moda feminina, bolsas de luxo"
+        image="https://chelevi.sparktechnology.cloud/chelevi/Banners/IMG_1276.JPG"
+        structuredData={homeStructuredData}
+      />
+      <div className="home-page">
+        {/* Hero Carousel */}
       <section className="relative h-screen overflow-hidden">
         <div className="relative w-full h-full">
           {heroSlides.map((slide, index) => (
@@ -225,7 +273,7 @@ const Home: React.FC = () => {
             </div>
           ))}
 
-          {/* Navigation Arrows */}
+          {/* Navigation Arrows 
           <button
             onClick={prevSlide}
             className="absolute left-6 top-1/2 transform -translate-y-1/2 w-12 h-12 bg-white bg-opacity-20 hover:bg-opacity-30 rounded-full flex items-center justify-center text-white transition-all"
@@ -238,7 +286,7 @@ const Home: React.FC = () => {
           >
             <ChevronRight size={24} />
           </button>
-
+*/}
           {/* Slide Indicators */}
           <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex space-x-3">
             {heroSlides.map((_, index) => (
@@ -599,11 +647,7 @@ const Home: React.FC = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center">
             {/* Content */}
             <div className="text-white space-y-6 md:space-y-8 order-2 lg:order-1 animate-slideUp">
-              <div className="inline-block">
-                <span className="text-xs md:text-sm font-semibold tracking-widest uppercase text-gray-400 mb-2 block">
-                  {t.homeExtended.universeTitle.split(' ')[0]}
-                </span>
-              </div>
+              
               <h2 className="text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold leading-tight tracking-tight">
                 <span className="block">{t.homeExtended.universeTitle}</span>
                 <span className="block text-gray-300 mt-2">{t.homeExtended.universeSubtitle}</span>
@@ -803,7 +847,8 @@ const Home: React.FC = () => {
           </div>
         </div>
       </section>
-    </div>
+      </div>
+    </>
   );
 };
 

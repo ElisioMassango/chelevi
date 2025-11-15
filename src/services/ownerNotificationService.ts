@@ -60,14 +60,15 @@ const OWNER_MESSAGE_TEMPLATES = {
     `✨ *Chelevi* - Sistema de Notificações`,
 
   // New reservation notification
-  NEW_RESERVATION: (productId: number, productName: string, userName: string, email: string, phone: string, quantity: number) => 
+  NEW_RESERVATION: (productId: number, productName: string, userName: string, email: string, phone: string, quantity: number, country: string) => 
     `📦 *NOVA RESERVA DE PRODUTO*\n\n` +
     `🛍️ *Produto:* ${productName}\n` +
     `🆔 *ID do Produto:* ${productId}\n\n` +
     `👤 *Cliente:*\n` +
     `• Nome: ${userName}\n` +
     `• Email: ${email}\n` +
-    `• Telefone: ${phone}\n\n` +
+    `• Telefone: ${phone}\n` +
+    `• País: ${country === 'mocambique' ? '🇲🇿 Moçambique' : '🇵🇹 Portugal'}\n\n` +
     `📊 *Quantidade Desejada:* ${quantity}\n\n` +
     `💬 *Para mais detalhes:*\n` +
     `• Email: info@chelevi.com\n` +
@@ -394,11 +395,12 @@ class OwnerNotificationService {
     userName: string,
     email: string,
     phone: string,
-    quantity: number
+    quantity: number,
+    country: string = 'mocambique'
   ): Promise<void> {
     try {
       const whatsappMessage = OWNER_MESSAGE_TEMPLATES.NEW_RESERVATION(
-        productId, productName, userName, email, phone, quantity
+        productId, productName, userName, email, phone, quantity, country
       );
 
       // Send WhatsApp notification to owners

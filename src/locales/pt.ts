@@ -56,6 +56,8 @@ export const pt = {
     viewCart: 'Ver Carrinho',
     total: 'Total',
     menu: 'Menu',
+    language: 'Idioma',
+    currency: 'Moeda',
   },
 
   // Footer
@@ -951,6 +953,7 @@ export const pt = {
     success: 'Reserva confirmada com sucesso!',
     successTitle: 'Reserva Confirmada!',
     successMessage: 'Sua reserva foi confirmada. Você será notificado(a) assim que o produto estiver disponível.',
+    reservationDetails: 'Detalhes da Reserva',
     error: 'Erro ao criar reserva. Tente novamente.',
   },
 };

@@ -9,6 +9,7 @@ import {
   useAllProducts,
 } from '../hooks/useProducts';
 import { useCategories } from '../hooks/useCategories';
+import SEO from '../components/SEO';
 
 interface ApiProduct {
   id: number;
@@ -275,9 +276,25 @@ const Products: React.FC = () => {
   const mockProducts: ApiProduct[] = [];
   const displayProducts = !error && finalProducts.length > 0 ? finalProducts : mockProducts;
 
+  // Get category name for SEO
+  const categoryName = selectedCategory?.name || '';
+  const seoTitle = categoryName 
+    ? `${categoryName} - CheLevi | Produtos de Moda Elegante`
+    : 'Produtos - CheLevi | Moda Elegante e Sofisticada';
+  const seoDescription = categoryName
+    ? `Descubra nossa coleção de ${categoryName.toLowerCase()}. Moda elegante e sofisticada da CheLevi. Qualidade e estilo em cada peça.`
+    : 'Descubra nossa coleção completa de moda elegante e sofisticada. Bolsas exclusivas, acessórios únicos e peças que refletem o seu estilo.';
+
   return (
-    <div className="products-page py-12">
-      <div className="container">
+    <>
+      <SEO
+        title={seoTitle}
+        description={seoDescription}
+        keywords={`CheLevi, ${categoryName || 'produtos'}, moda, bolsas, acessórios, elegância, sofisticação`}
+        image="https://chelevi.sparktechnology.cloud/chelevi/Banners/IMG_1276.JPG"
+      />
+      <div className="products-page py-12">
+        <div className="container">
         {/* Page Header */}
         <div className="text-center mb-12">
           <h1 className="text-4xl lg:text-5xl font-bold mb-4 uppercase tracking-wide">
@@ -477,7 +494,8 @@ const Products: React.FC = () => {
           </div>
         </div>
       )}
-    </div>
+      </div>
+    </>
   );
 };
 

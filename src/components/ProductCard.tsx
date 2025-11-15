@@ -7,6 +7,7 @@ import { useTranslation } from '../contexts/LanguageContext';
 import { Product } from '../services/api';
 import { reservationService } from '../services/reservationService';
 import ReservationPopup from './ReservationPopup';
+import { useCurrency } from '../contexts/CurrencyContext';
 
 interface ProductCardProps {
   product: Product;
@@ -14,6 +15,7 @@ interface ProductCardProps {
 
 const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const t = useTranslation();
+  const { formatPrice } = useCurrency();
   const [isHovered, setIsHovered] = useState(false);
   const [currentImage, setCurrentImage] = useState(product.cover_image_url);
   const [showReservationPopup, setShowReservationPopup] = useState(false);
@@ -178,13 +180,9 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           {/* Price */}
           <div className="flex items-center gap-2">
             <span className="font-bold text-text-primary">
-              MT{product.final_price}
+              {formatPrice(parseFloat(product.final_price))}
             </span>
-            {product.sale_price && product.sale_price < product.price && (
-              <span className="text-sm text-text-secondary line-through">
-                MT{product.price}
-              </span>
-            )}
+            
           </div>
         </div>
       </div>

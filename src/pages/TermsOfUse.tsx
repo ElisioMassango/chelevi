@@ -2,12 +2,19 @@ import React from 'react';
 import { FileText, Scale, AlertCircle, CheckCircle, XCircle, Shield } from 'lucide-react';
 import { useTranslation } from '../contexts/LanguageContext';
 import { Link } from 'react-router-dom';
+import SEO from '../components/SEO';
 
 const TermsOfUse: React.FC = () => {
   const t = useTranslation();
   
   return (
-    <div className="terms-of-use-page py-12">
+    <>
+      <SEO
+        title="Termos de Uso - CheLevi"
+        description="Leia os Termos de Uso da CheLevi. Conheça as condições de utilização do nosso website e serviços."
+        keywords="CheLevi, termos de uso, condições de uso, termos e condições"
+      />
+      <div className="terms-of-use-page py-12">
       <div className="container max-w-4xl">
         {/* Header */}
         <div className="text-center mb-12">
@@ -335,7 +342,8 @@ const TermsOfUse: React.FC = () => {
           </section>
         </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 };
 

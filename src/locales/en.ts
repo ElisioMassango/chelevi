@@ -58,6 +58,8 @@ export const en = {
     menu: 'Menu',
     viewAllCategories: 'View all categories',
     user: 'User',
+    language: 'Language',
+    currency: 'Currency',
   },
 
   // Footer
@@ -953,6 +955,7 @@ export const en = {
     success: 'Reservation confirmed successfully!',
     successTitle: 'Reservation Confirmed!',
     successMessage: 'Your reservation has been confirmed. You will be notified when the product is available.',
+    reservationDetails: 'Reservation Details',
     error: 'Error creating reservation. Please try again.',
   },
 };

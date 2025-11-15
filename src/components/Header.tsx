@@ -7,7 +7,9 @@ import { useWishlist } from '../contexts/WishlistContext';
 import { useSearchDebounced } from '../hooks/useSearch';
 import { useTranslation } from '../contexts/LanguageContext';
 import LanguageSelector from './LanguageSelector';
+import CurrencySelector from './CurrencySelector';
 import { useCategories } from '../hooks/useCategories';
+import { useCurrency } from '../contexts/CurrencyContext';
 
 const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -16,10 +18,11 @@ const Header: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [expandedCategories, setExpandedCategories] = useState<number[]>([]);
   const { user, logout } = useAuth();
-  const { items, updateQuantity, removeFromCart, total } = useCart();
+  const { items, updateQuantity, removeFromCart, total, cartData } = useCart();
   const { items: wishlistItems } = useWishlist();
   const navigate = useNavigate();
   const t = useTranslation();
+  const { formatPrice } = useCurrency();
   const { categories, loading: categoriesLoading } = useCategories();
   
   // Search functionality
@@ -85,8 +88,11 @@ const Header: React.FC = () => {
         <div className="container">
           {/* Desktop Header */}
           <div className="hidden lg:flex items-center justify-between py-4">
-            {/* Language Selector */}
-            <LanguageSelector />
+            {/* Language and Currency Selectors */}
+            <div className="flex items-center gap-4">
+              <LanguageSelector />
+              <CurrencySelector />
+            </div>
 
             {/* Logo */}
             <Link to="/" className="flex flex-col items-center">
@@ -209,14 +215,17 @@ const Header: React.FC = () => {
             </Link>
 
             <div className="flex items-center gap-4">
-              <Link to="/cart" className="relative hover:text-accent transition-colors">
+              <button 
+                onClick={() => setIsCartOpen(!isCartOpen)}
+                className="relative hover:text-accent transition-colors"
+              >
                 <ShoppingBag size={20} />
                 {totalItems > 0 && (
                   <span className="absolute -top-2 -right-2 bg-secondary text-xs rounded-full w-5 h-5 flex items-center justify-center font-medium">
                     {totalItems}
                   </span>
                 )}
-              </Link>
+              </button>
             </div>
           </div>
         </div>
@@ -266,9 +275,16 @@ const Header: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Language Selector */}
-                <div className="p-4 border-b bg-white">
-                  <LanguageSelector />
+                {/* Language and Currency Selectors */}
+                <div className="p-4 border-b bg-white space-y-3">
+                  <div>
+                    <p className="text-xs text-gray-500 mb-2">{t.header.language || 'Idioma'}</p>
+                    <LanguageSelector />
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-500 mb-2">{t.header.currency || 'Moeda'}</p>
+                    <CurrencySelector />
+                  </div>
                 </div>
 
                 {/* User Profile Info (when logged in) */}
@@ -529,9 +545,9 @@ const Header: React.FC = () => {
 
         {/* Cart Sidebar */}
         {isCartOpen && (
-          <div className="fixed inset-0 z-50">
+          <div className="fixed inset-0 z-50 lg:z-50">
             <div className="fixed inset-0 bg-black bg-opacity-50" onClick={() => setIsCartOpen(false)} />
-            <div className="fixed top-0 right-0 h-full w-96 max-w-full bg-white shadow-xl overflow-y-auto">
+            <div className="fixed top-0 right-0 h-full w-full lg:w-96 max-w-full bg-white shadow-xl overflow-y-auto animate-slideInRight">
               <div className="p-6 border-b">
                 <div className="flex items-center justify-between">
                   <h2 className="text-xl font-bold">{t.header.cart} ({totalItems})</h2>
@@ -553,7 +569,7 @@ const Header: React.FC = () => {
                         />
                         <div className="flex-1">
                           <h3 className="font-medium text-sm">{item.name}</h3>
-                          <p className="text-sm text-gray-600">MT{item.price}</p>
+                          <p className="text-sm text-gray-600">{formatPrice(item.price)}</p>
                           <div className="flex items-center gap-2 mt-2">
                             <button
                               onClick={() => updateQuantity(item.id, Math.max(0, item.quantity - 1))}
@@ -587,28 +603,68 @@ const Header: React.FC = () => {
                 )}
               </div>
 
-              {items.length > 0 && (
-                <div className="border-t p-6 space-y-4">
-                  <div className="flex justify-between font-bold text-lg">
-                    <span>{t.header.total}:</span>
-                    <span>MT{total.toFixed(2)}</span>
+              {items.length > 0 && (() => {
+                // Calculate totals for sidebar
+                const sidebarSubtotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+                const sidebarDiscount = cartData?.coupon_info?.coupon_discount_amount 
+                  ? parseFloat(cartData.coupon_info.coupon_discount_amount.toString()) 
+                  : 0;
+                const sidebarTotal = cartData?.final_price 
+                  ? (() => {
+                      const parsed = parseFloat(cartData.final_price.toString());
+                      const calculated = sidebarSubtotal - sidebarDiscount;
+                      // Only use API value if it makes sense
+                      if (!isNaN(parsed) && parsed > 0 && calculated > 0 && 
+                          Math.abs(parsed - calculated) < (calculated * 0.5)) {
+                        return parsed;
+                      }
+                      return calculated;
+                    })()
+                  : (sidebarSubtotal - sidebarDiscount);
+                
+                return (
+                  <div className="border-t p-6 space-y-4 bg-gray-50">
+                    {/* Show coupon info if applied */}
+                    {cartData?.coupon_info && (cartData.coupon_info.coupon_id > 0 || cartData.coupon_info.coupon_code) && (
+                      <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg">
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="text-green-700 font-semibold text-xs">
+                            Cupom: {cartData.coupon_info.coupon_name}
+                          </span>
+                          {sidebarDiscount > 0 && (
+                            <span className="text-green-600 font-bold text-sm">
+                              -{formatPrice(sidebarDiscount)}
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-green-600 text-xs">
+                          {cartData.coupon_info.coupon_code}
+                        </p>
+                      </div>
+                    )}
+                    
+                    <div className="flex justify-between font-bold text-lg">
+                      <span>{t.header.total}:</span>
+                      <span>{formatPrice(sidebarTotal > 0 ? sidebarTotal : total)}</span>
+                    </div>
+                    
+                    <Link
+                      to="/checkout"
+                      className="btn btn-primary w-full"
+                      onClick={() => setIsCartOpen(false)}
+                    >
+                      {t.nav.checkout}
+                    </Link>
+                    <Link
+                      to="/cart"
+                      className="btn btn-outline w-full"
+                      onClick={() => setIsCartOpen(false)}
+                    >
+                      {t.header.viewCart}
+                    </Link>
                   </div>
-                  <Link
-                    to="/checkout"
-                    className="btn btn-primary w-full"
-                    onClick={() => setIsCartOpen(false)}
-                  >
-                    {t.nav.checkout}
-                  </Link>
-                  <Link
-                    to="/cart"
-                    className="btn btn-outline w-full"
-                    onClick={() => setIsCartOpen(false)}
-                  >
-                    {t.header.viewCart}
-                  </Link>
-                </div>
-              )}
+                );
+              })()}
             </div>
           </div>
         )}

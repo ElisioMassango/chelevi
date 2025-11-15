@@ -32,6 +32,13 @@ const ReservationPopup: React.FC<ReservationPopupProps> = ({
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [reservationData, setReservationData] = useState<{
+    name: string;
+    email: string;
+    phone: string;
+    quantity: number;
+    country: 'mocambique' | 'portugal';
+  } | null>(null);
 
   if (!isOpen) return null;
 
@@ -74,16 +81,25 @@ const ReservationPopup: React.FC<ReservationPopupProps> = ({
       });
 
       if (result.success) {
+        // Save reservation data to show in success screen
+        setReservationData({
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone,
+          quantity: formData.quantity,
+          country: formData.country
+        });
         setIsSuccess(true);
         toastService.success(t.reservation.success);
         
-        // Reset form after 3 seconds and close
+        // Reset form after 5 seconds and close
         setTimeout(() => {
           setIsSuccess(false);
+          setReservationData(null);
           setFormData({ name: '', email: '', phone: '', quantity: 1, country: 'mocambique' });
           setAcceptedTerms(false);
           onClose();
-        }, 3000);
+        }, 5000);
       } else {
         toastService.error(result.message || t.reservation.error);
       }
@@ -110,15 +126,19 @@ const ReservationPopup: React.FC<ReservationPopupProps> = ({
           <>
             {/* Header - Reduced Padding */}
             <div className="bg-gradient-to-r from-primary to-accent p-4 text-center">
-              <div className="w-20h-12g-white/20 backdrop-blur-sm rounded-full flex items-center justify-center mx-auto mb-2">
-              <Link to="/" className="flex flex-col items-center">
-              <img src='https://chelevi.sparktechnology.cloud/chelevi/Logos/CHE-LEVI-02.png' alt="CheLevi" className="w-30 h-20" />
-            </Link>
+              <div className="flex justify-center items-center mb-2">
+                <Link to="/" className="flex items-center">
+                  <img 
+                    src='https://chelevi.sparktechnology.cloud/chelevi/Logos/CHE-LEVI-02.png' 
+                    alt="CheLevi" 
+                    className="h-12 w-auto object-contain" 
+                  />
+                </Link>
               </div>
-              <h2 className="text-xl font-bold text-black mb-1">
+              <h2 className="text-xl font-bold text-white mb-1">
                 {t.reservation.title}
               </h2>
-              <p className="text-black text-xs">
+              <p className="text-white/90 text-xs">
                 {t.reservation.subtitle}
               </p>
             </div>
@@ -276,17 +296,70 @@ const ReservationPopup: React.FC<ReservationPopupProps> = ({
             </form>
           </>
         ) : (
-          /* Success State */
-          <div className="p-8 text-center">
-            <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-              <Check className="w-10 h-10 text-green-600" size={40} />
+          /* Success State with Reservation Details */
+          <div className="p-6">
+            <div className="text-center mb-6">
+              <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Check className="w-10 h-10 text-green-600" size={40} />
+              </div>
+              <h3 className="text-2xl font-bold text-gray-900 mb-2">
+                {t.reservation.successTitle}
+              </h3>
+              <p className="text-gray-600 text-sm">
+                {t.reservation.successMessage}
+              </p>
             </div>
-            <h3 className="text-2xl font-bold text-gray-900 mb-3">
-              {t.reservation.successTitle}
-            </h3>
-            <p className="text-gray-600 mb-6">
-              {t.reservation.successMessage}
-            </p>
+
+            {/* Reservation Details */}
+            {reservationData && (
+              <div className="bg-gray-50 rounded-xl p-5 space-y-3 border border-gray-200">
+                <h4 className="font-bold text-gray-900 mb-3 text-center">
+                  {t.reservation.reservationDetails}
+                </h4>
+                
+                {/* Product Info */}
+                <div className="flex items-center gap-3 pb-3 border-b border-gray-200">
+                  {productImage && (
+                    <img
+                      src={productImage}
+                      alt={productName}
+                      className="w-12 h-12 object-cover rounded-lg"
+                    />
+                  )}
+                  <div className="flex-1">
+                    <p className="text-xs text-gray-500 mb-1">{t.reservation.product}</p>
+                    <p className="font-semibold text-sm text-gray-900">{productName}</p>
+                  </div>
+                </div>
+
+                {/* Customer Details */}
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-gray-600">{t.reservation.name}:</span>
+                    <span className="text-sm font-semibold text-gray-900">{reservationData.name}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-gray-600">{t.reservation.email}:</span>
+                    <span className="text-sm font-semibold text-gray-900">{reservationData.email}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-gray-600">{t.reservation.phone}:</span>
+                    <span className="text-sm font-semibold text-gray-900">{reservationData.phone}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-gray-600">{t.reservation.country}:</span>
+                    <span className="text-sm font-semibold text-gray-900 flex items-center gap-1">
+                      {reservationData.country === 'mocambique' ? '🇲🇿' : '🇵🇹'}
+                      {reservationData.country === 'mocambique' ? t.reservation.mocambique : t.reservation.portugal}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center pt-2 border-t border-gray-200">
+                    <span className="text-sm text-gray-600">{t.reservation.quantity}:</span>
+                    <span className="text-sm font-bold text-primary">{reservationData.quantity}</span>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>

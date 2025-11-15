@@ -6,6 +6,7 @@ import { toastService } from '../utils/toast';
 import PhoneInput from '../components/PhoneInput';
 import { validatePhoneNumber } from '../utils/phoneUtils';
 import { useTranslation } from '../contexts/LanguageContext';
+import SEO from '../components/SEO';
 
 const Contact: React.FC = () => {
   const t = useTranslation();
@@ -154,9 +155,45 @@ const Contact: React.FC = () => {
     }
   ];
 
+  // SEO Structured Data for Contact Page
+  const contactStructuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'ContactPage',
+    name: 'Contacte-nos - CheLevi',
+    description: t.contact.description || 'Entre em contacto com a CheLevi. Estamos aqui para ajudá-la.',
+    url: 'https://chelevi.sparktechnology.cloud/contact',
+    mainEntity: {
+      '@type': 'Organization',
+      name: 'CheLevi',
+      telephone: '+258 85 2232423',
+      email: 'info@chelevi.com',
+      address: {
+        '@type': 'PostalAddress',
+        streetAddress: 'Rua da Resistência n° 1550, R/C',
+        addressLocality: 'Maputo',
+        addressCountry: 'MZ'
+      },
+      openingHours: 'Mo-Sa 09:00-18:00',
+      contactPoint: {
+        '@type': 'ContactPoint',
+        telephone: '+258 85 2232423',
+        contactType: 'customer service',
+        availableLanguage: ['Portuguese', 'English']
+      }
+    }
+  };
+
   return (
-    <div className="contact-page">
-      {/* Hero Section - Modern */}
+    <>
+      <SEO
+        title="Contacte-nos - CheLevi | Estamos Aqui para Ajudá-la"
+        description={t.contact.description || "Entre em contacto com a CheLevi. Estamos aqui para ajudá-la com qualquer dúvida ou questão. Visite-nos, ligue-nos ou envie-nos um email."}
+        keywords="CheLevi, contacto, suporte, ajuda, Maputo, Moçambique, WhatsApp, email"
+        image="https://chelevi.sparktechnology.cloud/chelevi/Banners/IMG_1276.JPG"
+        structuredData={contactStructuredData}
+      />
+      <div className="contact-page">
+        {/* Hero Section - Modern */}
       <section className="relative py-8 md:py-16 lg:py-24 overflow-hidden bg-gradient-to-br from-gray-900 via-gray-800 to-black">
         {/* Background Image - Desktop */}
         <div className="absolute inset-0 hidden md:block">
@@ -459,7 +496,8 @@ const Contact: React.FC = () => {
           </div>
         </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 };
 

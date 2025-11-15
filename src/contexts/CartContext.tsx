@@ -72,20 +72,44 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
 
     case 'SET_CART_DATA': {
       const cartData = action.payload;
-      const items: CartItem[] = cartData.product_list.map((item: ApiCartItem) => ({
-        id: item.product_id,
-        name: item.name,
-        price: parseFloat(item.final_price),
-        image: item.image ? (item.image.startsWith('http') ? item.image : `https://dashboard.sparktechnology.cloud/${item.image}`) : '/placeholder-image.jpg',
-        quantity: item.qty,
-        variant: item.variant_name,
-      }));
+      
+      // Only update items if product_list exists and has items
+      // If product_list is empty/null/undefined, preserve current items
+      let items = state.items;
+      if (cartData.product_list && Array.isArray(cartData.product_list) && cartData.product_list.length > 0) {
+        items = cartData.product_list.map((item: ApiCartItem) => ({
+          id: item.product_id,
+          name: item.name,
+          price: parseFloat(item.final_price),
+          image: item.image ? (item.image.startsWith('http') ? item.image : `https://dashboard.sparktechnology.cloud/${item.image}`) : '/placeholder-image.jpg',
+          quantity: item.qty,
+          variant: item.variant_name,
+          variantId: item.variant_id || undefined,
+        }));
+      }
+      // If product_list is explicitly an empty array and we have items, preserve current items
+      // This handles the case where API returns empty product_list but cart still has products
+
+      // Preserve coupon_info if it exists in the new cartData, otherwise keep the existing one
+      const preservedCartData: any = {
+        ...cartData,
+        coupon_info: cartData.coupon_info || state.cartData?.coupon_info || null,
+      };
+      
+      // Only set product_list if it was explicitly provided in the payload
+      // If undefined, don't include it so reducer preserves existing items
+      if (cartData.product_list !== undefined) {
+        preservedCartData.product_list = cartData.product_list;
+      } else if (state.cartData?.product_list) {
+        // Preserve existing product_list if not provided
+        preservedCartData.product_list = state.cartData.product_list;
+      }
 
       return {
         ...state,
-        cartData,
-        items,
-        total: parseFloat(cartData.final_price),
+        cartData: preservedCartData,
+        items, // Use updated items if product_list exists, otherwise keep current items
+        total: cartData.final_price ? parseFloat(cartData.final_price.toString()) : state.total,
         loading: false,
         error: null,
       };
@@ -188,7 +212,8 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             price: parseFloat(item.final_price),
             image: item.image ? (item.image.startsWith('http') ? item.image : `https://dashboard.sparktechnology.cloud/${item.image}`) : '/placeholder-image.jpg',
             quantity: item.qty,
-            variant: item.variant_name || ''
+            variant: item.variant_name || '',
+            variantId: item.variant_id || undefined,
           }));
           dispatch({ type: 'SET_ITEMS', payload: updatedItems });
         }
@@ -218,7 +243,7 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                 customerId: user.id.toString(),
                 productId: item.id.toString(),
                 quantity: item.quantity,
-                variantId: item.variant || '0',
+                variantId: item.variantId?.toString() || item.variant || '0',
               });
             } catch (error) {
               console.warn('Failed to migrate item to user cart:', error);
@@ -357,7 +382,7 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           dispatch({ type: 'SET_CART_DATA', payload: { 
             ...state.cartData, 
             final_price: newTotal.toString(),
-            cart_total_product: updatedItems.length.toString()
+            cart_total_product: updatedItems.length
           } });
         }
         
@@ -398,12 +423,42 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           customerId: user.id.toString(),
           productId: id.toString(),
           quantityType,
-          variantId: currentItem.variant || '0',
-          variant_name: "",
+          variantId: currentItem.variantId?.toString() || currentItem.variant || '0',
         });
 
         if (response.status === 1) {
-          await refreshCart();
+          // Update only the specific item without full refresh
+          const updatedItems = state.items.map(item => 
+            item.id === id ? { ...item, quantity } : item
+          );
+          
+          // Update items first
+          dispatch({ type: 'SET_ITEMS', payload: updatedItems });
+          
+          // Update cartData total if it exists (updateCartQuantity doesn't return full cart data)
+          // IMPORTANT: Don't use SET_CART_DATA here as it might clear items if product_list is missing
+          // Instead, update cartData without product_list to preserve existing items
+          if (state.cartData) {
+            const newSubtotal = updatedItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+            const discount = state.cartData.coupon_info?.coupon_discount_amount 
+              ? parseFloat(state.cartData.coupon_info.coupon_discount_amount.toString()) 
+              : 0;
+            const newTotal = newSubtotal - discount;
+            
+            // Update cartData WITHOUT product_list to preserve existing items in reducer
+            // Create a new object without product_list so reducer preserves existing items
+            const { product_list, ...cartDataWithoutProductList } = state.cartData;
+            const updatedCartData: any = {
+              ...cartDataWithoutProductList,
+              sub_total: newSubtotal,
+              final_price: newTotal.toString(),
+              cart_total_product: updatedItems.length
+            };
+            // Don't include product_list - reducer will preserve existing items
+            
+            dispatch({ type: 'SET_CART_DATA', payload: updatedCartData });
+          }
+          
           toastService.cartUpdated();
           logger.userAction('Cart quantity updated successfully', { productId: id, quantity });
         } else {
@@ -455,34 +510,36 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       const response = await apiService.applyCoupon(couponCode);
       
       if (response.status === 1) {
-        // Update cart data without triggering refresh
+        // Log the response to debug
+        console.log('Coupon response data:', response.data);
+        console.log('Coupon info:', response.data?.coupon_info);
+        
+        // Update cart data with coupon info - this will preserve items if product_list is empty
         dispatch({ type: 'SET_CART_DATA', payload: response.data });
         toastService.couponApplied();
-        logger.userAction('Coupon applied successfully', { couponCode });
+        logger.userAction('Coupon applied successfully', { couponCode, couponInfo: response.data?.coupon_info });
         
-        // Check if product_list is empty but we have cart_total_product > 0
-        if (response.data.product_list && response.data.product_list.length > 0) {
+        // Only update items if product_list exists and has items
+        // If product_list is empty but cart_total_product > 0, keep current items
+        if (response.data.product_list && Array.isArray(response.data.product_list) && response.data.product_list.length > 0) {
           const updatedItems = response.data.product_list.map((item: any) => ({
             id: item.product_id,
             name: item.name,
-            price: parseFloat(item.final_price),
+            price: parseFloat(item.final_price || item.price || '0'),
             image: item.image ? (item.image.startsWith('http') ? item.image : `https://dashboard.sparktechnology.cloud/${item.image}`) : '/placeholder-image.jpg',
-            quantity: item.qty,
-            variant: item.variant_name || ''
+            quantity: item.qty || item.quantity || 1,
+            variant: item.variant_name || '',
+            variantId: item.variant_id || undefined,
           }));
           dispatch({ type: 'SET_ITEMS', payload: updatedItems });
-        } else if (response.data.cart_total_product > 0) {
-          // If product_list is empty but cart_total_product > 0, keep current items
-          console.log('Product list is empty but cart has products, keeping current items');
-          // Don't update items, just keep the current ones
-        } else {
-          // If no products at all, clear items
-          console.log('No products in cart, clearing items');
-          dispatch({ type: 'SET_ITEMS', payload: [] });
         }
+        // If product_list is empty/null but cart_total_product > 0, keep current items (don't clear)
+        // This handles the case where API returns empty product_list but cart still has products
       } else {
-        dispatch({ type: 'SET_ERROR', payload: response.message });
-        toastService.error(response.message);
+        // Status 0 means invalid coupon
+        const errorMessage = response.message || 'Cupom inválido';
+        dispatch({ type: 'SET_ERROR', payload: errorMessage });
+        toastService.error('Cupom inválido');
         logger.warn('Failed to apply coupon', { couponCode, error: response.message });
       }
     } catch (error) {

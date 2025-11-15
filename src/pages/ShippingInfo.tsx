@@ -1,12 +1,19 @@
 import React from 'react';
 import { Truck, MapPin, Clock, Package, CheckCircle, AlertCircle, Info, Globe } from 'lucide-react';
 import { useTranslation } from '../contexts/LanguageContext';
+import SEO from '../components/SEO';
 
 const ShippingInfo: React.FC = () => {
   const t = useTranslation();
   
   return (
-    <div className="shipping-info-page py-12">
+    <>
+      <SEO
+        title="Informações de Envio - CheLevi | Entrega em Moçambique e Portugal"
+        description="Informações sobre envio e entrega da CheLevi. Entregamos em Maputo, Moçambique e Portugal. Prazos e condições de envio."
+        keywords="CheLevi, envio, entrega, shipping, Moçambique, Portugal, Maputo, prazos de entrega"
+      />
+      <div className="shipping-info-page py-12">
       <div className="container max-w-4xl">
         {/* Header */}
         <div className="text-center mb-12">
@@ -392,7 +399,8 @@ const ShippingInfo: React.FC = () => {
           </section>
         </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 };
 
