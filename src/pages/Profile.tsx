@@ -7,6 +7,7 @@ import { useCustomerOrders } from '../hooks/useProducts';
 import { useNewsletter } from '../hooks/useNewsletter';
 import CheckoutLocationSelector from '../components/CheckoutLocationSelector';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from '../contexts/LanguageContext';
 
 const Profile: React.FC = () => {
   const [activeTab, setActiveTab] = useState('overview');
@@ -36,6 +37,7 @@ const Profile: React.FC = () => {
   const { orders: userOrders, loading: ordersLoading } = useCustomerOrders(user?.id || '');
   const { subscribe, isSubscribing } = useNewsletter();
   const navigate = useNavigate();
+  const t = useTranslation();
   
   const [formData, setFormData] = useState({
     name: '',
@@ -91,7 +93,7 @@ const Profile: React.FC = () => {
     if (!user?.id) return;
 
     if (passwordData.newPassword !== passwordData.confirmPassword) {
-      alert('As senhas não coincidem');
+      alert(t.profile.passwordsNotMatch);
       return;
     }
 
@@ -159,7 +161,7 @@ const Profile: React.FC = () => {
                 <div className="w-20 h-20 bg-secondary rounded-full flex items-center justify-center mx-auto mb-4">
                   <User size={32} className="text-text-primary" />
                 </div>
-                <h2 className="font-semibold text-lg">{user?.name || 'User'}</h2>
+                <h2 className="font-semibold text-lg">{user?.name || t.profile.user}</h2>
                 <p className="text-text-secondary text-sm">{user?.phone}</p>
               </div>
 
@@ -174,7 +176,7 @@ const Profile: React.FC = () => {
                   }`}
                 >
                   <User size={18} />
-                  Overview
+                  {t.profile.overview}
                 </button>
                 <button
                   onClick={() => setActiveTab('orders')}
@@ -185,7 +187,7 @@ const Profile: React.FC = () => {
                   }`}
                 >
                   <Package size={18} />
-                  Pedidos
+                  {t.profile.orders}
                 </button>
                 <button
                   onClick={() => setActiveTab('wishlist')}
@@ -196,7 +198,7 @@ const Profile: React.FC = () => {
                   }`}
                 >
                   <Heart size={18} />
-                  Wishlist ({wishlistItems.length})
+                  {t.profile.wishlist} ({wishlistItems.length})
                 </button>
                 <button
                   onClick={() => setActiveTab('addresses')}
@@ -207,7 +209,7 @@ const Profile: React.FC = () => {
                   }`}
                 >
                   <MapPin size={18} />
-                  Endereços
+                  {t.profile.addresses}
                 </button>
                 <button
                   onClick={() => setActiveTab('settings')}
@@ -218,14 +220,14 @@ const Profile: React.FC = () => {
                   }`}
                 >
                   <Settings size={18} />
-                  Configurações
+                  {t.profile.settings}
                 </button>
                 <button
                   onClick={logout}
                   className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left transition-colors text-error hover:bg-red-50"
                 >
                   <LogOut size={18} />
-                  Logout
+                  {t.profile.logout}
                 </button>
               </nav>
             </div>
@@ -235,32 +237,24 @@ const Profile: React.FC = () => {
           <div className="lg:col-span-3">
             {activeTab === 'overview' && (
               <div className="space-y-6">
-                <h1 className="text-3xl font-bold">Visão Geral do Perfil</h1>
+                <h1 className="text-3xl font-bold">{t.profile.profileOverview}</h1>
                 
                 {/* Stats Cards */}
                 <div className="grid grid-3 gap-6">
                   <div className="bg-white p-6 rounded-lg border">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-text-secondary text-sm">Total de Pedidos</p>
+                        <p className="text-text-secondary text-sm">{t.profile.totalOrders}</p>
                         <p className="text-2xl font-bold">{userOrders.length}</p>
                       </div>
                       <Package size={32} className="text-secondary" />
                     </div>
                   </div>
+                
                   <div className="bg-white p-6 rounded-lg border">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-text-secondary text-sm">Total Gasto</p>
-                        <p className="text-2xl font-bold">MT{userOrders.reduce((sum: number, order: any) => sum + (order.total_amount || order.total || 0), 0)}</p>
-                      </div>
-                      <div className="text-2xl">💳</div>
-                    </div>
-                  </div>
-                  <div className="bg-white p-6 rounded-lg border">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-text-secondary text-sm">Itens na Wishlist</p>
+                        <p className="text-text-secondary text-sm">{t.profile.wishlistItems}</p>
                         <p className="text-2xl font-bold">{wishlistItems.length}</p>
                       </div>
                       <Heart size={32} className="text-secondary" />
@@ -270,15 +264,15 @@ const Profile: React.FC = () => {
 
                 {/* Recent Orders */}
                 <div className="bg-white p-6 rounded-lg border">
-                  <h2 className="text-xl font-semibold mb-4">Pedidos Recentes</h2>
+                  <h2 className="text-xl font-semibold mb-4">{t.profile.recentOrders}</h2>
                   <div className="space-y-4">
                     {userOrders.slice(0, 3).map((order) => (
                       <div key={order.id} className="p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer" onClick={() => handleOrderClick(order.id.toString())}>
                         <div className="flex items-center justify-between mb-2">
                           <div>
-                            <p className="font-medium text-lg">Pedido #{order.id}</p>
+                            <p className="font-medium text-lg">{t.profile.orderNumber} #{order.id}</p>
                             <p className="text-sm text-text-secondary">
-                              {new Date((order as any).created_at).toLocaleDateString('pt-BR')} às {new Date((order as any).created_at).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+                              {new Date((order as any).created_at).toLocaleDateString('pt-BR')} {t.profile.at} {new Date((order as any).created_at).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
                             </p>
                           </div>
                           <div className="text-right">
@@ -289,8 +283,8 @@ const Profile: React.FC = () => {
                           </div>
                         </div>
                         <div className="flex items-center justify-between text-sm text-text-secondary">
-                          <span>{(order as any).items_count || 0} produtos</span>
-                          <span>Clique para ver detalhes</span>
+                          <span>{(order as any).items_count || 0} {t.profile.products}</span>
+                          <span>{t.profile.clickToSeeDetails}</span>
                         </div>
                       </div>
                     ))}
@@ -301,7 +295,7 @@ const Profile: React.FC = () => {
 
             {activeTab === 'orders' && (
               <div className="space-y-6">
-                <h1 className="text-3xl font-bold">Meus Pedidos</h1>
+                <h1 className="text-3xl font-bold">{t.profile.myOrders}</h1>
                 
                 {ordersLoading ? (
                   <div className="flex items-center justify-center py-8">
@@ -310,8 +304,8 @@ const Profile: React.FC = () => {
                 ) : userOrders.length === 0 ? (
                   <div className="text-center py-8">
                     <Package size={48} className="mx-auto text-gray-400 mb-4" />
-                    <h3 className="text-lg font-medium text-gray-900 mb-2">Nenhum pedido encontrado</h3>
-                    <p className="text-gray-500">Você ainda não fez nenhum pedido.</p>
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">{t.profile.noOrdersFound}</h3>
+                    <p className="text-gray-500">{t.profile.noOrdersDescription}</p>
                   </div>
                 ) : (
                          <div className="space-y-4">
@@ -319,9 +313,9 @@ const Profile: React.FC = () => {
                              <div key={order.id} className="bg-white p-6 rounded-lg border hover:shadow-md transition-shadow">
                                <div className="flex items-center justify-between mb-4">
                                  <div>
-                                   <h3 className="font-semibold text-lg">Pedido #{order.id}</h3>
+                                   <h3 className="font-semibold text-lg">{t.profile.orderNumber} #{order.id}</h3>
                                    <p className="text-text-secondary">
-                                     Pedido em {new Date((order as any).created_at).toLocaleDateString('pt-BR')} às {new Date((order as any).created_at).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+                                     {t.profile.orderDate} {new Date((order as any).created_at).toLocaleDateString('pt-BR')} {t.profile.at} {new Date((order as any).created_at).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
                                    </p>
                                  </div>
                                  <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor((order as any).order_status || (order as any).status)}`}>
@@ -331,15 +325,15 @@ const Profile: React.FC = () => {
                                
                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                                  <div className="bg-gray-50 p-3 rounded-lg">
-                                   <p className="text-sm text-text-secondary mb-1">Total do Pedido</p>
+                                   <p className="text-sm text-text-secondary mb-1">{t.profile.orderTotal}</p>
                                    <p className="text-lg font-bold text-primary">MT{(order as any).total_amount || (order as any).total}</p>
                                  </div>
                                  <div className="bg-gray-50 p-3 rounded-lg">
-                                   <p className="text-sm text-text-secondary mb-1">Produtos</p>
-                                   <p className="text-lg font-semibold">{(order as any).items_count || 0} itens</p>
+                                   <p className="text-sm text-text-secondary mb-1">{t.profile.products}</p>
+                                   <p className="text-lg font-semibold">{(order as any).items_count || 0} {t.profile.products}</p>
                                  </div>
                                  <div className="bg-gray-50 p-3 rounded-lg">
-                                   <p className="text-sm text-text-secondary mb-1">Método de Pagamento</p>
+                                   <p className="text-sm text-text-secondary mb-1">{t.profile.paymentMethod}</p>
                                    <p className="text-lg font-semibold">{(order as any).payment_type || 'M-Pesa'}</p>
                                  </div>
                                </div>
@@ -347,7 +341,7 @@ const Profile: React.FC = () => {
                                <div className="flex items-center justify-between">
                                  <div className="flex items-center gap-4">
                                    <span className="text-sm text-text-secondary">
-                                     ID: {order.id} • {(order as any).items_count || 0} produtos
+                                     ID: {order.id} • {(order as any).items_count || 0} {t.profile.products}
                                    </span>
                                  </div>
                                  <div className="flex gap-2">
@@ -355,13 +349,13 @@ const Profile: React.FC = () => {
                                      onClick={() => handleOrderClick(order.id.toString())}
                                      className="btn btn-outline btn-sm"
                                    >
-                                     Ver Detalhes
+                                     {t.profile.viewDetails}
                                    </button>
                                    <button 
                                      onClick={() => handleOrderTracking(order.id.toString())}
                                      className="btn btn-primary btn-sm"
                                    >
-                                     Rastrear Pedido
+                                     {t.profile.trackOrder}
                                    </button>
                                  </div>
                                </div>
@@ -374,7 +368,7 @@ const Profile: React.FC = () => {
 
             {activeTab === 'wishlist' && (
               <div className="space-y-6">
-                <h1 className="text-3xl font-bold">Minha Wishlist</h1>
+                <h1 className="text-3xl font-bold">{t.profile.myWishlist}</h1>
                 
                 {wishlistItems.length > 0 ? (
                   <div className="grid grid-2 gap-6">
@@ -391,10 +385,10 @@ const Profile: React.FC = () => {
                             <p className="text-lg font-bold mb-3">MT{item.price}</p>
                             <div className="flex gap-2">
                               <button className="btn btn-primary btn-sm flex-1">
-                                Adicionar ao Carrinho
+                                {t.profile.addToCart}
                               </button>
                               <button className="btn btn-outline btn-sm">
-                                Remover
+                                {t.profile.remove}
                               </button>
                             </div>
                           </div>
@@ -405,7 +399,7 @@ const Profile: React.FC = () => {
                 ) : (
                   <div className="text-center py-12">
                     <Heart size={64} className="mx-auto mb-4 text-gray-300" />
-                    <p className="text-text-secondary">Sua wishlist está vazia</p>
+                    <p className="text-text-secondary">{t.profile.emptyWishlist}</p>
                   </div>
                 )}
               </div>
@@ -413,27 +407,27 @@ const Profile: React.FC = () => {
 
             {activeTab === 'addresses' && (
               <div className="space-y-6">
-                <h1 className="text-3xl font-bold">Meus Endereços</h1>
-                <p className="text-text-secondary">Gerencie seus endereços de entrega</p>
+                <h1 className="text-3xl font-bold">{t.profile.myAddresses}</h1>
+                <p className="text-text-secondary">{t.profile.manageAddresses}</p>
                 
                 <div className="bg-white p-6 rounded-lg border">
-                  <h2 className="text-xl font-semibold mb-6">Adicionar Novo Endereço</h2>
+                  <h2 className="text-xl font-semibold mb-6">{t.profile.addNewAddress}</h2>
                   
                   <form className="space-y-6">
                     <div className="form-group">
-                      <label className="form-label">Título do Endereço</label>
+                      <label className="form-label">{t.profile.addressTitle}</label>
                       <input
                         type="text"
                         className="form-input"
-                        placeholder="Ex: Casa, Trabalho, etc."
+                        placeholder={t.profile.addressTitlePlaceholder}
                       />
                     </div>
                     
                     <div className="form-group">
-                      <label className="form-label">Endereço Completo</label>
+                      <label className="form-label">{t.profile.fullAddress}</label>
                       <textarea
                         className="form-textarea"
-                        placeholder="Rua, número, bairro..."
+                        placeholder={t.profile.fullAddressPlaceholder}
                         rows={3}
                       />
                     </div>
@@ -447,27 +441,27 @@ const Profile: React.FC = () => {
                     />
                     
                     <div className="form-group">
-                      <label className="form-label">Código Postal</label>
+                      <label className="form-label">{t.profile.postalCode}</label>
                       <input
                         type="text"
                         className="form-input"
-                        placeholder="Código postal (opcional)"
+                        placeholder={t.profile.postalCodePlaceholder}
                       />
                     </div>
                     
                     <div className="flex items-center gap-4">
                       <label className="flex items-center gap-2">
                         <input type="checkbox" className="form-checkbox" />
-                        <span className="text-sm">Endereço padrão</span>
+                        <span className="text-sm">{t.profile.defaultAddressLabel}</span>
                       </label>
                     </div>
                     
                     <div className="flex gap-4">
                       <button type="submit" className="btn btn-primary">
-                        Adicionar Endereço
+                        {t.profile.addAddress}
                       </button>
                       <button type="button" className="btn btn-outline">
-                        Cancelar
+                        {t.profile.cancel}
                       </button>
                     </div>
                   </form>
@@ -475,28 +469,28 @@ const Profile: React.FC = () => {
                 
                 {/* Existing Addresses */}
                 <div className="space-y-4">
-                  <h3 className="text-lg font-semibold">Endereços Salvos</h3>
+                  <h3 className="text-lg font-semibold">{t.profile.savedAddresses}</h3>
                   {addresses && addresses.length > 0 ? (
                     addresses.map((address, index) => (
                       <div key={index} className="bg-white p-6 rounded-lg border">
                         <div className="flex items-start justify-between">
                           <div className="flex-1">
-                            <h4 className="font-medium">{address.title || 'Endereço'}</h4>
+                            <h4 className="font-medium">{address.title || t.profile.address}</h4>
                             <p className="text-sm text-text-secondary mt-1">
                               {address.address}, {address.city}, {address.country}
                             </p>
                             {address.is_default && (
                               <span className="inline-block mt-2 px-2 py-1 bg-primary text-white text-xs rounded-full">
-                                Padrão
+                                {t.profile.default}
                               </span>
                             )}
                           </div>
                           <div className="flex gap-2">
                             <button className="btn btn-outline btn-sm">
-                              Editar
+                              {t.profile.edit}
                             </button>
                             <button className="btn btn-error btn-sm">
-                              Excluir
+                              {t.profile.delete}
                             </button>
                           </div>
                         </div>
@@ -505,8 +499,8 @@ const Profile: React.FC = () => {
                   ) : (
                     <div className="text-center py-8">
                       <MapPin size={48} className="mx-auto text-gray-400 mb-4" />
-                      <h3 className="text-lg font-medium text-gray-900 mb-2">Nenhum endereço cadastrado</h3>
-                      <p className="text-gray-500">Adicione um endereço para facilitar suas compras.</p>
+                      <h3 className="text-lg font-medium text-gray-900 mb-2">{t.profile.noAddressesFound}</h3>
+                      <p className="text-gray-500">{t.profile.noAddressesDescription}</p>
                     </div>
                   )}
                 </div>
@@ -515,14 +509,14 @@ const Profile: React.FC = () => {
 
             {activeTab === 'settings' && (
               <div className="space-y-6">
-                <h1 className="text-3xl font-bold">Configurações da Conta</h1>
-                <p className="text-text-secondary">Gerencie suas informações pessoais e preferências</p>
+                <h1 className="text-3xl font-bold">{t.profile.accountSettings}</h1>
+                <p className="text-text-secondary">{t.profile.manageInfo}</p>
                 
                 {/* Password Change Section */}
                 <div className="bg-white p-6 rounded-lg border">
                   <h2 className="text-xl font-semibold mb-6 flex items-center gap-2">
                     <Lock size={20} />
-                    Alterar Senha
+                    {t.profile.changePasswordTitle}
                   </h2>
                   
                   {!showPasswordForm ? (
@@ -530,12 +524,12 @@ const Profile: React.FC = () => {
                       onClick={() => setShowPasswordForm(true)}
                       className="btn btn-outline"
                     >
-                      Alterar Senha
+                      {t.profile.changePasswordButton}
                     </button>
                   ) : (
                     <form onSubmit={handlePasswordChange} className="space-y-4">
                       <div className="form-group">
-                        <label className="form-label">Senha Atual</label>
+                        <label className="form-label">{t.profile.currentPassword}</label>
                         <div className="relative">
                           <input
                             type={showPasswords.current ? 'text' : 'password'}
@@ -555,7 +549,7 @@ const Profile: React.FC = () => {
                       </div>
                       
                       <div className="form-group">
-                        <label className="form-label">Nova Senha</label>
+                        <label className="form-label">{t.profile.newPassword}</label>
                         <div className="relative">
                           <input
                             type={showPasswords.new ? 'text' : 'password'}
@@ -575,7 +569,7 @@ const Profile: React.FC = () => {
                       </div>
                       
                       <div className="form-group">
-                        <label className="form-label">Confirmar Nova Senha</label>
+                        <label className="form-label">{t.profile.confirmPassword}</label>
                         <div className="relative">
                           <input
                             type={showPasswords.confirm ? 'text' : 'password'}
@@ -596,7 +590,7 @@ const Profile: React.FC = () => {
                       
                       <div className="flex gap-4">
                         <button type="submit" className="btn btn-primary">
-                          Alterar Senha
+                          {t.profile.changePasswordButton}
                         </button>
                         <button
                           type="button"
@@ -606,7 +600,7 @@ const Profile: React.FC = () => {
                           }}
                           className="btn btn-outline"
                         >
-                          Cancelar
+                          {t.profile.cancel}
                         </button>
                       </div>
                     </form>
@@ -617,31 +611,31 @@ const Profile: React.FC = () => {
                 <div className="bg-white p-6 rounded-lg border">
                   <h2 className="text-xl font-semibold mb-6 flex items-center gap-2">
                     <Mail size={20} />
-                    Newsletter
+                    {t.profile.newsletter}
                   </h2>
                   
                   {!showNewsletterForm ? (
                     <div className="space-y-4">
                       <p className="text-text-secondary">
-                        Receba as últimas novidades, ofertas especiais e atualizações sobre nossos produtos.
+                        {t.profile.newsletterDescription}
                       </p>
                       <button
                         onClick={() => setShowNewsletterForm(true)}
                         className="btn btn-primary"
                       >
-                        Inscrever-se na Newsletter
+                        {t.profile.subscribeNewsletter}
                       </button>
                     </div>
                   ) : (
                     <form onSubmit={handleNewsletterSubmit} className="space-y-4">
                       <div className="form-group">
-                        <label className="form-label">Email para Newsletter</label>
+                        <label className="form-label">{t.profile.newsletterEmail}</label>
                         <input
                           type="email"
                           value={newsletterEmail}
                           onChange={(e) => setNewsletterEmail(e.target.value)}
                           className="form-input"
-                          placeholder="seu@email.com"
+                          placeholder={t.profile.newsletterEmailPlaceholder}
                           required
                         />
                       </div>
@@ -652,7 +646,7 @@ const Profile: React.FC = () => {
                           className="btn btn-primary"
                           disabled={isSubscribing}
                         >
-                          {isSubscribing ? 'Inscrevendo...' : 'Inscrever-se'}
+                          {isSubscribing ? t.profile.subscribing : t.profile.subscribe}
                         </button>
                         <button
                           type="button"
@@ -662,14 +656,14 @@ const Profile: React.FC = () => {
                           }}
                           className="btn btn-outline"
                         >
-                          Cancelar
+                          {t.profile.cancel}
                         </button>
                       </div>
                     </form>
                   )}
                 </div>
                 <div className="bg-white p-6 rounded-lg border">
-                  <h2 className="text-xl font-semibold mb-6">Informações Pessoais</h2>
+                  <h2 className="text-xl font-semibold mb-6">{t.profile.personalInfo}</h2>
                   
                   <div className="space-y-6">
                     {/* Name Field */}
@@ -678,7 +672,7 @@ const Profile: React.FC = () => {
                         <div className="flex items-center gap-3 flex-1">
                           <User size={20} className="text-gray-400" />
                           <div className="flex-1">
-                            <p className="font-medium mb-1">Nome Completo</p>
+                            <p className="font-medium mb-1">{t.profile.fullName}</p>
                             {editingField === 'name' ? (
                               <div className="flex items-center gap-2">
                                 <input
@@ -723,7 +717,7 @@ const Profile: React.FC = () => {
                         <div className="flex items-center gap-3 flex-1">
                           <Mail size={20} className="text-gray-400" />
                           <div className="flex-1">
-                            <p className="font-medium mb-1">Email</p>
+                            <p className="font-medium mb-1">{t.profile.email}</p>
                             {editingField === 'email' ? (
                               <div className="flex items-center gap-2">
                                 <input
@@ -768,7 +762,7 @@ const Profile: React.FC = () => {
                         <div className="flex items-center gap-3 flex-1">
                           <Phone size={20} className="text-gray-400" />
                           <div className="flex-1">
-                            <p className="font-medium mb-1">Telefone</p>
+                            <p className="font-medium mb-1">{t.profile.phone}</p>
                             {editingField === 'phone' ? (
                               <div className="flex items-center gap-2">
                                 <input
@@ -813,7 +807,7 @@ const Profile: React.FC = () => {
                         <div className="flex items-center gap-3 flex-1">
                           <MapPin size={20} className="text-gray-400" />
                           <div className="flex-1">
-                            <p className="font-medium mb-1">Endereço</p>
+                            <p className="font-medium mb-1">{t.profile.addressField}</p>
                             {editingField === 'address' ? (
                               <div className="space-y-2">
                                 <div className="flex items-center gap-2">
@@ -822,7 +816,7 @@ const Profile: React.FC = () => {
                                     value={formData.address}
                                     onChange={(e) => handleInputChange('address', e.target.value)}
                                     className="form-input flex-1"
-                                    placeholder="Endereço completo"
+                                    placeholder={t.profile.addressPlaceholder}
                                     autoFocus
                                   />
                                 </div>
@@ -832,14 +826,14 @@ const Profile: React.FC = () => {
                                     value={formData.city}
                                     onChange={(e) => handleInputChange('city', e.target.value)}
                                     className="form-input flex-1"
-                                    placeholder="Cidade"
+                                    placeholder={t.profile.cityPlaceholder}
                                   />
                                   <input
                                     type="text"
                                     value={formData.postalCode}
                                     onChange={(e) => handleInputChange('postalCode', e.target.value)}
                                     className="form-input w-32"
-                                    placeholder="Código Postal"
+                                    placeholder={t.profile.postalCode}
                                   />
                                 </div>
                                 <div className="flex items-center gap-2">
@@ -879,19 +873,19 @@ const Profile: React.FC = () => {
                 </div>
 
                 <div className="bg-white p-6 rounded-lg border">
-                  <h2 className="text-xl font-semibold mb-6">Preferências</h2>
+                  <h2 className="text-xl font-semibold mb-6">{t.profile.preferences}</h2>
                   
                   <div className="space-y-4">
                     <label className="flex items-center justify-between">
-                      <span>Notificações por email</span>
+                      <span>{t.profile.emailNotifications}</span>
                       <input type="checkbox" className="toggle" defaultChecked />
                     </label>
                     <label className="flex items-center justify-between">
-                      <span>Notificações por SMS</span>
+                      <span>{t.profile.smsNotifications}</span>
                       <input type="checkbox" className="toggle" defaultChecked />
                     </label>
                     <label className="flex items-center justify-between">
-                      <span>Comunicações de marketing</span>
+                      <span>{t.profile.marketingCommunications}</span>
                       <input type="checkbox" className="toggle" />
                     </label>
                   </div>

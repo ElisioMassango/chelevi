@@ -6,6 +6,7 @@ import { useFeaturedProducts, useBestsellerProducts } from '../hooks/useProducts
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from '../contexts/LanguageContext';
 import SEO from '../components/SEO';
+import VideoPlayer from '../components/VideoPlayer';
 
 const Home: React.FC = () => {
   const t = useTranslation();
@@ -488,25 +489,18 @@ const Home: React.FC = () => {
   {videos.map((video) => (
     <div key={video.id} className="group cursor-pointer">
       <div className="relative h-[460px] sm:h-[520px] lg:h-[560px] rounded-2xl overflow-hidden mb-4">
-        {/* TROCA AQUI */}
-        <video
+        <VideoPlayer
           src={video.src}
-          poster={video.thumbnail}          // usa o mesmo thumbnail como poster
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+          poster={video.thumbnail}
+          title={video.title}
+          duration={video.duration}
+          className="w-full h-full group-hover:scale-105 transition-transform duration-500"
           autoPlay
           loop
           muted
           playsInline
-          preload="metadata"
         />
-        {/* resto fica exatamente como já tens */}
-        <div className="absolute inset-0 bg-black bg-opacity-30 group-hover:bg-opacity-20 transition-all duration-300" />
-        <div className="absolute inset-0 flex items-center justify-center">
-         
-        </div>
-        <div className="absolute bottom-4 right-4 bg-black bg-opacity-70 text-white px-2 py-1 rounded text-sm">
-          {video.duration}
-        </div>
+        <div className="absolute inset-0 bg-black bg-opacity-30 group-hover:bg-opacity-20 transition-all duration-300 pointer-events-none" />
       </div>
       <h3 className="text-lg font-semibold group-hover:text-accent transition-colors">
         {video.title}

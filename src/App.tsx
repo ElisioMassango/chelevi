@@ -31,6 +31,7 @@ import LocationDemo from './pages/LocationDemo';
 import LGPDPopup from './components/LGPDPopup';
 import WelcomeManager from './components/WelcomeManager';
 import NewsletterPopup from './components/NewsletterPopup';
+import LoadingScreen from './components/LoadingScreen';
 import './styles/globals.css';
 import WhatsAppFloatButton from './components/WhatsAppFloatButton';
 
@@ -44,6 +45,7 @@ function App() {
   return (
     <>
       <LanguageProvider>
+        <LoadingScreen />
         <CurrencyProvider>
           <AuthProvider>
             <CartProvider>
@@ -88,7 +90,7 @@ function App() {
             </CartProvider>
           </AuthProvider>
         </CurrencyProvider>
-      </LanguageProvider>
+        </LanguageProvider>
       <Toaster
         position="top-right"
         toastOptions={{
