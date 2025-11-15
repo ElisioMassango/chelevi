@@ -149,6 +149,8 @@ const Checkout: React.FC = () => {
     if (validateStep(currentStep)) {
       if (currentStep < 4) {
         setCurrentStep((prev) => (prev + 1) as Step);
+        // Scroll to top when moving to next step
+        window.scrollTo({ top: 0, behavior: 'smooth' });
       }
     } else {
       alert('Por favor, preencha todos os campos obrigatórios');
@@ -158,6 +160,8 @@ const Checkout: React.FC = () => {
   const handlePrevious = () => {
     if (currentStep > 1) {
       setCurrentStep((prev) => (prev - 1) as Step);
+      // Scroll to top when going back to previous step
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
 
