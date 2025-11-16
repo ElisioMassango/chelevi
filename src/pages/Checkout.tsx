@@ -240,13 +240,26 @@ const Checkout: React.FC = () => {
     }
   };
 
-  const subtotal = cartData?.sub_total 
-    ? (typeof cartData.sub_total === 'number' ? cartData.sub_total : parseFloat(cartData.sub_total.toString()))
-    : total;
+  // ALWAYS calculate subtotal from items to ensure accuracy, especially for variant products
+  // The API sub_total may not include variant prices correctly
+  const calculatedSubtotal = items.reduce((sum, item) => {
+    const itemTotal = (item.price || 0) * (item.quantity || 0);
+    return sum + itemTotal;
+  }, 0);
+  
+  // Use calculated subtotal from items as primary source
+  // Only fallback to API sub_total if calculatedSubtotal is 0 and we have no items
+  const subtotal = calculatedSubtotal > 0 
+    ? calculatedSubtotal
+    : (cartData?.sub_total && typeof cartData.sub_total === 'number' && cartData.sub_total > 0)
+      ? cartData.sub_total 
+      : (cartData?.sub_total && parseFloat(cartData.sub_total.toString()) > 0)
+        ? parseFloat(cartData.sub_total.toString())
+        : total;
   
   // Calculate discount - try to get from coupon_info, or calculate from percentage
   let discount = 0;
-  if (cartData?.coupon_info && (cartData.coupon_info.coupon_id > 0 || cartData.coupon_info.coupon_code)) {
+  if (cartData?.coupon_info && cartData.coupon_info.coupon_id > 0 && cartData.coupon_info.coupon_code && cartData.coupon_info.coupon_code !== '-') {
     if (cartData.coupon_info.coupon_discount_amount) {
       discount = parseFloat(cartData.coupon_info.coupon_discount_amount.toString());
     } else if (cartData.coupon_info.coupon_discount_type === 'percentage' && cartData.coupon_info.coupon_discount_number) {
@@ -257,6 +270,31 @@ const Checkout: React.FC = () => {
   }
   
   const shipping = 0;
+  
+  // Calculate final total - always calculate from subtotal and discount
+  // This ensures the total is always correct even if API returns invalid final_price
+  let finalTotal = subtotal - discount;
+  
+  // Only use final_price from API if it's valid, positive, and makes sense
+  if (cartData?.final_price) {
+    const parsedFinalPrice = parseFloat(cartData.final_price.toString());
+    const calculatedTotal = subtotal - discount;
+    
+    // Only use API value if it's valid and close to our calculation
+    if (!isNaN(parsedFinalPrice) && 
+        parsedFinalPrice > 0 && 
+        calculatedTotal > 0 &&
+        Math.abs(parsedFinalPrice - calculatedTotal) < (calculatedTotal * 0.5)) {
+      finalTotal = parsedFinalPrice;
+    } else {
+      finalTotal = calculatedTotal;
+    }
+  }
+  
+  // Final safety check - ensure finalTotal is never negative or zero when there are items
+  if (finalTotal <= 0 && items.length > 0 && subtotal > 0) {
+    finalTotal = subtotal - discount;
+  }
   
   // Calculate grand total - always calculate from subtotal and discount
   // This ensures the total is always correct even if API returns invalid final_price
@@ -798,7 +836,7 @@ const Checkout: React.FC = () => {
                 <h2 className="text-xl font-semibold mb-6">Resumo do Pedido</h2>
                 
                 {/* Coupon Section */}
-                {!cartData?.coupon_info || (!cartData.coupon_info.coupon_id && !cartData.coupon_info.coupon_code) ? (
+                {!cartData?.coupon_info || !cartData.coupon_info.coupon_id || !cartData.coupon_info.coupon_code || cartData.coupon_info.coupon_code === '-' ? (
                   <div className="mb-6">
                     <label className="block text-sm font-semibold text-gray-700 mb-2">
                       Código do Cupom
@@ -886,7 +924,7 @@ const Checkout: React.FC = () => {
                     <span>Subtotal</span>
                     <span>{formatPriceWithCurrency(subtotal)}</span>
                   </div>
-                  {cartData?.coupon_info && (cartData.coupon_info.coupon_id > 0 || cartData.coupon_info.coupon_code) && discount > 0 && (
+                  {cartData?.coupon_info && cartData.coupon_info.coupon_id > 0 && cartData.coupon_info.coupon_code && cartData.coupon_info.coupon_code !== '-' && discount > 0 && (
                     <div className="flex justify-between text-green-600 text-sm">
                       <span>Desconto ({cartData.coupon_info.coupon_name})</span>
                       <span>-{formatPriceWithCurrency(discount)}</span>

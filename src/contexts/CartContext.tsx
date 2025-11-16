@@ -79,12 +79,34 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
       if (cartData.product_list && Array.isArray(cartData.product_list) && cartData.product_list.length > 0) {
         items = cartData.product_list.map((item: ApiCartItem) => {
           // For products with variants, if final_price is 0, use orignal_price
-          let price = parseFloat(item.final_price);
+          let price = parseFloat(item.final_price || '0');
+          
+          // Debug log for variant products
+          if (item.variant_id && item.variant_id > 0) {
+            console.log('Variant product in cart:', {
+              product_id: item.product_id,
+              name: item.name,
+              variant_id: item.variant_id,
+              variant_name: item.variant_name,
+              final_price: item.final_price,
+              orignal_price: item.orignal_price,
+              qty: item.qty
+            });
+          }
+          
           if (price === 0 && item.variant_id && item.variant_id > 0 && item.orignal_price) {
             price = parseFloat(item.orignal_price);
+            console.log(`Using orignal_price for variant product ${item.product_id}: ${price}`);
           } else if (price === 0 && item.orignal_price) {
             // Fallback: if final_price is 0 but we have orignal_price, use it
             price = parseFloat(item.orignal_price);
+            console.log(`Using orignal_price as fallback for product ${item.product_id}: ${price}`);
+          }
+          
+          // Ensure price is never 0 if we have a valid orignal_price
+          if (price === 0 && item.orignal_price && parseFloat(item.orignal_price) > 0) {
+            price = parseFloat(item.orignal_price);
+            console.log(`Force using orignal_price for product ${item.product_id}: ${price}`);
           }
           
           return {
@@ -97,6 +119,22 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
             variantId: item.variant_id || undefined,
           };
         });
+        
+        // Debug: Log all items and their prices
+        console.log('Cart items after processing:', items.map(item => ({
+          id: item.id,
+          name: item.name,
+          price: item.price,
+          quantity: item.quantity,
+          total: item.price * item.quantity,
+          variantId: item.variantId
+        })));
+        
+        // Debug: Log calculated total
+        const calculatedTotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+        console.log('Calculated total from items:', calculatedTotal);
+        console.log('API sub_total:', cartData.sub_total);
+        console.log('API final_price:', cartData.final_price);
       }
       // If product_list is explicitly an empty array and we have items, preserve current items
       // This handles the case where API returns empty product_list but cart still has products

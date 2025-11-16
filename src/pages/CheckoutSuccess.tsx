@@ -33,10 +33,7 @@ const CheckoutSuccess: React.FC = () => {
         <div className="absolute bottom-0 right-0 w-96 h-96 bg-secondary rounded-full blur-3xl"></div>
       </div>
       
-      {/* Pattern Overlay */}
-      <div className="absolute inset-0 opacity-3" style={{
-        backgroundImage: `url("https://chelevi.sparktechnology.cloud/chelevi/Banners/IMG_1276.JPG")`,
-      }}></div>
+      {/* Pattern Overlay - Removed background image */}
 
       <div className="container max-w-5xl mx-auto px-4 py-12 md:py-20 relative z-10">
         {/* Success Animation - Luxurious */}

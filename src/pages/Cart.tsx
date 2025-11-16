@@ -95,17 +95,26 @@ const Cart: React.FC = () => {
   }
 
   // Calculate totals - ensure all values are numbers
-  // Calculate subtotal from items if cartData.sub_total is not available or is 0
-  const calculatedSubtotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-  const subtotal = (cartData?.sub_total && typeof cartData.sub_total === 'number' && cartData.sub_total > 0)
-    ? cartData.sub_total 
-    : (cartData?.sub_total && parseFloat(cartData.sub_total.toString()) > 0)
-      ? parseFloat(cartData.sub_total.toString())
-      : (calculatedSubtotal > 0 ? calculatedSubtotal : total);
+  // ALWAYS calculate subtotal from items to ensure accuracy, especially for variant products
+  // The API sub_total may not include variant prices correctly
+  const calculatedSubtotal = items.reduce((sum, item) => {
+    const itemTotal = (item.price || 0) * (item.quantity || 0);
+    return sum + itemTotal;
+  }, 0);
+  
+  // Use calculated subtotal from items as primary source
+  // Only fallback to API sub_total if calculatedSubtotal is 0 and we have no items
+  const subtotal = calculatedSubtotal > 0 
+    ? calculatedSubtotal
+    : (cartData?.sub_total && typeof cartData.sub_total === 'number' && cartData.sub_total > 0)
+      ? cartData.sub_total 
+      : (cartData?.sub_total && parseFloat(cartData.sub_total.toString()) > 0)
+        ? parseFloat(cartData.sub_total.toString())
+        : total;
   
   // Calculate discount - try to get from coupon_info, or calculate from percentage
   let discount = 0;
-  if (cartData?.coupon_info && (cartData.coupon_info.coupon_id > 0 || cartData.coupon_info.coupon_code)) {
+  if (cartData?.coupon_info && cartData.coupon_info.coupon_id > 0 && cartData.coupon_info.coupon_code && cartData.coupon_info.coupon_code !== '-') {
     if (cartData.coupon_info.coupon_discount_amount) {
       discount = parseFloat(cartData.coupon_info.coupon_discount_amount.toString());
     } else if (cartData.coupon_info.coupon_discount_type === 'percentage' && cartData.coupon_info.coupon_discount_number) {
@@ -324,7 +333,7 @@ const Cart: React.FC = () => {
                     )}
                   </button>
                 </div>
-                {cartData?.coupon_info && (cartData.coupon_info.coupon_id > 0 || cartData.coupon_info.coupon_code) && (
+                {cartData?.coupon_info && cartData.coupon_info.coupon_id > 0 && cartData.coupon_info.coupon_code && cartData.coupon_info.coupon_code !== '-' && (
                   <div className="mt-3 p-4 bg-gradient-to-br from-green-50 to-emerald-50 border-2 border-green-200 rounded-xl">
                     <div className="flex items-start gap-3">
                       <CheckCircle className="text-green-600 flex-shrink-0 mt-0.5" size={20} />
@@ -367,7 +376,7 @@ const Cart: React.FC = () => {
                   <span className="text-sm">{t.cart.subtotal} ({items.length} {items.length === 1 ? t.cart.item : t.cart.items})</span>
                   <span className="font-semibold">{formatPrice(subtotal)}</span>
                 </div>
-                {cartData?.coupon_info && (cartData.coupon_info.coupon_id > 0 || cartData.coupon_info.coupon_code) && discount > 0 && (
+                {cartData?.coupon_info && cartData.coupon_info.coupon_id > 0 && cartData.coupon_info.coupon_code && cartData.coupon_info.coupon_code !== '-' && discount > 0 && (
                   <div className="flex justify-between text-green-600">
                     <span className="text-sm font-medium">{t.cart.discount} ({cartData.coupon_info.coupon_name})</span>
                     <span className="font-bold">-{formatPrice(discount)}</span>
@@ -385,7 +394,7 @@ const Cart: React.FC = () => {
                   <span className="text-lg font-bold text-gray-800">{t.cart.total}</span>
                   <span className="text-2xl font-bold text-primary">{formatPrice(finalTotal)}</span>
                 </div>
-                {cartData?.coupon_info && (cartData.coupon_info.coupon_id > 0 || cartData.coupon_info.coupon_code) && (
+                {cartData?.coupon_info && cartData.coupon_info.coupon_id > 0 && cartData.coupon_info.coupon_code && cartData.coupon_info.coupon_code !== '-' && (
                   <p className="text-xs text-gray-500 mt-1 text-right">
                     {formatPrice(subtotal)} - {formatPrice(discount)} = {formatPrice(finalTotal)}
                   </p>
