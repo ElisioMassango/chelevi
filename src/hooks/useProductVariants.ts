@@ -57,6 +57,55 @@ export function useProductVariants() {
     }
   };
 
+  // Get first variant info automatically (for default pricing)
+  const getFirstVariantInfo = async (
+    productId: string,
+    productVariants: any[],
+    quantity: number = 1
+  ) => {
+    if (!user || !productVariants || productVariants.length === 0) {
+      setVariantInfo(null);
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      // Get first variant from each variant group
+      const variantObj: any = {};
+      productVariants.forEach((variantGroup: any) => {
+        if (variantGroup.variant_list_data && variantGroup.variant_list_data.length > 0) {
+          const firstVariant = variantGroup.variant_list_data[0];
+          variantObj[variantGroup.variant_name] = firstVariant.name;
+        }
+      });
+
+      if (Object.keys(variantObj).length === 0) {
+        setVariantInfo(null);
+        setLoading(false);
+        return;
+      }
+
+      const response = await apiService.getProductVariantInfo({
+        customer_id: user.id.toString(),
+        product_id: productId,
+        variant: JSON.stringify([variantObj]),
+        quantity: quantity.toString()
+      });
+
+      if (response.status === 1) {
+        setVariantInfo(response.data);
+      } else {
+        setError(response.message);
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to fetch variant info');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const getSizeNote = (
     selectedVariants: { [key: string]: number },
     productVariants: any[]
@@ -94,6 +143,7 @@ export function useProductVariants() {
     loading,
     error,
     getVariantInfo,
+    getFirstVariantInfo,
     getSizeNote,
     getVariantSummary
   };

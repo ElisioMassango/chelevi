@@ -39,7 +39,8 @@ const ProductDetail: React.FC = () => {
   const { 
     variantInfo, 
     loading: loadingVariant, 
-    getVariantInfo, 
+    getVariantInfo,
+    getFirstVariantInfo, 
     getSizeNote 
   } = useProductVariants();
 
@@ -73,13 +74,34 @@ const ProductDetail: React.FC = () => {
 
 
   /**
+   * Fetch first variant pricing automatically when product loads (if product has variants).
+   * This sets the default price from the first available variant.
+   * IMPORTANT: This must run AFTER the product data is fully loaded.
+   */
+  useEffect(() => {
+    // Wait for product data to be fully loaded (not loading and no error)
+    if (loading || error || !product || !productData) {
+      return;
+    }
+
+    // Check if product has variants
+    const hasVariants = product.variant_product === 1 && (productData as any).variant && Array.isArray((productData as any).variant) && (productData as any).variant.length > 0;
+    
+    if (hasVariants && user) {
+      // If no variant is selected yet, get first variant info for default pricing
+      if (Object.keys(selectedVariant).length === 0) {
+        getFirstVariantInfo(product.id.toString(), (productData as any).variant, quantity);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loading, error, product, user, productData, quantity]);
+
+  /**
    * Fetch variant pricing and stock info from the API. Runs whenever the
    * user selects a new variant or changes the quantity. The API call will
    * only run when all required data is present (user logged in and a
    * product exists with at least one selected variant).
    */
-
-  // Always call useEffect unconditionally; this satisfies the Rules of Hooks.
   useEffect(() => {
     if (product && Object.keys(selectedVariant).length > 0) {
       getVariantInfo(product.id.toString(), selectedVariant, quantity);

@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { useTranslation } from '../contexts/LanguageContext';
 
 type LoadingPhase = 'logo' | 'background' | 'content' | 'complete';
 
 const LoadingScreen: React.FC = () => {
-  const t = useTranslation();
+  // Use hardcoded text to avoid dependency on LanguageProvider
+  // The LoadingScreen is rendered before LanguageProvider is fully initialized
+  const loadingText = 'Carregando...';
   const [phase, setPhase] = useState<LoadingPhase>('logo');
   const [progress, setProgress] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
@@ -254,7 +255,7 @@ const LoadingScreen: React.FC = () => {
             ></div>
           </div>
           <p className="text-center text-gray-600 text-xs mt-2 font-medium">
-            {progress < 100 ? `${progress}%` : (t?.common?.loading || 'Carregando...')}
+            {progress < 100 ? `${progress}%` : loadingText}
           </p>
         </div>
       </div>

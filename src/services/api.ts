@@ -467,10 +467,16 @@ export interface BillingInfo {
 
 class ApiService {
   private token: string | null = null;
+  private onSessionExpired: (() => void) | null = null;
 
   constructor() {
     // Get token from localStorage on initialization
     this.token = localStorage.getItem('auth_token');
+  }
+
+  // Set callback for session expiration
+  setSessionExpiredCallback(callback: () => void) {
+    this.onSessionExpired = callback;
   }
 
   private getHeaders(): Record<string, string> {
@@ -507,6 +513,15 @@ class ApiService {
       // Log API response
       logger.apiResponse(options.method || 'GET', url, response.status, data);
       logger.performance(`${options.method || 'GET'} ${endpoint}`, duration);
+      
+      // Check for session expiration (401 Unauthorized)
+      if (response.status === 401 || (data.status === 0 && (data.message?.toLowerCase().includes('unauthorized') || data.message?.toLowerCase().includes('token') || data.message?.toLowerCase().includes('expired') || data.message?.toLowerCase().includes('sessão') || data.message?.toLowerCase().includes('session')))) {
+        // Session expired - trigger logout
+        if (this.onSessionExpired) {
+          this.onSessionExpired();
+        }
+        throw new Error('Sessão expirada. Por favor, faça login novamente.');
+      }
       
       if (!response.ok) {
         throw new Error(data.message || 'API request failed');

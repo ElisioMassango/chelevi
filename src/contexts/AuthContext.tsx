@@ -117,6 +117,87 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [state, dispatch] = useReducer(authReducer, initialState);
 
+  // Helper function to perform logout (used by both manual logout and session expiration)
+  const performLogout = React.useCallback((isAutoLogout = false) => {
+    if (state.user?.id) {
+      if (!isAutoLogout) {
+        logger.userAction('Logout attempt', { userId: state.user.id });
+        // Call logout API only for manual logout
+        apiService.logout(state.user.id)
+          .then(() => {
+            logger.userAction('Logout successful', { userId: state.user?.id });
+            toastService.userLoggedOut();
+          })
+          .catch((error) => {
+            logger.error('Logout API error', { userId: state.user?.id, error });
+            // Still proceed with local logout even if API fails
+            toastService.userLoggedOut();
+          });
+      } else {
+        // Auto logout - show session expired message
+        toastService.error('Sua sessão expirou. Por favor, faça login novamente.');
+        logger.userAction('Session expired - auto logout', { userId: state.user.id });
+      }
+    }
+    // Clear API token
+    apiService.clearToken();
+    // Clear localStorage
+    localStorage.removeItem('chelevi_user');
+    localStorage.removeItem('chelevi_token');
+    dispatch({ type: 'LOGOUT' });
+  }, [state.user?.id]);
+
+  const logout = React.useCallback(() => {
+    performLogout(false);
+  }, [performLogout]);
+
+  // Set up session expiration handler
+  React.useEffect(() => {
+    const handleSessionExpired = () => {
+      performLogout(true);
+    };
+
+    // Register session expiration callback in API service
+    apiService.setSessionExpiredCallback(handleSessionExpired);
+
+    // Cleanup on unmount
+    return () => {
+      apiService.setSessionExpiredCallback(() => {});
+    };
+  }, [performLogout]);
+
+  // Periodic token validation (every 5 minutes)
+  React.useEffect(() => {
+    if (!state.user?.token || !state.user?.id) return;
+
+    const validateToken = async () => {
+      try {
+        // Try to fetch user details to validate token
+        const response = await apiService.getUserDetails(state.user!.id);
+        if (response.status !== 1) {
+          // Token is invalid
+          performLogout(true);
+        }
+      } catch (error) {
+        // Token validation failed - check if it's an auth error
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        if (errorMessage.includes('Sessão expirada') || errorMessage.includes('unauthorized') || errorMessage.includes('token')) {
+          performLogout(true);
+        }
+      }
+    };
+
+    // Validate token immediately on mount
+    validateToken();
+
+    // Then validate token every 5 minutes
+    const interval = setInterval(validateToken, 5 * 60 * 1000);
+
+    return () => {
+      clearInterval(interval);
+    };
+  }, [state.user?.token, state.user?.id, performLogout]);
+
   const sendOTP = async (_phone: string) => {
     dispatch({ type: 'SET_LOADING', payload: true });
     try {
@@ -372,29 +453,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     } finally {
       dispatch({ type: 'SET_LOADING', payload: false });
     }
-  };
-
-  const logout = () => {
-    if (state.user?.id) {
-      logger.userAction('Logout attempt', { userId: state.user.id });
-      // Call logout API
-      apiService.logout(state.user.id)
-        .then(() => {
-          logger.userAction('Logout successful', { userId: state.user?.id });
-          toastService.userLoggedOut();
-        })
-        .catch((error) => {
-          logger.error('Logout API error', { userId: state.user?.id, error });
-          // Still proceed with local logout even if API fails
-          toastService.userLoggedOut();
-        });
-    }
-    // Clear API token
-    apiService.clearToken();
-    // Clear localStorage
-    localStorage.removeItem('chelevi_user');
-    localStorage.removeItem('chelevi_token');
-    dispatch({ type: 'LOGOUT' });
   };
 
   const clearError = () => {
