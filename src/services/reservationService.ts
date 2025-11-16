@@ -22,7 +22,7 @@ export interface ReservationResponse {
 
 class ReservationService {
   // List of product IDs that are out of stock (can be moved to config later)
-  private readonly OUT_OF_STOCK_IDS = [9]; // Add more IDs as needed
+  private readonly OUT_OF_STOCK_IDS = [12]; // Add more IDs as needed
 
   /**
    * Check if a product is out of stock
