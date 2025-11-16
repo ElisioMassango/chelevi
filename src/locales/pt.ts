@@ -967,6 +967,7 @@ export const pt = {
   productCard: {
     trending: 'TRENDING',
     addToCart: 'ADICIONAR AO CARRINHO',
+    selectVariant: 'ESCOLHER VARIANTE',
     availableSoon: 'Disponível em Breve',
     reserve: 'Reservar',
   },

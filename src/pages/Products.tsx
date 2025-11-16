@@ -88,16 +88,19 @@ const Products: React.FC = () => {
     products: catHookProducts,
     loading: categoryLoading,
     error: categoryError,
+    variantPrices: categoryVariantPrices,
   } = useCategoryProducts(categoryHookKey);
   const {
     products: bestsellerProducts,
     loading: bestsellerLoading,
     error: bestsellerError,
+    variantPrices: bestsellerVariantPrices,
   } = useBestsellerProducts();
   const {
     products: featuredProducts,
     loading: featuredLoading,
     error: featuredError,
+    variantPrices: featuredVariantPrices,
   } = useFeaturedProducts();
   const {
     products: allProductsRaw,
@@ -382,7 +385,7 @@ const Products: React.FC = () => {
               <p className="text-text-secondary mb-4">Mostrando produtos de exemplo:</p>
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-8">
                 {mockProducts.map((product) => (
-                  <ProductCard key={product.id} product={product as any} />
+                  <ProductCard key={product.id} product={product as any} variantPriceInfo={categoryVariantPrices.get(product.id)} />
                 ))}
               </div>
             </div>
@@ -391,9 +394,19 @@ const Products: React.FC = () => {
               <p className="text-text-secondary mb-4">Nenhum produto encontrado nos filtros selecionados.</p>
             </div>
           ) : (
-            finalProducts.map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))
+            finalProducts.map((product) => {
+              // Determine which variant prices map to use based on which list the product comes from
+              let variantPriceInfo = categoryVariantPrices.get(product.id);
+              if (!variantPriceInfo) {
+                variantPriceInfo = bestsellerVariantPrices.get(product.id);
+              }
+              if (!variantPriceInfo) {
+                variantPriceInfo = featuredVariantPrices.get(product.id);
+              }
+              return (
+                <ProductCard key={product.id} product={product} variantPriceInfo={variantPriceInfo} />
+              );
+            })
           )}
         </div>
 

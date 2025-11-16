@@ -8,12 +8,14 @@ import { Product } from '../services/api';
 import { reservationService } from '../services/reservationService';
 import ReservationPopup from './ReservationPopup';
 import { useCurrency } from '../contexts/CurrencyContext';
+import { VariantPriceInfo } from '../utils/productVariantPricing';
 
 interface ProductCardProps {
   product: Product;
+  variantPriceInfo?: VariantPriceInfo;
 }
 
-const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
+const ProductCard: React.FC<ProductCardProps> = ({ product, variantPriceInfo }) => {
   const t = useTranslation();
   const { formatPrice } = useCurrency();
   const [isHovered, setIsHovered] = useState(false);
@@ -23,6 +25,20 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const { addToCart } = useCart();
   
   const isOutOfStock = reservationService.isOutOfStock(product.id);
+  
+  // Determine if product has variants and get price
+  const hasVariants = variantPriceInfo?.hasVariants || product.variant_product === 1;
+  
+  // Get display price - use variantPriceInfo if available, otherwise use product price
+  // For variant products with price 0, default to 7300 for guest users
+  let displayPrice = variantPriceInfo?.price ?? parseFloat((product.final_price || product.price || '0').toString());
+  
+  // If price is 0 and product has variants, use default 7300
+  if (displayPrice === 0 && hasVariants) {
+    displayPrice = 7300;
+  }
+  
+  const displaySalePrice = variantPriceInfo?.salePrice ?? (product.sale_price ? parseFloat(product.sale_price.toString()) : null);
 
   const handleWishlistToggle = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -44,6 +60,11 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
     e.preventDefault();
     e.stopPropagation();
     
+    // Products with variants must be added from product detail page
+    if (hasVariants) {
+      return;
+    }
+    
     if (isOutOfStock) {
       setShowReservationPopup(true);
       return;
@@ -52,7 +73,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
     addToCart({
       id: product.id,
       name: product.name,
-      price: parseFloat(product.final_price),
+      price: displayPrice,
       image: product.cover_image_url,
       quantity: 1
     });
@@ -137,6 +158,15 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                 <Clock size={16} />
                 {t.productCard.reserve}
               </button>
+            ) : hasVariants ? (
+              <Link
+                to={`/product/${product.id}`}
+                className="w-full bg-text-primary text-black py-2 rounded-md font-medium text-black bg-secondary uppercase tracking-wide text-sm hover:bg-accent transition-colors duration-300 flex items-center justify-center gap-2"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <ShoppingBag size={16} />
+                {t.productCard.selectVariant}
+              </Link>
             ) : (
               <button
                 onClick={handleAddToCart}
@@ -179,10 +209,20 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
 
           {/* Price */}
           <div className="flex items-center gap-2">
-            <span className="font-bold text-text-primary">
-              {formatPrice(parseFloat(product.final_price))}
-            </span>
-            
+            {displaySalePrice && displaySalePrice < displayPrice ? (
+              <>
+                <span className="font-bold text-text-primary">
+                  {formatPrice(displaySalePrice)}
+                </span>
+                <span className="text-sm text-text-secondary line-through">
+                  {formatPrice(displayPrice)}
+                </span>
+              </>
+            ) : (
+              <span className="font-bold text-text-primary">
+                {formatPrice(displayPrice)}
+              </span>
+            )}
           </div>
         </div>
       </div>

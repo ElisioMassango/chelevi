@@ -13,8 +13,8 @@ const Home: React.FC = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const navigate = useNavigate();
   // API hooks for real data
-  const { products: featuredProducts, loading: featuredLoading, error: featuredError } = useFeaturedProducts();
-  const { products: bestsellerProducts, loading: bestsellerLoading, error: bestsellerError } = useBestsellerProducts();
+  const { products: featuredProducts, loading: featuredLoading, error: featuredError, variantPrices: featuredVariantPrices } = useFeaturedProducts();
+  const { products: bestsellerProducts, loading: bestsellerLoading, error: bestsellerError, variantPrices: bestsellerVariantPrices } = useBestsellerProducts();
 
   // SEO Structured Data for Homepage
   const homeStructuredData = {
@@ -419,7 +419,7 @@ const Home: React.FC = () => {
               ) : (
                 bestsellerProducts.map((product: any) => (
                 <div key={product.id} className="flex-none w-72 snap-start">
-                  <ProductCard product={product} />
+                  <ProductCard product={product} variantPriceInfo={featuredVariantPrices.get(product.id)} />
                 </div>
                 ))
               )}
@@ -428,7 +428,7 @@ const Home: React.FC = () => {
             {/* Mobile: Grid 2x2 */}
             <div className="grid grid-cols-2 gap-4 lg:hidden">
               {bestsellerProducts.slice(0, 6).map((product: any) => (
-                <ProductCard key={product.id} product={product} />
+                <ProductCard key={product.id} product={product} variantPriceInfo={bestsellerVariantPrices.get(product.id)} />
               ))}
             </div>
             

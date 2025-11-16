@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { apiService } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -23,6 +23,7 @@ export function useProductVariants() {
     selectedVariants: { [key: string]: number }, 
     quantity: number = 1
   ) => {
+    // Only fetch variant info for authenticated users
     if (!user || Object.keys(selectedVariants).length === 0) {
       setVariantInfo(null);
       return;
@@ -58,6 +59,7 @@ export function useProductVariants() {
   };
 
   // Get first variant info automatically (for default pricing)
+  // Only works for authenticated users
   const getFirstVariantInfo = async (
     productId: string,
     productVariants: any[],

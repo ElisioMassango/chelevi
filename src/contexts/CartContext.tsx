@@ -77,15 +77,26 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
       // If product_list is empty/null/undefined, preserve current items
       let items = state.items;
       if (cartData.product_list && Array.isArray(cartData.product_list) && cartData.product_list.length > 0) {
-        items = cartData.product_list.map((item: ApiCartItem) => ({
-          id: item.product_id,
-          name: item.name,
-          price: parseFloat(item.final_price),
-          image: item.image ? (item.image.startsWith('http') ? item.image : `https://dashboard.sparktechnology.cloud/${item.image}`) : '/placeholder-image.jpg',
-          quantity: item.qty,
-          variant: item.variant_name,
-          variantId: item.variant_id || undefined,
-        }));
+        items = cartData.product_list.map((item: ApiCartItem) => {
+          // For products with variants, if final_price is 0, use orignal_price
+          let price = parseFloat(item.final_price);
+          if (price === 0 && item.variant_id && item.variant_id > 0 && item.orignal_price) {
+            price = parseFloat(item.orignal_price);
+          } else if (price === 0 && item.orignal_price) {
+            // Fallback: if final_price is 0 but we have orignal_price, use it
+            price = parseFloat(item.orignal_price);
+          }
+          
+          return {
+            id: item.product_id,
+            name: item.name,
+            price,
+            image: item.image ? (item.image.startsWith('http') ? item.image : `https://dashboard.sparktechnology.cloud/${item.image}`) : '/placeholder-image.jpg',
+            quantity: item.qty,
+            variant: item.variant_name,
+            variantId: item.variant_id || undefined,
+          };
+        });
       }
       // If product_list is explicitly an empty array and we have items, preserve current items
       // This handles the case where API returns empty product_list but cart still has products
@@ -206,15 +217,26 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         
         // Update items from the response
         if (response.data.product_list && response.data.product_list.length > 0) {
-          const updatedItems = response.data.product_list.map((item: any) => ({
-            id: item.product_id,
-            name: item.name,
-            price: parseFloat(item.final_price),
-            image: item.image ? (item.image.startsWith('http') ? item.image : `https://dashboard.sparktechnology.cloud/${item.image}`) : '/placeholder-image.jpg',
-            quantity: item.qty,
-            variant: item.variant_name || '',
-            variantId: item.variant_id || undefined,
-          }));
+          const updatedItems = response.data.product_list.map((item: any) => {
+            // For products with variants, if final_price is 0, use orignal_price
+            let price = parseFloat(item.final_price);
+            if (price === 0 && item.variant_id && item.variant_id > 0 && item.orignal_price) {
+              price = parseFloat(item.orignal_price);
+            } else if (price === 0 && item.orignal_price) {
+              // Fallback: if final_price is 0 but we have orignal_price, use it
+              price = parseFloat(item.orignal_price);
+            }
+            
+            return {
+              id: item.product_id,
+              name: item.name,
+              price,
+              image: item.image ? (item.image.startsWith('http') ? item.image : `https://dashboard.sparktechnology.cloud/${item.image}`) : '/placeholder-image.jpg',
+              quantity: item.qty,
+              variant: item.variant_name || '',
+              variantId: item.variant_id || undefined,
+            };
+          });
           dispatch({ type: 'SET_ITEMS', payload: updatedItems });
         }
       } else {
@@ -522,15 +544,26 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         // Only update items if product_list exists and has items
         // If product_list is empty but cart_total_product > 0, keep current items
         if (response.data.product_list && Array.isArray(response.data.product_list) && response.data.product_list.length > 0) {
-          const updatedItems = response.data.product_list.map((item: any) => ({
-            id: item.product_id,
-            name: item.name,
-            price: parseFloat(item.final_price || item.price || '0'),
-            image: item.image ? (item.image.startsWith('http') ? item.image : `https://dashboard.sparktechnology.cloud/${item.image}`) : '/placeholder-image.jpg',
-            quantity: item.qty || item.quantity || 1,
-            variant: item.variant_name || '',
-            variantId: item.variant_id || undefined,
-          }));
+          const updatedItems = response.data.product_list.map((item: any) => {
+            // For products with variants, if final_price is 0, use orignal_price
+            let price = parseFloat(item.final_price || item.price || '0');
+            if (price === 0 && item.variant_id && item.variant_id > 0 && item.orignal_price) {
+              price = parseFloat(item.orignal_price);
+            } else if (price === 0 && item.orignal_price) {
+              // Fallback: if final_price is 0 but we have orignal_price, use it
+              price = parseFloat(item.orignal_price);
+            }
+            
+            return {
+              id: item.product_id,
+              name: item.name,
+              price,
+              image: item.image ? (item.image.startsWith('http') ? item.image : `https://dashboard.sparktechnology.cloud/${item.image}`) : '/placeholder-image.jpg',
+              quantity: item.qty || item.quantity || 1,
+              variant: item.variant_name || '',
+              variantId: item.variant_id || undefined,
+            };
+          });
           dispatch({ type: 'SET_ITEMS', payload: updatedItems });
         }
         // If product_list is empty/null but cart_total_product > 0, keep current items (don't clear)

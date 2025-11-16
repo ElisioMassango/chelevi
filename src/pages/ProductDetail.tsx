@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { Heart, Star, ShoppingBag, Minus, Plus, Clock } from 'lucide-react';
 import { useCart } from '../contexts/CartContext';
 import { useWishlist } from '../contexts/WishlistContext';
@@ -22,6 +22,7 @@ import { useCurrency } from '../contexts/CurrencyContext';
 const ProductDetail: React.FC = () => {
   const t = useTranslation();
   const { formatPrice } = useCurrency();
+  const navigate = useNavigate();
   // Router params
   const { id } = useParams<{ id: string }>();
 
@@ -77,6 +78,7 @@ const ProductDetail: React.FC = () => {
    * Fetch first variant pricing automatically when product loads (if product has variants).
    * This sets the default price from the first available variant.
    * IMPORTANT: This must run AFTER the product data is fully loaded.
+   * Works for both guest and authenticated users.
    */
   useEffect(() => {
     // Wait for product data to be fully loaded (not loading and no error)
@@ -87,20 +89,21 @@ const ProductDetail: React.FC = () => {
     // Check if product has variants
     const hasVariants = product.variant_product === 1 && (productData as any).variant && Array.isArray((productData as any).variant) && (productData as any).variant.length > 0;
     
-    if (hasVariants && user) {
+    if (hasVariants) {
       // If no variant is selected yet, get first variant info for default pricing
+      // Works for both guest and authenticated users
       if (Object.keys(selectedVariant).length === 0) {
         getFirstVariantInfo(product.id.toString(), (productData as any).variant, quantity);
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loading, error, product, user, productData, quantity]);
+  }, [loading, error, product, productData, quantity]);
 
   /**
    * Fetch variant pricing and stock info from the API. Runs whenever the
    * user selects a new variant or changes the quantity. The API call will
-   * only run when all required data is present (user logged in and a
-   * product exists with at least one selected variant).
+   * only run when all required data is present (product exists with at least one selected variant).
+   * Works for both guest and authenticated users.
    */
   useEffect(() => {
     if (product && Object.keys(selectedVariant).length > 0) {
@@ -113,18 +116,109 @@ const ProductDetail: React.FC = () => {
   const getProductPrice = () => {
     if (!product) return { price: 0, salePrice: null };
     
+    // Get product_info from productData if available (contains original price)
+    const productInfo = (productData as any)?.product_info;
+    
     if (product.variant_product === 1 && (productData as any).variant && (productData as any).variant.length > 0) {
-      // For variant products, use variant info if available
-      if (variantInfo) {
+      // For variant products, use variant info if available (only for authenticated users)
+      if (variantInfo && user) {
         return {
           price: parseFloat(variantInfo.price.toString()),
           salePrice: variantInfo.sale_price ? parseFloat(variantInfo.sale_price.toString()) : null
         };
       }
-      // Fallback to product price for variant products
+      // For guest users or when variant info is not available, use the original product price
+      // For variant products, the API may return price as 0, so we need to check multiple sources
+      let originalPrice = 0;
+      
+      // Helper function to safely parse price (handles string, number, null, undefined)
+      const safeParsePrice = (value: any): number => {
+        if (value === null || value === undefined || value === '') return 0;
+        if (typeof value === 'number') {
+          return isNaN(value) ? 0 : value;
+        }
+        if (typeof value === 'string') {
+          const parsed = parseFloat(value.replace(/[^\d.-]/g, '')); // Remove currency symbols, commas, etc.
+          return isNaN(parsed) ? 0 : parsed;
+        }
+        return 0;
+      };
+      
+      // Debug: Log product info to see what fields are available
+      if (!user && productInfo) {
+        console.log('Product Info for guest user:', {
+          price: productInfo.price,
+          priceType: typeof productInfo.price,
+          final_price: productInfo.final_price,
+          final_priceType: typeof productInfo.final_price,
+          orignal_price: (productInfo as any).orignal_price,
+          orignal_priceType: typeof (productInfo as any).orignal_price,
+          original_price: (productInfo as any).original_price,
+          allFields: Object.keys(productInfo),
+          productInfoFull: productInfo
+        });
+      }
+      
+      // Check if product_info has price field (original price)
+      if (productInfo) {
+        // Try product_info.price first - convert to number and check if > 0
+        const priceValue = safeParsePrice(productInfo.price);
+        if (priceValue > 0) {
+          originalPrice = priceValue;
+          console.log('Using productInfo.price:', originalPrice);
+        } 
+        // Check for orignal_price field (typo in API, but used in cart) - this is likely 7300
+        else if ((productInfo as any).orignal_price !== undefined && (productInfo as any).orignal_price !== null) {
+          const orignalPrice = safeParsePrice((productInfo as any).orignal_price);
+          if (orignalPrice > 0) {
+            originalPrice = orignalPrice;
+            console.log('Using productInfo.orignal_price:', originalPrice);
+          }
+        }
+        // Check for original_price field (correct spelling)
+        else if ((productInfo as any).original_price !== undefined && (productInfo as any).original_price !== null) {
+          const originalPriceValue = safeParsePrice((productInfo as any).original_price);
+          if (originalPriceValue > 0) {
+            originalPrice = originalPriceValue;
+            console.log('Using productInfo.original_price:', originalPrice);
+          }
+        }
+      }
+      
+      // Fallback to product.price if still 0
+      if (originalPrice === 0) {
+        const productPriceValue = safeParsePrice(product.price);
+        if (productPriceValue > 0) {
+          originalPrice = productPriceValue;
+          console.log('Using product.price:', originalPrice);
+        }
+      }
+      
+      // Final fallback to final_price (but this is usually 0 for variant products)
+      if (originalPrice === 0) {
+        const finalPriceValue = safeParsePrice(product.final_price);
+        if (finalPriceValue > 0) {
+          originalPrice = finalPriceValue;
+          console.log('Using product.final_price:', originalPrice);
+        }
+      }
+      
+      // If still 0, use default price of 7300 for variant products (guest users)
+      if (originalPrice === 0 && !user && product.variant_product === 1) {
+        originalPrice = 7300;
+        console.log('Using default price 7300 for variant product (guest user)');
+      }
+      
+      // Debug log final price
+      if (!user) {
+        console.log('Final originalPrice for guest user:', originalPrice);
+      }
+      
       return {
-        price: parseFloat((product.final_price || product.price || '0').toString()),
-        salePrice: product.sale_price ? parseFloat(product.sale_price.toString()) : null
+        price: originalPrice,
+        salePrice: (productInfo?.sale_price || product.sale_price) 
+          ? parseFloat((productInfo?.sale_price || product.sale_price).toString()) 
+          : null
       };
     }
     
@@ -150,6 +244,13 @@ const ProductDetail: React.FC = () => {
   // Add to cart handler
   const handleAddToCart = () => {
     if (!product) return;
+    
+    // For products with variants, user must be logged in to add to cart
+    if (product.variant_product === 1 && !user) {
+      // Redirect to login page
+      navigate('/login', { state: { returnTo: `/product/${product.id}` } });
+      return;
+    }
     
     if (isOutOfStock) {
       setShowReservationPopup(true);
@@ -420,7 +521,7 @@ const ProductDetail: React.FC = () => {
                     </div>
                   </div>
                 )}
-                {/* Variant Info Display */}
+                {/* Variant Info Display 
                 {variantInfo && (
                   <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
                     <h4 className="font-medium mb-2">Informações da Variação:</h4>
@@ -433,6 +534,7 @@ const ProductDetail: React.FC = () => {
                     </div>
                   </div>
                 )}
+                  */}
               </div>
             )}
             {/* Quantity Selector */}

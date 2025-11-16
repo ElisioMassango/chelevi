@@ -969,6 +969,7 @@ export const en = {
   productCard: {
     trending: 'TRENDING',
     addToCart: 'ADD TO CART',
+    selectVariant: 'SELECT VARIANT',
     availableSoon: 'Available Soon',
     reserve: 'Reserve',
   },
