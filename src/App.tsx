@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider } from './contexts/AuthContext';
@@ -6,9 +7,11 @@ import { WishlistProvider } from './contexts/WishlistContext';
 import { LanguageProvider } from './contexts/LanguageContext';
 import { CurrencyProvider } from './contexts/CurrencyContext';
 import { useScrollToTop } from './hooks/useScrollToTop';
+import { env } from './config/environment';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import ChatBot from './components/ChatBot';
+import LaunchCountdown from './components/LaunchCountdown';
 import Home from './pages/Home';
 import Products from './pages/Products';
 import ProductDetail from './pages/ProductDetail';
@@ -42,6 +45,41 @@ function ScrollToTop() {
 }
 
 function App() {
+  const [showCountdown, setShowCountdown] = useState(() => {
+    // Se o countdown não está habilitado, não mostrar
+    if (!env.countdown.enabled) {
+      return false;
+    }
+
+    // Verificar se a data de lançamento já passou
+    try {
+      const launchDateStr = `${env.countdown.launchDate}T${env.countdown.launchTime}:00+02:00`;
+      const launchDate = new Date(launchDateStr);
+      
+      // Verificar se a data é válida
+      if (isNaN(launchDate.getTime())) {
+        console.warn('Invalid launch date, disabling countdown');
+        return false;
+      }
+
+      // Obter hora atual em Moçambique (UTC+2)
+      const now = new Date();
+      const mozambiqueOffset = 2 * 60; // UTC+2 em minutos
+      const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
+      const mozambiqueTime = new Date(utc + (mozambiqueOffset * 60000));
+
+      // Mostrar countdown apenas se ainda não passou a data
+      return mozambiqueTime.getTime() < launchDate.getTime();
+    } catch (error) {
+      console.error('Error checking launch date:', error);
+      return false;
+    }
+  });
+
+  const handleLaunch = () => {
+    setShowCountdown(false);
+  };
+
   return (
     <>
       <LanguageProvider>
@@ -50,42 +88,48 @@ function App() {
           <AuthProvider>
             <CartProvider>
               <WishlistProvider>
-                <Router>
-                <ScrollToTop />
-                <div className="App">
-                  <Header />
-                  <main className="main-content">
-                  <Routes>
-                    <Route path="/" element={<Home />} />
-                    <Route path="/products" element={<Products />} />
-                    <Route path="/products/:category" element={<Products />} />
-                    <Route path="/products/category/:categoryId" element={<Products />} />
-                    <Route path="/product/:id" element={<ProductDetail />} />
-                    <Route path="/cart" element={<Cart />} />
-                    <Route path="/checkout" element={<Checkout />} />
-                    <Route path="/checkout-success" element={<CheckoutSuccess />} />
-                    <Route path="/checkout-failed" element={<CheckoutFailed />} />
-                    <Route path="/profile" element={<Profile />} />
-                    <Route path="/orders" element={<Orders />} />
-                    <Route path="/orders/:orderId" element={<OrderDetail />} />
-                    <Route path="/order-tracking/:orderId" element={<OrderTracking />} />
-                    <Route path="/contact" element={<Contact />} />
-                    <Route path="/about" element={<About />} />
-                    <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-                    <Route path="/terms" element={<TermsOfUse />} />
-                    <Route path="/shipping" element={<ShippingInfo />} />
-                    <Route path="/location-demo" element={<LocationDemo />} />
-                    <Route path="/login" element={<Login />} />
-                    <Route path="/wishlist" element={<Wishlist />} />
-                  </Routes>
-                </main>
-                <Footer />
- 
-                <LGPDPopup />
-                <WelcomeManager />
-                <NewsletterPopup />
-              </div>
-                </Router>
+                {/* Mostrar countdown se estiver habilitado e data não passou */}
+                {showCountdown && <LaunchCountdown onLaunch={handleLaunch} />}
+                
+                {/* Renderizar o app normalmente se countdown não estiver ativo */}
+                {!showCountdown && (
+                  <Router>
+                    <ScrollToTop />
+                    <div className="App">
+                      <Header />
+                      <main className="main-content">
+                        <Routes>
+                          <Route path="/" element={<Home />} />
+                          <Route path="/products" element={<Products />} />
+                          <Route path="/products/:category" element={<Products />} />
+                          <Route path="/products/category/:categoryId" element={<Products />} />
+                          <Route path="/product/:id" element={<ProductDetail />} />
+                          <Route path="/cart" element={<Cart />} />
+                          <Route path="/checkout" element={<Checkout />} />
+                          <Route path="/checkout-success" element={<CheckoutSuccess />} />
+                          <Route path="/checkout-failed" element={<CheckoutFailed />} />
+                          <Route path="/profile" element={<Profile />} />
+                          <Route path="/orders" element={<Orders />} />
+                          <Route path="/orders/:orderId" element={<OrderDetail />} />
+                          <Route path="/order-tracking/:orderId" element={<OrderTracking />} />
+                          <Route path="/contact" element={<Contact />} />
+                          <Route path="/about" element={<About />} />
+                          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+                          <Route path="/terms" element={<TermsOfUse />} />
+                          <Route path="/shipping" element={<ShippingInfo />} />
+                          <Route path="/location-demo" element={<LocationDemo />} />
+                          <Route path="/login" element={<Login />} />
+                          <Route path="/wishlist" element={<Wishlist />} />
+                        </Routes>
+                      </main>
+                      <Footer />
+      
+                      <LGPDPopup />
+                      <WelcomeManager />
+                      <NewsletterPopup />
+                    </div>
+                  </Router>
+                )}
               </WishlistProvider>
             </CartProvider>
           </AuthProvider>

@@ -38,6 +38,14 @@ interface EnvironmentConfig {
     version: string;
     environment: string;
   };
+  
+  // Launch Countdown Configuration
+  countdown: {
+    enabled: boolean;
+    launchDate: string;
+    launchTime: string;
+    timezone: string;
+  };
 }
 
 // Secure environment variable getter
@@ -89,6 +97,14 @@ export const env: EnvironmentConfig = {
     name: getEnvVar('VITE_APP_NAME', 'Chelevi'),
     version: getEnvVar('VITE_APP_VERSION', '1.0.0'),
     environment: getEnvVar('VITE_APP_ENV', 'development'),
+  },
+  
+  // Launch Countdown Configuration
+  countdown: {
+    enabled: getEnvVar('VITE_ENABLE_COUNTDOWN', 'true').toLowerCase() === 'true',
+    launchDate: getEnvVar('VITE_LAUNCH_DATE', '2025-11-28'),
+    launchTime: getEnvVar('VITE_LAUNCH_TIME', '18:00'),
+    timezone: getEnvVar('VITE_LAUNCH_TIMEZONE', 'Africa/Maputo'),
   },
 };
 
