@@ -7,10 +7,16 @@ interface CheckoutLocationSelectorProps {
     country: string;
     state: string;
     city: string;
+    cityName?: string;
+    stateName?: string;
+    countryName?: string;
   }) => void;
   className?: string;
   showLabels?: boolean;
   required?: boolean;
+  initialCountry?: string;
+  initialState?: string;
+  initialCity?: string;
 }
 
 const CheckoutLocationSelector: React.FC<CheckoutLocationSelectorProps> = ({
@@ -18,6 +24,9 @@ const CheckoutLocationSelector: React.FC<CheckoutLocationSelectorProps> = ({
   className = '',
   showLabels = true,
   required = false,
+  initialCountry = '',
+  initialState = '',
+  initialCity = '',
 }) => {
   const {
     countries,
@@ -37,16 +46,52 @@ const CheckoutLocationSelector: React.FC<CheckoutLocationSelectorProps> = ({
     handleCityChange,
   } = useLocationSelectionFiltered();
 
-  // Notify parent component when location changes
+  // Initialize with provided values on mount
+  React.useEffect(() => {
+    if (initialCountry && !selectedCountry) {
+      handleCountryChange(initialCountry);
+    }
+  }, []); // Only run on mount
+
+  React.useEffect(() => {
+    if (initialState && selectedCountry === initialCountry && !selectedState) {
+      handleStateChange(initialState);
+    }
+  }, [selectedCountry, initialCountry, initialState]);
+
+  React.useEffect(() => {
+    if (initialCity && selectedState === initialState && !selectedCity) {
+      handleCityChange(initialCity);
+    }
+  }, [selectedState, initialState, initialCity]);
+
+  // Notify parent component when location changes (only when city is selected to avoid partial updates)
   React.useEffect(() => {
     if (onLocationChange && selectedCountry && selectedState && selectedCity) {
+      // Find the actual names from the loaded data
+      const countryName = countries.find(c => c.id.toString() === selectedCountry)?.name || '';
+      const stateName = states.find(s => s.id.toString() === selectedState)?.name || '';
+      const cityName = cities.find(c => c.id.toString() === selectedCity)?.name || '';
+      
+      console.log('📍 Location changed:', { 
+        country: selectedCountry, 
+        state: selectedState, 
+        city: selectedCity,
+        countryName,
+        stateName,
+        cityName
+      });
+      
       onLocationChange({
         country: selectedCountry,
         state: selectedState,
         city: selectedCity,
+        countryName,
+        stateName,
+        cityName,
       });
     }
-  }, [selectedCountry, selectedState, selectedCity]); // Removed onLocationChange from dependencies
+  }, [selectedCountry, selectedState, selectedCity, countries, states, cities, onLocationChange]);
 
   return (
     <div className={`space-y-4 ${className}`}>

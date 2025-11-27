@@ -59,6 +59,53 @@ const OrderDetail: React.FC = () => {
     }
   };
 
+  // Get product price correctly, considering variants
+  const getProductPrice = (product: any) => {
+    if (product.final_price && parseFloat(product.final_price) > 0) {
+      return parseFloat(product.final_price);
+    }
+    if (product.total_orignal_price && parseFloat(product.total_orignal_price) > 0) {
+      return parseFloat(product.total_orignal_price);
+    }
+    if (product.orignal_price && parseFloat(product.orignal_price) > 0) {
+      const qty = parseInt(product.qty) || 1;
+      return parseFloat(product.orignal_price) * qty;
+    }
+    return 0;
+  };
+
+  // Calculate subtotal from products
+  const calculateSubtotal = () => {
+    if (!order?.product || !Array.isArray(order.product)) return 0;
+    return order.product.reduce((sum: number, product: any) => {
+      return sum + getProductPrice(product);
+    }, 0);
+  };
+
+  // Calculate total correctly
+  const calculateTotal = () => {
+    const subtotal = calculateSubtotal();
+    const deliveryCharge = order?.delivered_charge ? parseFloat(order.delivered_charge.toString()) : 0;
+    const taxPrice = order?.tax_price ? parseFloat(order.tax_price.toString()) : 0;
+    const couponDiscount = order?.coupon_info?.coupon_discount_amount 
+      ? parseFloat(order.coupon_info.coupon_discount_amount.toString()) 
+      : 0;
+    
+    const calculatedTotal = subtotal + deliveryCharge + taxPrice - couponDiscount;
+    
+    // Use calculated total if > 0, otherwise try order.final_price
+    if (calculatedTotal > 0) {
+      return calculatedTotal;
+    }
+    
+    // Fallback to order.final_price if available
+    if (order?.final_price && parseFloat(order.final_price.toString()) > 0) {
+      return parseFloat(order.final_price.toString());
+    }
+    
+    return 0;
+  };
+
   if (loading) {
     return (
       <div className="order-detail-page py-12 min-h-screen bg-gray-50">
@@ -102,12 +149,25 @@ const OrderDetail: React.FC = () => {
                 {order.order_id}
               </h1>
               <p className="text-text-secondary">
-                Pedido feito em {new Date(order.order_date || '').toLocaleDateString('pt-BR')}
+                Pedido feito em {
+                  order.order_date 
+                    ? (() => {
+                        try {
+                          const date = new Date(order.order_date);
+                          return isNaN(date.getTime()) 
+                            ? new Date().toLocaleDateString('pt-BR')
+                            : date.toLocaleDateString('pt-BR');
+                        } catch {
+                          return new Date().toLocaleDateString('pt-BR');
+                        }
+                      })()
+                    : new Date().toLocaleDateString('pt-BR')
+                }
               </p>
             </div>
             <div className="text-right">
               <div className="text-2xl font-bold text-gray-800 mb-2">
-                MT{parseFloat(order.final_price).toFixed(2)}
+                MT{calculateTotal().toFixed(2)}
               </div>
               <span className={`inline-block px-4 py-2 rounded-full text-sm font-medium ${getStatusColor(order.order_status_text)}`}>
                 {order.order_status_text}
@@ -146,7 +206,7 @@ const OrderDetail: React.FC = () => {
                     </div>
                     <div className="text-right">
                       <div className="font-semibold text-gray-800">
-                        MT{parseFloat(product.final_price).toFixed(2)}
+                        MT{getProductPrice(product).toFixed(2)}
                       </div>
                       {product.return === 0 && order.order_status === 1 && (
                         <button
@@ -260,15 +320,15 @@ const OrderDetail: React.FC = () => {
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-gray-600">Subtotal</span>
-                  <span className="text-sm font-medium">MT{parseFloat(order.sub_total).toFixed(2)}</span>
+                  <span className="text-sm font-medium">MT{calculateSubtotal().toFixed(2)}</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-gray-600">Taxa de Entrega</span>
-                  <span className="text-sm font-medium">MT{parseFloat(order.delivered_charge).toFixed(2)}</span>
+                  <span className="text-sm font-medium">MT{parseFloat(order.delivered_charge || '0').toFixed(2)}</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-gray-600">Impostos</span>
-                  <span className="text-sm font-medium">MT{parseFloat(order.tax_price).toFixed(2)}</span>
+                  <span className="text-sm font-medium">MT{parseFloat(order.tax_price || '0').toFixed(2)}</span>
                 </div>
                 {order.coupon_info && (
                   <div className="flex items-center justify-between">
@@ -281,7 +341,7 @@ const OrderDetail: React.FC = () => {
                 <div className="border-t pt-3">
                   <div className="flex items-center justify-between">
                     <span className="font-semibold text-gray-800">Total</span>
-                    <span className="font-bold text-lg text-gray-800">MT{parseFloat(order.final_price).toFixed(2)}</span>
+                    <span className="font-bold text-lg text-gray-800">MT{calculateTotal().toFixed(2)}</span>
                   </div>
                 </div>
               </div>

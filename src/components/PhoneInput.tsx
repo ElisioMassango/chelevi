@@ -128,12 +128,12 @@ const PhoneInput: React.FC<PhoneInputProps> = ({
         </div>
       )}
       
-      {whatsappOnly && (
-        <div className="text-xs text-gray-500">
-          <p>Formato aceite: +258 8X XXX XXX ou 8X XXX XXX</p>
-          <p>Exemplo: +258 84 123 456 ou 84 123 456</p>
-        </div>
-      )}
+      <div className="text-xs text-gray-500 mt-1">
+        <p className="font-medium">Deve ser um número válido do WhatsApp</p>
+        <p className="mt-1">Moçambique: +258 8X XXX XXX ou 8X XXX XXX</p>
+        <p>Portugal: +351 9XX XXX XXX ou 9XX XXX XXX</p>
+        <p className="mt-1 text-gray-400">Exemplos: +258 84 123 456 ou +351 912 345 678</p>
+      </div>
     </div>
   );
 };

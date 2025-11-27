@@ -19,18 +19,31 @@ const MESSAGE_TEMPLATES = {
     `Bem-vindo à família Chelevi! 💜`,
 
   // Order confirmation
-  ORDER_CONFIRMATION: (userName: string, orderId: string, total: string, products: string) => 
-    `🛍️ *Encomenda Confirmada!*\n\n` +
-    `Olá ${userName}! 👋\n\n` +
-    `A sua encomenda foi recebida com sucesso:\n\n` +
-    `📦 *Número da Encomenda:* ${orderId}\n` +
-    `💰 *Total:* MT ${total}\n\n` +
-    `🛍️ *Produtos:*\n${products}\n\n` +
-    `📋 *Próximos Passos:*\n` +
-    `• Processaremos a sua encomenda em 24h\n` +
-    `• Enviaremos atualizações por WhatsApp\n` +
-    `• Entrega estimada: 2-5 dias úteis\n\n` +
-    `Obrigado por escolher a Chelevi! 💜`,
+  ORDER_CONFIRMATION: (userName: string, orderId: string, total: string, products: string, couponInfo?: any) => {
+    let message = `🛍️ *Encomenda Confirmada!*\n\n` +
+      `Olá ${userName}! 👋\n\n` +
+      `A sua encomenda foi recebida com sucesso:\n\n` +
+      `📦 *Número da Encomenda:* ${orderId}\n`;
+    
+    if (couponInfo && couponInfo.status) {
+      message += `🎟️ *Cupom Aplicado:* ${couponInfo.code}\n` +
+        `💰 *Desconto:* -MT ${parseFloat(couponInfo.discount_amount || '0').toFixed(2)}`;
+      if (couponInfo.discount_string) {
+        message += ` (${couponInfo.discount_string})`;
+      }
+      message += `\n`;
+    }
+    
+    message += `💰 *Total:* MT ${total}\n\n` +
+      `🛍️ *Produtos:*\n${products}\n\n` +
+      `📋 *Próximos Passos:*\n` +
+      `• Processaremos a sua encomenda em 24h\n` +
+      `• Enviaremos atualizações por WhatsApp\n` +
+      `• Entrega estimada: 2-5 dias úteis\n\n` +
+      `Obrigado por escolher a Chelevi! 💜`;
+    
+    return message;
+  },
 
   // Contact form submission
   CONTACT_FORM: (userName: string, subject: string, message: string) => 
@@ -68,9 +81,19 @@ class WhatsAppService {
   private instance: string;
 
   constructor() {
-    this.baseUrl = env.whatsapp.baseUrl;
+    // Force backend API URL if still using proxy
+    let baseUrl = env.whatsapp.baseUrl;
+    if (baseUrl.includes('whatsapp-proxy') || baseUrl.startsWith('/api/')) {
+      console.warn('⚠️ WhatsApp Service: Detected proxy URL, forcing backend URL');
+      baseUrl = env.backend.baseUrl + '/whatsapp';
+    }
+    
+    this.baseUrl = baseUrl;
     this.apiKey = env.whatsapp.apiKey;
     this.instance = env.whatsapp.instance;
+    
+    // Debug: Log the base URL being used
+    console.log('📱 WhatsApp Service initialized with baseUrl:', this.baseUrl);
   }
 
   // Send text message
@@ -87,32 +110,29 @@ class WhatsAppService {
         instance: this.instance
       });
 
-      const proxyUrl = `${this.baseUrl}`;
-      const payload = {
-        path: `/message/sendText/${this.instance}`,
-        number: formatPhoneForWhatsApp(data.number),
-        text: data.text,
-        delay: data.delay || 1000,
-        linkPreview: data.linkPreview || false,
-      };
-
-      console.log('🛰️ WhatsApp proxy request', { url: proxyUrl, payload });
-
-      const response = await fetch(proxyUrl, {
+      const url = `${this.baseUrl}/send`;
+      console.log('📱 WhatsApp API Request URL:', url);
+      
+      const response = await fetch(url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'apikey': this.apiKey,
         },
-        body: JSON.stringify(payload)
+        body: JSON.stringify({
+          number: data.number,
+          text: data.text,
+          delay: data.delay || 1000,
+          linkPreview: data.linkPreview || false,
+        })
       });
 
       if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || `HTTP ${response.status}: ${response.statusText}`);
       }
 
       const result = await response.json();
-      console.log('✅ WhatsApp proxy response', { status: response.status, result });
+      console.log('✅ WhatsApp message sent', { status: response.status, result });
       logger.userAction('WhatsApp message sent successfully', { 
         number: data.number, 
         messageLength: data.text.length 
@@ -131,9 +151,12 @@ class WhatsAppService {
   // Send welcome message to new user
   async sendWelcomeMessage(userName: string, phoneNumber: string): Promise<void> {
     try {
+      // Phone number should already be formatted when passed, but ensure it's correct
+      const formattedPhone = formatPhoneForWhatsApp(phoneNumber);
+      
       const message = MESSAGE_TEMPLATES.WELCOME(userName);
       await this.sendMessage({
-        number: phoneNumber,
+        number: formattedPhone,
         text: message,
         delay: 1000,
         linkPreview: false,
@@ -141,7 +164,7 @@ class WhatsAppService {
       
       logger.userAction('Welcome message sent to new user', { 
         userName, 
-        phoneNumber 
+        phoneNumber: formattedPhone 
       });
     } catch (error) {
       logger.error('Failed to send welcome message', { 
@@ -159,12 +182,16 @@ class WhatsAppService {
     phoneNumber: string, 
     orderId: string, 
     total: string, 
-    products: string
+    products: string,
+    couponInfo?: any
   ): Promise<void> {
     try {
-      const message = MESSAGE_TEMPLATES.ORDER_CONFIRMATION(userName, orderId, total, products);
+      // Phone number should already be formatted when passed, but ensure it's correct
+      const formattedPhone = formatPhoneForWhatsApp(phoneNumber);
+      
+      const message = MESSAGE_TEMPLATES.ORDER_CONFIRMATION(userName, orderId, total, products, couponInfo);
       await this.sendMessage({
-        number: phoneNumber,
+        number: formattedPhone,
         text: message,
         delay: 1000,
         linkPreview: false,
@@ -172,7 +199,7 @@ class WhatsAppService {
       
       logger.userAction('Order confirmation sent via WhatsApp', { 
         userName, 
-        phoneNumber, 
+        phoneNumber: formattedPhone, 
         orderId 
       });
     } catch (error) {
@@ -230,10 +257,10 @@ class WhatsAppService {
   }
 
   // Send newsletter welcome message
-  async sendNewsletterWelcome(email: string, phoneNumber?: string): Promise<void> {
+  async sendNewsletterWelcome(emailOrIdentifier: string, phoneNumber: string): Promise<void> {
     try {
       if (phoneNumber) {
-        const message = MESSAGE_TEMPLATES.NEWSLETTER_WELCOME(email);
+        const message = MESSAGE_TEMPLATES.NEWSLETTER_WELCOME(emailOrIdentifier);
         await this.sendMessage({
           number: phoneNumber,
           text: message,
@@ -242,14 +269,14 @@ class WhatsAppService {
         });
         
         logger.userAction('Newsletter welcome message sent', { 
-          email, 
+          emailOrIdentifier, 
           phoneNumber 
         });
       }
     } catch (error) {
       logger.error('Failed to send newsletter welcome message', { 
         error, 
-        email, 
+        emailOrIdentifier, 
         phoneNumber 
       });
       throw error;

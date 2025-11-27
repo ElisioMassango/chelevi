@@ -135,10 +135,10 @@ const ReservationPopup: React.FC<ReservationPopupProps> = ({
                   />
                 </Link>
               </div>
-              <h2 className="text-xl font-bold text-white mb-1">
+              <h2 className="text-xl font-bold text-black mb-1">
                 {t.reservation.title}
               </h2>
-              <p className="text-white/90 text-xs">
+              <p className="text-black text-xs">
                 {t.reservation.subtitle}
               </p>
             </div>
@@ -204,24 +204,34 @@ const ReservationPopup: React.FC<ReservationPopupProps> = ({
                   <button
                     type="button"
                     onClick={() => setFormData(prev => ({ ...prev, country: 'mocambique' }))}
-                    className={`px-4 py-3 rounded-lg border-2 transition-all font-medium ${
+                    className={`px-4 py-3 rounded-lg border-2 transition-all font-medium relative ${
                       formData.country === 'mocambique'
-                        ? 'border-primary bg-primary/10 text-primary'
-                        : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300'
+                        ? 'border-primary bg-primary text-white shadow-lg scale-105'
+                        : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300 hover:bg-gray-50'
                     }`}
                   >
-                    🇲🇿 {t.reservation.mocambique}
+                    {formData.country === 'mocambique' && (
+                      <Check size={16} className="absolute top-2 right-2 text-white" />
+                    )}
+                    <span className="flex items-center justify-center gap-2">
+                      🇲🇿 {t.reservation.mocambique}
+                    </span>
                   </button>
                   <button
                     type="button"
                     onClick={() => setFormData(prev => ({ ...prev, country: 'portugal' }))}
-                    className={`px-4 py-3 rounded-lg border-2 transition-all font-medium ${
+                    className={`px-4 py-3 rounded-lg border-2 transition-all font-medium relative ${
                       formData.country === 'portugal'
-                        ? 'border-primary bg-primary/10 text-primary'
-                        : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300'
+                        ? 'border-primary bg-primary text-white shadow-lg scale-105'
+                        : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300 hover:bg-gray-50'
                     }`}
                   >
-                    🇵🇹 {t.reservation.portugal}
+                    {formData.country === 'portugal' && (
+                      <Check size={16} className="absolute top-2 right-2 text-white" />
+                    )}
+                    <span className="flex items-center justify-center gap-2">
+                      🇵🇹 {t.reservation.portugal}
+                    </span>
                   </button>
                 </div>
               </div>

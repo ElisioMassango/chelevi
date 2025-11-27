@@ -1,194 +1,351 @@
 // Email Service for Chelevi
 import { logger } from '../utils/logger';
 import { env } from '../config/environment';
-
+//i wnat logo in the emails
 // Email templates
 const EMAIL_TEMPLATES = {
   // Welcome email for new account
   WELCOME: (userName: string) => `
-    <!DOCTYPE html>
-    <html lang="pt-BR">
-    <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Bem-vindo à Chelevi</title>
-    </head>
-    <body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f8f9fa;">
-      <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff;">
-        <!-- Header -->
-        <div style="background: linear-gradient(135deg, #8B4E6F 0%, #A5697A 100%); padding: 40px 30px; text-align: center;">
-          <h1 style="color: #ffffff; margin: 0; font-size: 32px; font-weight: 300;">Chelevi</h1>
-          <p style="color: #f0f0f0; margin: 10px 0 0 0; font-size: 16px;">Moda & Estilo</p>
-        </div>
-        
-        <!-- Content -->
-        <div style="padding: 40px 30px;">
-          <div style="text-align: center; margin-bottom: 30px;">
-            <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #8B4E6F, #A5697A); border-radius: 50%; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center;">
-              <span style="color: #ffffff; font-size: 36px;">🎉</span>
-            </div>
-            <h2 style="color: #2c3e50; margin: 0 0 10px 0; font-size: 24px;">Bem-vindo à Chelevi!</h2>
-            <p style="color: #7f8c8d; margin: 0; font-size: 16px;">Olá ${userName}, é um prazer tê-lo connosco!</p>
-          </div>
-          
-          <div style="background-color: #f8f9fa; border-radius: 12px; padding: 25px; margin-bottom: 30px;">
-            <h3 style="color: #2c3e50; margin: 0 0 15px 0; font-size: 18px;">O que pode esperar:</h3>
-            <ul style="color: #2c3e50; margin: 0; padding-left: 20px;">
-              <li style="margin-bottom: 8px;">✨ Produtos exclusivos da nossa coleção</li>
-              <li style="margin-bottom: 8px;">🛍️ Ofertas especiais para membros</li>
-              <li style="margin-bottom: 8px;">🚚 Entrega rápida em todo o país</li>
-              <li style="margin-bottom: 8px;">💬 Suporte personalizado sempre disponível</li>
-            </ul>
-          </div>
-          
-          <div style="background-color: #e8f5e8; border-radius: 12px; padding: 20px; margin-bottom: 30px; text-align: center;">
-            <h3 style="color: #2c3e50; margin: 0 0 10px 0; font-size: 18px;">🎁 Oferta de Boas-vindas</h3>
-            <p style="color: #2c3e50; margin: 0; font-size: 16px; font-weight: 600;">
-              Use o código <strong>WELCOME10</strong> para 10% de desconto na sua primeira compra!
-            </p>
-          </div>
-          
-          <div style="text-align: center; margin-top: 30px;">
-            <a href="https://chelevi.com" style="display: inline-block; background: linear-gradient(135deg, #8B4E6F, #A5697A); color: #ffffff; text-decoration: none; padding: 15px 30px; border-radius: 8px; font-weight: 600; font-size: 16px;">
-              Explorar Loja
-            </a>
-          </div>
-        </div>
-        
-        <!-- Footer -->
-        <div style="background-color: #2c3e50; padding: 30px; text-align: center;">
-          <p style="color: #ffffff; margin: 0; font-size: 14px;">
-            © 2025 Chelevi. Todos os direitos reservados.
-          </p>
-        </div>
+   <!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bem-vindo à CheLeVi</title>
+</head>
+
+<body style="margin:0; padding:0; background:#0e1117; font-family:'Segoe UI',sans-serif;">
+
+  <div style="max-width:620px; margin:0 auto;">
+
+    <!-- LOGO -->
+    <div style="padding:45px 0 25px; text-align:center;">
+      <img src="https://chelevi.sparktechnology.cloud/chelevi/Logos/CHELEVI-PRETO.png"
+           alt="CheLeVi"
+           style="width:180px; height:auto; opacity:0.95;" />
+    </div>
+
+    <!-- HERO -->
+    <div style="
+      background:linear-gradient(135deg,#12171f,#1b2433);
+      padding:45px 35px;
+      border-radius:20px 20px 0 0;
+      text-align:center;
+    ">
+      <div style="
+        width:80px; height:80px;
+        background:#000;
+        border-radius:50%;
+        margin:0 auto 25px;
+        display:flex; align-items:center; justify-content:center;
+      ">
+        <img src="https://chelevi.sparktechnology.cloud/chelevi/Logos/Monogram-bege-BLACK.png" alt="CheLeVi" style="width:100%; height:100%; object-fit:contain;">
       </div>
-    </body>
-    </html>
+
+      <div style="color:#ffffff;">
+        <h1 style="margin:0; font-size:28px; font-weight:300; letter-spacing:1px;">
+          Bem-vindo à CheLeVi
+        </h1>
+        <p style="margin-top:12px; font-size:16px;">
+          Olá ${userName}, é um privilégio tê-lo connosco.
+        </p>
+      </div>
+    </div>
+
+    <!-- CONTENT BLOCK -->
+    <div style="background:#ffffff; padding:35px;">
+
+      <h2 style="font-size:20px; color:#1e1e1e; margin:0 0 20px; font-weight:500;">
+        A sua jornada começa agora
+      </h2>
+
+      <p style="color:#4a4a4a; font-size:15px; line-height:1.6; margin-bottom:25px;">
+        A CheLeVi é um universo de elegância, carácter e identidade. Aqui, cada peça
+        é muito mais do que moda — é uma afirmação de estilo e poder.
+      </p>
+
+      <div style="
+        background:#f5f7f8;
+        padding:25px;
+        border-radius:16px;
+        margin-bottom:30px;
+      ">
+        <h3 style="margin:0 0 15px; color:#1e1e1e; font-size:17px;">O que pode esperar:</h3>
+
+        <ul style="padding-left:20px; margin:0; color:#1e1e1e; font-size:15px; line-height:1.7;">
+          <li>✨ Acesso antecipado a novos lançamentos</li>
+          <li>🛍️ Ofertas exclusivas para membros</li>
+          <li>🚚 Entregas rápidas e seguras em todo Moçambique</li>
+          <li>💬 Suporte Premium sempre disponível</li>
+        </ul>
+      </div>
+
+      <!-- WELCOME OFFER -->
+      <div style="
+        background:#e8f5e8;
+        border-left:4px solid #8B4E6F;
+        padding:20px;
+        border-radius:12px;
+        text-align:center;
+        margin-bottom:30px;
+      ">
+        <h3 style="margin:0 0 10px; color:#1e1e1e; font-size:18px;">🎁 Oferta de Boas-vindas</h3>
+
+        <p style="color:#1e1e1e; font-size:16px; margin:0;">
+          Use o código <strong>WELCOME10</strong> e receba  
+          <strong style="color:#8B4E6F;">10% de desconto</strong> na sua primeira compra.
+        </p>
+      </div>
+
+      <!-- BUTTON -->
+      <div style="text-align:center; margin-top:20px;">
+        <a href="https://chelevi.com"
+           style="
+             background:#000;
+             color:#ffffff;
+             text-decoration:none;
+             padding:15px 32px;
+             font-size:16px;
+             border-radius:8px;
+             display:inline-block;
+             letter-spacing:0.5px;
+           ">
+          Explorar Coleção
+        </a>
+      </div>
+
+    </div>
+
+    <!-- FOOTER -->
+    <div style="padding:30px 10px; text-align:center;">
+      <p style="color:#c9cdd4; font-size:13px; margin:0;">
+        © 2025 CheLeVi — Todos os direitos reservados.
+      </p>
+    </div>
+
+  </div>
+
+</body>
+</html>
+
   `,
 
   // Order confirmation email
-  ORDER_CONFIRMATION: (userName: string, orderId: string, total: string, products: string) => `
-    <!DOCTYPE html>
-    <html lang="pt-BR">
-    <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Encomenda Confirmada - Chelevi</title>
-    </head>
-    <body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f8f9fa;">
-      <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff;">
-        <!-- Header -->
-        <div style="background: linear-gradient(135deg, #8B4E6F 0%, #A5697A 100%); padding: 40px 30px; text-align: center;">
-          <h1 style="color: #ffffff; margin: 0; font-size: 32px; font-weight: 300;">Chelevi</h1>
-          <p style="color: #f0f0f0; margin: 10px 0 0 0; font-size: 16px;">Moda & Estilo</p>
-        </div>
-        
-        <!-- Content -->
-        <div style="padding: 40px 30px;">
-          <div style="text-align: center; margin-bottom: 30px;">
-            <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #8B4E6F, #A5697A); border-radius: 50%; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center;">
-              <span style="color: #ffffff; font-size: 36px;">🛍️</span>
-            </div>
-            <h2 style="color: #2c3e50; margin: 0 0 10px 0; font-size: 24px;">Encomenda Confirmada!</h2>
-            <p style="color: #7f8c8d; margin: 0; font-size: 16px;">Olá ${userName}, a sua encomenda foi recebida com sucesso!</p>
-          </div>
-          
-          <div style="background-color: #f8f9fa; border-radius: 12px; padding: 25px; margin-bottom: 30px;">
-            <h3 style="color: #2c3e50; margin: 0 0 15px 0; font-size: 18px;">Detalhes da Encomenda</h3>
-            <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-              <span style="color: #7f8c8d;">Número da Encomenda:</span>
-              <span style="color: #2c3e50; font-weight: 600;">${orderId}</span>
-            </div>
-            <div style="display: flex; justify-content: space-between; margin-bottom: 15px;">
-              <span style="color: #7f8c8d;">Total:</span>
-              <span style="color: #8B4E6F; font-weight: 600; font-size: 18px;">MT ${total}</span>
-            </div>
-            <div style="border-top: 1px solid #e9ecef; padding-top: 15px;">
-              <span style="color: #7f8c8d; display: block; margin-bottom: 5px;">Produtos:</span>
-              <p style="color: #2c3e50; margin: 0; line-height: 1.5;">${products}</p>
-            </div>
-          </div>
-          
-          <div style="background-color: #e8f5e8; border-radius: 12px; padding: 20px; margin-bottom: 30px;">
-            <h3 style="color: #2c3e50; margin: 0 0 10px 0; font-size: 16px;">📋 Próximos Passos</h3>
-            <ul style="color: #2c3e50; margin: 0; padding-left: 20px;">
-              <li style="margin-bottom: 5px;">Processaremos a sua encomenda em 24h</li>
-              <li style="margin-bottom: 5px;">Enviaremos atualizações por WhatsApp</li>
-              <li style="margin-bottom: 5px;">Entrega estimada: 2-5 dias úteis</li>
-            </ul>
-          </div>
-          
-          <div style="text-align: center; margin-top: 30px;">
-            <p style="color: #7f8c8d; margin: 0; font-size: 14px;">
-              Obrigado por escolher a Chelevi! 💜
-            </p>
-          </div>
-        </div>
-        
-        <!-- Footer -->
-        <div style="background-color: #2c3e50; padding: 30px; text-align: center;">
-          <p style="color: #ffffff; margin: 0; font-size: 14px;">
-            © 2025 Chelevi. Todos os direitos reservados.
-          </p>
-        </div>
+  ORDER_CONFIRMATION: (userName: string, orderId: string, total: string, products: string, couponInfo?: any) => `
+   <!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Encomenda Confirmada - CheLeVi</title>
+</head>
+
+<body style="margin:0; padding:0; background:#0e1117; font-family:'Segoe UI',sans-serif;">
+
+  <div style="max-width:620px; margin:0 auto;">
+
+    <!-- LOGO -->
+    <div style="padding:45px 0 25px; text-align:center;">
+      <img src="https://chelevi.sparktechnology.cloud/chelevi/Logos/CHE-LEVI-02.png"
+           alt="CheLeVi"
+           style="width:180px; height:auto; opacity:0.95;" />
+    </div>
+
+    <!-- HERO SECTION -->
+    <div style="
+      background:linear-gradient(135deg,#12171f,#1b2433);
+      padding:45px 35px;
+      border-radius:20px 20px 0 0;
+      text-align:center;
+    ">
+      <div style="
+        width:80px; height:80px;
+        background:#000;
+        border-radius:50%;
+        margin:0 auto 25px;
+        display:flex; align-items:center; justify-content:center;
+      ">
+        <img src="https://chelevi.sparktechnology.cloud/chelevi/Logos/Monogram-bege-BLACK.png" alt="CheLeVi" style="width:100%; height:100%; object-fit:contain;">
       </div>
-    </body>
-    </html>
+
+      <div >
+        <h1 style="margin:0; font-size:28px; font-weight:300; letter-spacing:1px;">
+          Encomenda Confirmada
+        </h1>
+        <p style="margin-top:12px; font-size:16px;">
+          Olá ${userName}, recebemos a sua encomenda com sucesso.
+        </p>
+      </div>
+    </div>
+
+    <!-- ORDER DETAILS CARD -->
+    <div style="background:#ffffff; padding:35px;">
+
+      <h2 style="font-size:20px; color:#1e1e1e; margin:0 0 25px; font-weight:500; text-align:center;">
+        Detalhes da Encomenda
+      </h2>
+
+      <table width="100%" cellspacing="0" cellpadding="0" style="margin-bottom:25px;">
+        <tr>
+          <td style="color:#777; font-size:15px;">Número da Encomenda:</td>
+          <td style="text-align:right; color:#1e1e1e; font-weight:600;">${orderId}</td>
+        </tr>
+        ${couponInfo && couponInfo.status ? `
+        <tr>
+          <td style="color:#777; font-size:15px; padding-top:10px;">Cupom Aplicado:</td>
+          <td style="text-align:right; color:#1e1e1e; font-weight:600; padding-top:10px;">
+            ${couponInfo.code}
+          </td>
+        </tr>
+        <tr>
+          <td style="color:#777; font-size:15px; padding-top:10px;">Desconto:</td>
+          <td style="text-align:right; color:#28a745; font-weight:600; padding-top:10px;">
+            -MT ${parseFloat(couponInfo.discount_amount || '0').toFixed(2)} ${couponInfo.discount_string ? `(${couponInfo.discount_string})` : ''}
+          </td>
+        </tr>
+        ` : ''}
+        <tr>
+          <td style="color:#777; font-size:15px; padding-top:10px;">Total:</td>
+          <td style="text-align:right; color:#000; font-weight:700; font-size:18px; padding-top:10px;">
+            MT ${total}
+          </td>
+        </tr>
+      </table>
+
+      <!-- PRODUCTS -->
+      <div style="border-top:1px solid #eee; padding-top:18px;">
+        <span style="color:#777; font-size:15px;">Produtos:</span>
+        <p style="color:#1e1e1e; font-size:15px; line-height:1.6; margin-top:8px;">
+          ${products}
+        </p>
+      </div>
+
+      <!-- NEXT STEPS -->
+      <div style="
+        background:#f5f7f8;
+        padding:22px;
+        border-radius:14px;
+        margin-top:28px;
+      ">
+        <h3 style="margin:0 0 12px; color:#1e1e1e; font-size:16px;">📋 Próximos Passos</h3>
+
+        <ul style="padding-left:20px; margin:0; color:#1e1e1e; font-size:15px; line-height:1.7;">
+          <li>Processaremos a sua encomenda nas próximas 24h.</li>
+          <li>Receberá atualizações por WhatsApp e Email.</li>
+          <li>Entrega estimada: 2–5 dias úteis.</li>
+        </ul>
+      </div>
+
+      <p style="text-align:center; margin-top:30px; color:#7a7a7a; font-size:14px;">
+        Obrigado por escolher a CheLeVi. ✨  
+      </p>
+
+    </div>
+
+    <!-- FOOTER -->
+    <div style="padding:30px 10px; text-align:center;">
+      <p style="color:#c9cdd4; font-size:13px; margin:0;">
+        © 2025 CheLeVi — Todos os direitos reservados.
+      </p>
+    </div>
+
+  </div>
+
+</body>
+</html>
+
   `,
 
   // Newsletter subscription email
   NEWSLETTER_WELCOME: (email: string) => `
-    <!DOCTYPE html>
-    <html lang="pt-BR">
-    <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Newsletter Chelevi</title>
-    </head>
-    <body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f8f9fa;">
-      <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff;">
-        <!-- Header -->
-        <div style="background: linear-gradient(135deg, #8B4E6F 0%, #A5697A 100%); padding: 40px 30px; text-align: center;">
-          <h1 style="color: #ffffff; margin: 0; font-size: 32px; font-weight: 300;">Chelevi</h1>
-          <p style="color: #f0f0f0; margin: 10px 0 0 0; font-size: 16px;">Newsletter</p>
-        </div>
-        
-        <!-- Content -->
-        <div style="padding: 40px 30px;">
-          <div style="text-align: center; margin-bottom: 30px;">
-            <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #8B4E6F, #A5697A); border-radius: 50%; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center;">
-              <span style="color: #ffffff; font-size: 36px;">📧</span>
-            </div>
-            <h2 style="color: #2c3e50; margin: 0 0 10px 0; font-size: 24px;">Bem-vindo à nossa Newsletter!</h2>
-            <p style="color: #7f8c8d; margin: 0; font-size: 16px;">Obrigado por se inscrever na nossa newsletter!</p>
-          </div>
-          
-          <div style="background-color: #f8f9fa; border-radius: 12px; padding: 25px; margin-bottom: 30px;">
-            <h3 style="color: #2c3e50; margin: 0 0 15px 0; font-size: 18px;">O que receberá:</h3>
-            <ul style="color: #2c3e50; margin: 0; padding-left: 20px;">
-              <li style="margin-bottom: 8px;">✨ Novidades da coleção</li>
-              <li style="margin-bottom: 8px;">🎉 Ofertas exclusivas</li>
-              <li style="margin-bottom: 8px;">💡 Dicas de estilo</li>
-              <li style="margin-bottom: 8px;">📅 Eventos especiais</li>
-            </ul>
-          </div>
-          
-          <div style="text-align: center; margin-top: 30px;">
-            <p style="color: #7f8c8d; margin: 0; font-size: 14px;">
-              Bem-vindo à família Chelevi! 💜
-            </p>
-          </div>
-        </div>
-        
-        <!-- Footer -->
-        <div style="background-color: #2c3e50; padding: 30px; text-align: center;">
-          <p style="color: #ffffff; margin: 0; font-size: 14px;">
-            © 2025 Chelevi. Todos os direitos reservados.
-          </p>
-        </div>
+  <!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Newsletter CheLeVi</title>
+</head>
+
+<body style="margin:0; padding:0; background:#0e1117; font-family:'Segoe UI',sans-serif;">
+
+  <div style="max-width:620px; margin:0 auto;">
+
+    <!-- LOGO -->
+    <div style="padding:45px 0 25px; text-align:center;">
+      <img src="https://chelevi.sparktechnology.cloud/chelevi/Logos/CHE-LEVI-02.png"
+           alt="CheLeVi"
+           style="width:180px; height:auto; opacity:0.95;" />
+    </div>
+
+    <!-- HERO -->
+    <div style="
+      background:linear-gradient(135deg,#12171f,#1b2433);
+      padding:45px 35px;
+      border-radius:20px 20px 0 0;
+      text-align:center;
+    ">
+      <div style="
+        width:80px; height:80px;
+        background:#000;
+        border-radius:50%;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        margin:0 auto 25px;
+      ">
+        <img src="https://chelevi.sparktechnology.cloud/chelevi/Logos/Monogram-bege-BLACK.png" alt="CheLeVi" style="width:100%; height:100%; object-fit:contain;">
       </div>
-    </body>
-    </html>
+
+      <div style="color:#ffffff;">
+        <h1 style="color:#1e1e1e; margin:0; font-size:28px; font-weight:300; letter-spacing:1px;">
+          Bem-vindo à Newsletter CheLeVi
+        </h1>
+        <p style="color:#1e1e1e; margin-top:12px; font-size:16px;">
+          Obrigado por juntar-se ao nosso universo de estilo, identidade e elegância.
+        </p>
+      </div>
+    </div>
+
+    <!-- CONTENT SECTION -->
+    <div style="background:#ffffff; padding:35px;">
+
+      <h2 style="font-size:20px; color:#1e1e1e; margin:0 0 20px; font-weight:500;">
+        O que vai receber:
+      </h2>
+
+      <div style="
+        background:#f5f7f8;
+        padding:25px;
+        border-radius:16px;
+        margin-bottom:30px;
+      ">
+        <ul style="padding-left:20px; margin:0; color:#1e1e1e; font-size:15px; line-height:1.7;">
+          <li>✨ Acesso antecipado aos novos lançamentos</li>
+          <li>🎉 Ofertas exclusivas para membros</li>
+          <li>💡 Inspiração e dicas de estilo CheLeVi</li>
+          <li>📅 Eventos privados e campanhas especiais</li>
+        </ul>
+      </div>
+
+      <p style="text-align:center; margin-top:30px; color:#7a7a7a; font-size:14px;">
+        Obrigado por fazer parte da família CheLeVi.  
+        <br>Juntos, definimos estilo. ✨
+      </p>
+
+    </div>
+
+    <!-- FOOTER -->
+    <div style="padding:30px 10px; text-align:center;">
+      <p style="color:#c9cdd4; font-size:13px; margin:0;">
+        © 2025 CheLeVi — Todos os direitos reservados.
+      </p>
+    </div>
+
+  </div>
+
+</body>
+</html>
+
   `
 };
 
@@ -196,8 +353,8 @@ const EMAIL_TEMPLATES = {
 const OWNERS = [
   {
     name: 'Chelevi Team',
-    email: 'info@chelevi.com',
-    phone: '+258841234567'
+    email: 'zeincanto13@gmail.com',
+    phone: '+258 85 2232423'
   }
 ];
 
@@ -206,8 +363,18 @@ class EmailService {
   private apiKey: string;
 
   constructor() {
-    this.baseUrl = env.email.baseUrl;
+    // Force backend API URL if still using proxy
+    let baseUrl = env.email.baseUrl;
+    if (baseUrl.includes('email-proxy') || baseUrl.startsWith('/api/')) {
+      console.warn('⚠️ Email Service: Detected proxy URL, forcing backend URL');
+      baseUrl = env.backend.baseUrl + '/email';
+    }
+    
+    this.baseUrl = baseUrl;
     this.apiKey = env.email.apiKey;
+    
+    // Debug: Log the base URL being used
+    console.log('📧 Email Service initialized with baseUrl:', this.baseUrl);
   }
 
   // Send email
@@ -224,22 +391,30 @@ class EmailService {
         type: data.type
       });
 
-      const response = await fetch(`${this.baseUrl}/send`, {
+      const url = `${this.baseUrl}/send`;
+      console.log('📧 Email API Request URL:', url);
+      
+      const response = await fetch(url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'apikey': this.apiKey,
         },
         body: JSON.stringify({
           to: data.to,
           subject: data.subject,
-          html: data.html,
+          html: encodeURIComponent(data.html), // JSON.stringify already handles encoding
           type: data.type || 'general'
         })
       });
 
       if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        const errorData = await response.json().catch(() => ({}));
+        console.error('❌ Email API Error:', {
+          status: response.status,
+          statusText: response.statusText,
+          error: errorData
+        });
+        throw new Error(errorData.message || errorData.error || `HTTP ${response.status}: ${response.statusText}`);
       }
 
       const result = await response.json();
@@ -290,10 +465,11 @@ class EmailService {
     email: string, 
     orderId: string, 
     total: string, 
-    products: string
+    products: string,
+    couponInfo?: any
   ): Promise<void> {
     try {
-      const html = EMAIL_TEMPLATES.ORDER_CONFIRMATION(userName, orderId, total, products);
+      const html = EMAIL_TEMPLATES.ORDER_CONFIRMATION(userName, orderId, total, products, couponInfo);
       await this.sendEmail({
         to: email,
         subject: `Encomenda Confirmada - ${orderId}`,
@@ -349,44 +525,87 @@ class EmailService {
   ): Promise<void> {
     try {
       const notificationHtml = `
-        <!DOCTYPE html>
-        <html lang="pt-BR">
-        <head>
-          <meta charset="UTF-8">
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <title>Nova Mensagem de Contacto - Chelevi</title>
-        </head>
-        <body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f8f9fa;">
-          <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff;">
-            <div style="background: linear-gradient(135deg, #8B4E6F 0%, #A5697A 100%); padding: 40px 30px; text-align: center;">
-              <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: 300;">Nova Mensagem de Contacto</h1>
-              <p style="color: #f0f0f0; margin: 10px 0 0 0; font-size: 16px;">Chelevi</p>
-            </div>
-            
-            <div style="padding: 40px 30px;">
-              <div style="background-color: #f8f9fa; border-radius: 12px; padding: 25px; margin-bottom: 30px;">
-                <h3 style="color: #2c3e50; margin: 0 0 15px 0; font-size: 18px;">Detalhes da Mensagem</h3>
-                <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-                  <span style="color: #7f8c8d;">Nome:</span>
-                  <span style="color: #2c3e50; font-weight: 600;">${userName}</span>
-                </div>
-                <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-                  <span style="color: #7f8c8d;">Email:</span>
-                  <span style="color: #2c3e50; font-weight: 600;">${email}</span>
-                </div>
-                <div style="display: flex; justify-content: space-between; margin-bottom: 15px;">
-                  <span style="color: #7f8c8d;">Assunto:</span>
-                  <span style="color: #8B4E6F; font-weight: 600;">${subject}</span>
-                </div>
-                <div style="border-top: 1px solid #e9ecef; padding-top: 15px;">
-                  <span style="color: #7f8c8d; display: block; margin-bottom: 5px;">Mensagem:</span>
-                  <p style="color: #2c3e50; margin: 0; line-height: 1.5;">${message}</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </body>
-        </html>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nova Mensagem de Contacto - CheLeVi</title>
+</head>
+
+<body style="margin:0; padding:0; background:#0e1117; font-family:'Segoe UI',sans-serif;">
+
+  <div style="max-width:620px; margin:0 auto;">
+
+    <!-- LOGO -->
+    <div style="padding:45px 0 25px; text-align:center;">
+      <img src="https://chelevi.sparktechnology.cloud/chelevi/Logos/CHE-LEVI-02.png"
+           alt="CheLeVi"
+           style="width:180px; height:auto; opacity:0.95;" />
+    </div>
+
+    <!-- HEADER DARK -->
+    <div style="
+      background:linear-gradient(135deg,#12171f,#1b2433);
+      padding:45px 35px;
+      border-radius:20px 20px 0 0;
+      text-align:center;
+    ">
+      <h1 style="color:#1e1e1e; margin:0; font-size:26px; font-weight:300; letter-spacing:1px;">
+        Nova Mensagem de Contacto
+      </h1>
+      <p style="color:#1e1e1e; margin-top:10px; font-size:15px;">
+        CheLeVi — Moda, Identidade e Estilo
+      </p>
+    </div>
+
+    <!-- CONTENT CARD -->
+    <div style="background:#ffffff; padding:35px; border-radius:0 0 20px 20px;">
+
+      <h2 style="
+        font-size:20px;
+        color:#1e1e1e;
+        margin:0 0 25px;
+        font-weight:500;
+        text-align:center;
+      ">
+        Detalhes da Mensagem
+      </h2>
+
+      <!-- FIELDS -->
+      <table width="100%" cellspacing="0" cellpadding="0" style="margin-bottom:20px;">
+        <tr>
+          <td style="color:#777; font-size:15px;">Nome:</td>
+          <td style="text-align:right; color:#1e1e1e; font-weight:600;">${userName}</td>
+        </tr>
+
+        <tr>
+          <td style="color:#777; font-size:15px; padding-top:10px;">Email:</td>
+          <td style="text-align:right; color:#1e1e1e; font-weight:600; padding-top:10px;">${email}</td>
+        </tr>
+
+        <tr>
+          <td style="color:#777; font-size:15px; padding-top:10px;">Assunto:</td>
+          <td style="text-align:right; color:#000; font-weight:600; padding-top:10px;">${subject}</td>
+        </tr>
+      </table>
+
+      <!-- MESSAGE -->
+      <div style="border-top:1px solid #eee; padding-top:18px;">
+        <span style="color:#777; font-size:15px;">Mensagem:</span>
+
+        <p style="color:#1e1e1e; margin-top:8px; font-size:15px; line-height:1.6;">
+          ${message}
+        </p>
+      </div>
+
+    </div>
+
+  </div>
+
+</body>
+</html>
+     
       `;
 
       // Send to all owners

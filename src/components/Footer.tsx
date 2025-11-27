@@ -6,6 +6,7 @@ import { useTranslation } from '../contexts/LanguageContext';
 import LanguageSelector from './LanguageSelector';
 import PhoneInput from './PhoneInput';
 import { validatePhoneNumber } from '../utils/phoneUtils';
+import { toastService } from '../utils/toast';
 
 const Footer: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -30,8 +31,13 @@ const Footer: React.FC = () => {
       return;
     }
 
-    // For now, we only have email subscription API
-    // WhatsApp subscription would need to be implemented separately
+    // Validate WhatsApp number if WhatsApp subscription
+    if (subscriptionType === 'whatsapp' && !validatePhoneNumber(whatsapp)) {
+      toastService.error('Por favor, insira um número de WhatsApp válido');
+      return;
+    }
+
+    // Subscribe via email or WhatsApp
     if (subscriptionType === 'email') {
       const result = await subscribe(email.trim());
       if (result.success) {
@@ -39,9 +45,12 @@ const Footer: React.FC = () => {
         setAcceptedTerms(false);
       }
     } else {
-      // TODO: Implement WhatsApp subscription
-      // For now, just show a message
-      alert(t.footer.whatsappSubscriptionNote);
+      // WhatsApp subscription
+      const result = await subscribe('', whatsapp.trim());
+      if (result.success) {
+        setWhatsapp('');
+        setAcceptedTerms(false);
+      }
     }
   };
 return (
@@ -343,9 +352,23 @@ return (
             <span>{t.footer.shipping}</span>
           </Link>
         </div>
-        <p className="text-sm text-gray-400 text-center md:text-right">
-          {t.footer.allRightsReserved}
-        </p>
+        <div className="flex flex-col md:flex-row items-center gap-2 md:gap-4">
+          <p className="text-sm text-gray-400 text-center md:text-right">
+            {t.footer.allRightsReserved}
+          </p>
+          <span className="hidden md:inline text-gray-600">•</span>
+          <p className="text-sm text-gray-400 text-center md:text-right">
+            Desenvolvido por{' '}
+            <a 
+              href="https://sparktechh.com" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="hover:text-white transition-colors font-medium"
+            >
+              SparkTech
+            </a>
+          </p>
+        </div>
       </div>
     </div>
   </div>

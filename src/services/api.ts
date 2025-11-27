@@ -1321,16 +1321,95 @@ class ApiService {
     // Send notifications if order was successful
     if (response.status === 1 && response.data) {
       try {
+        console.log('📧 Starting order notification process...');
+        
         const userName = data.billingInfo.firstname || data.billingInfo.lastname || 'Cliente';
         const phoneNumber = data.billingInfo.billing_user_telephone;
         const email = data.billingInfo.email;
         const orderId = response.data.order_id || 'N/A';
         const total = response.data.final_price || '0';
         
+        console.log('📧 Order notification data:', {
+          userName,
+          email,
+          phoneNumber,
+          orderId,
+          total
+        });
+        
         // Prepare products list for notifications
-        const products = response.data.product?.map((item: any) => 
-          `• ${item.name} - Qty: ${item.qty} - MT ${item.final_price}`
-        ).join('\n') || 'Produtos não disponíveis';
+        // Handle variant pricing: use final_price if > 0, otherwise use total_orignal_price or calculate from orignal_price
+        // Apply coupon discount if available to ALL products including variants
+        const couponInfo = response.data.coupon_info;
+        
+        // Calculate total subtotal from all products (for proportional discount calculation)
+        const totalSubtotal = response.data.product?.reduce((sum: number, prod: any) => {
+          let prodPrice = 0;
+          if (prod.total_orignal_price && parseFloat(prod.total_orignal_price) > 0) {
+            prodPrice = parseFloat(prod.total_orignal_price);
+          } else if (prod.orignal_price && parseFloat(prod.orignal_price) > 0) {
+            const qty = parseInt(prod.qty) || 1;
+            prodPrice = parseFloat(prod.orignal_price) * qty;
+          }
+          return sum + prodPrice;
+        }, 0) || 0;
+        
+        // Extract discount percentage from discount_string (e.g., "-5.00% for all products")
+        const discountPercent = couponInfo && couponInfo.status && couponInfo.discount_string 
+          ? parseFloat(couponInfo.discount_string.match(/-?(\d+\.?\d*)%/)?.[1] || '0')
+          : 0;
+        
+        // Get total discount amount
+        const totalDiscountAmount = couponInfo && couponInfo.status 
+          ? parseFloat(couponInfo.discount_amount || '0')
+          : 0;
+        
+        const products = response.data.product?.map((item: any) => {
+          let price = 0;
+          let originalPrice = 0;
+          
+          // Get the original price (before discount)
+          if (item.total_orignal_price && parseFloat(item.total_orignal_price) > 0) {
+            originalPrice = parseFloat(item.total_orignal_price);
+          } else if (item.orignal_price && parseFloat(item.orignal_price) > 0) {
+            const qty = parseInt(item.qty) || 1;
+            originalPrice = parseFloat(item.orignal_price) * qty;
+          }
+          
+          // Try to get the final price (with discount already applied)
+          if (item.final_price && parseFloat(item.final_price) > 0) {
+            // Use final_price if available (discount already applied by backend)
+            price = parseFloat(item.final_price);
+          } else if (originalPrice > 0) {
+            // If final_price is 0 or missing (common for variants), calculate price with discount
+            if (couponInfo && couponInfo.status) {
+              if (discountPercent > 0) {
+                // Apply percentage discount directly
+                price = originalPrice * (1 - discountPercent / 100);
+              } else if (totalDiscountAmount > 0 && totalSubtotal > 0) {
+                // Apply fixed discount proportionally based on product's share of total
+                const discountRatio = totalDiscountAmount / totalSubtotal;
+                price = originalPrice * (1 - discountRatio);
+              } else {
+                // No valid discount info, use original price
+                price = originalPrice;
+              }
+            } else {
+              // No coupon, use original price
+              price = originalPrice;
+            }
+          }
+          
+          // Format price to 2 decimal places
+          const formattedPrice = price.toFixed(2);
+          
+          // Include variant name if available
+          const variantInfo = item.variant_name && item.variant_name.trim() 
+            ? ` (${item.variant_name})` 
+            : '';
+          
+          return `• ${item.name}${variantInfo} - Qty: ${item.qty} - MT ${formattedPrice}`;
+        }).join('\n') || 'Produtos não disponíveis';
 
         // Build delivery address
         const deliveryAddress = [
@@ -1340,48 +1419,101 @@ class ApiService {
           data.billingInfo.billing_country
         ].filter(Boolean).join(', ');
 
-        // Send WhatsApp and Email confirmation to customer
-        if (phoneNumber) {
-          await whatsappService.sendOrderConfirmation(
-            userName,
-            phoneNumber,
-            orderId,
-            total,
-            products
-          );
-        }
-        
+        // Send Email confirmation to customer
         if (email) {
-          await emailService.sendOrderConfirmation(
-            userName,
-            email,
-            orderId,
-            total,
-            products
-          );
+          try {
+            console.log('📧 Sending order confirmation email to customer:', email);
+            await emailService.sendOrderConfirmation(
+              userName,
+              email,
+              orderId,
+              total,
+              products,
+              couponInfo
+            );
+            console.log('✅ Customer email sent successfully');
+          } catch (emailError) {
+            console.error('❌ Failed to send customer email:', emailError);
+            logger.error('Failed to send customer order confirmation email', { 
+              error: emailError, 
+              email, 
+              orderId 
+            });
+          }
+        } else {
+          console.warn('⚠️ No email provided for customer, skipping email notification');
+        }
+
+        // Send WhatsApp confirmation to customer
+        if (phoneNumber) {
+          try {
+            const { formatPhoneForWhatsApp, validateWhatsAppNumber } = await import('../utils/phoneUtils');
+            
+            if (validateWhatsAppNumber(phoneNumber)) {
+              const formattedPhone = formatPhoneForWhatsApp(phoneNumber);
+              console.log('📱 Sending order confirmation WhatsApp to customer:', formattedPhone);
+              await whatsappService.sendOrderConfirmation(
+                userName,
+                formattedPhone,
+                orderId,
+                total,
+                products,
+                couponInfo
+              );
+              console.log('✅ Customer WhatsApp sent successfully');
+            } else {
+              console.warn('⚠️ Phone number format invalid for WhatsApp:', phoneNumber);
+              logger.warn('Phone number format invalid for WhatsApp', { phoneNumber, orderId });
+            }
+          } catch (whatsappError) {
+            console.error('❌ Failed to send customer WhatsApp:', whatsappError);
+            logger.error('Failed to send customer order confirmation WhatsApp', { 
+              error: whatsappError, 
+              phoneNumber, 
+              orderId 
+            });
+          }
+        } else {
+          console.warn('⚠️ No phone number provided for customer, skipping WhatsApp notification');
         }
 
         // Notify owners about new order
-        await ownerNotificationService.notifyNewOrder(
-          userName,
-          orderId,
-          total,
-          products,
-          deliveryAddress
-        );
+        try {
+          console.log('📧 Notifying owners about new order...');
+          await ownerNotificationService.notifyNewOrder(
+            userName,
+            orderId,
+            total,
+            products,
+            deliveryAddress,
+            couponInfo
+          );
+          console.log('✅ Owner notifications sent successfully');
+        } catch (ownerError) {
+          console.error('❌ Failed to send owner notifications:', ownerError);
+          logger.error('Failed to send owner order notifications', { 
+            error: ownerError, 
+            orderId 
+          });
+        }
 
-        logger.userAction('Order notifications sent successfully', { 
+        logger.userAction('Order notifications process completed', { 
           orderId, 
           userName, 
-          total 
+          total,
+          customerEmailSent: !!email,
+          customerWhatsAppSent: !!phoneNumber
         });
       } catch (error) {
+        console.error('❌ Critical error in order notification process:', error);
         logger.error('Failed to send order notifications', { 
           error, 
           orderData: data 
         });
         // Don't throw error to avoid breaking the order flow
       }
+    } else {
+      console.warn('⚠️ Order was not successful, skipping notifications. Status:', response.status);
     }
 
     return response;

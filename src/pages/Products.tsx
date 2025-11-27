@@ -9,6 +9,8 @@ import {
   useAllProducts,
 } from '../hooks/useProducts';
 import { useCategories } from '../hooks/useCategories';
+import { translateCategoryName } from '../utils/categoryTranslations';
+import { useLanguage } from '../contexts/LanguageContext';
 import SEO from '../components/SEO';
 
 interface ApiProduct {
@@ -29,6 +31,15 @@ interface ApiCategoryItem {
   name: string;
   slug: string;
   total_product?: number;
+}
+
+interface CategoryItem {
+  id: number;
+  name: string;
+  originalName?: string;
+  count: number;
+  apiSlug: string;
+  routeSlug: string;
 }
 
 // Pre-defined price ranges for filtering
@@ -60,21 +71,25 @@ const Products: React.FC = () => {
 
   // Load categories from API
   const { categories: apiCategories = [] } = useCategories();
+  const { language } = useLanguage();
 
   // Normalize categories, creating a clean route slug
   const categories = useMemo(() => {
     return (apiCategories as ApiCategoryItem[]).map((cat) => {
       // Extract route slug: remove any prefix like "collections/"
       const routeSlug = cat.slug?.split('/').pop()?.toLowerCase() || cat.name.toLowerCase();
+      // Translate category name
+      const translatedName = translateCategoryName(cat.id, cat.name, language);
       return {
         id: cat.id,
-        name: cat.name,
+        name: translatedName,
+        originalName: cat.name, // Keep original for slug matching
         count: cat.total_product || 0,
         apiSlug: cat.slug,
         routeSlug,
       };
     });
-  }, [apiCategories]);
+  }, [apiCategories, language]);
 
   // Determine selected category based on route
   const selectedCategory = useMemo(() => {
@@ -232,7 +247,9 @@ const Products: React.FC = () => {
     : allError;
 
   // Category title for the page
-  const categoryTitle = selectedCategory ? selectedCategory.name : 'Todos os Produtos';
+  const categoryTitle = selectedCategory 
+    ? translateCategoryName(selectedCategory.id, selectedCategory.originalName || selectedCategory.name, language)
+    : (language === 'en' ? 'All Products' : 'Todos os Produtos');
 
   // Count of products shown
   const totalProducts = finalProducts.length;
@@ -320,7 +337,7 @@ const Products: React.FC = () => {
             }`}
             onClick={() => setSortBy('all')}
           >
-            Todos os Produtos
+            {language === 'en' ? 'All Products' : 'Todos os Produtos'}
           </Link>
           {categories.map((cat) => (
             <Link

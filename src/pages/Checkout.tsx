@@ -7,10 +7,12 @@ import { apiService } from '../services/api';
 import { BillingInfo } from '../services/api';
 import CheckoutLocationSelector from '../components/CheckoutLocationSelector';
 import PhoneInput from '../components/PhoneInput';
-import { validatePhoneNumber, formatPhoneForWhatsApp } from '../utils/phoneUtils';
+import MpesaPhoneInput from '../components/MpesaPhoneInput';
+import { validatePhoneNumber, validateWhatsAppNumber, formatPhoneForWhatsApp } from '../utils/phoneUtils';
 import { useTranslation } from '../contexts/LanguageContext';
 import { formatPriceWithCurrency } from '../utils/formatPrice';
 import toast from 'react-hot-toast';
+import { mpesaService } from '../services/mpesaService';
 
 type Step = 1 | 2 | 3 | 4;
 
@@ -20,7 +22,7 @@ const Checkout: React.FC = () => {
   const [currentStep, setCurrentStep] = useState<Step>(1);
   const [isProcessing, setIsProcessing] = useState(false);
   const [deliveryMethod, setDeliveryMethod] = useState<'delivery' | 'pickup'>('delivery');
-  const [paymentMethod, setPaymentMethod] = useState<'mpesa' | 'card'>('mpesa');
+  const [paymentMethod] = useState<'mpesa'>('mpesa');
   const [couponCode, setCouponCode] = useState('');
   const [applyingCoupon, setApplyingCoupon] = useState(false);
   const [formData, setFormData] = useState({
@@ -132,12 +134,12 @@ const Checkout: React.FC = () => {
   const validateStep = (step: Step): boolean => {
     switch (step) {
       case 1:
-        return !!(formData.firstName && formData.lastName && formData.email && formData.phone && validatePhoneNumber(formData.phone));
+        return !!(formData.firstName && formData.lastName && formData.email && formData.phone && validateWhatsAppNumber(formData.phone));
       case 2:
         if (deliveryMethod === 'pickup') return true;
         return !!(formData.billingAddress && formData.billingCountry && formData.billingState && formData.billingCityId);
       case 3:
-        return !!(paymentMethod === 'mpesa' ? formData.mpesaNumber : true);
+        return !!(formData.mpesaNumber && formData.mpesaNumber.trim() !== '');
       case 4:
         return true;
       default:
@@ -181,10 +183,89 @@ const Checkout: React.FC = () => {
     }
     
     try {
+      console.log('📋 Form data before submission:', {
+        billingCountry: formData.billingCountry,
+        billingState: formData.billingState,
+        billingCityId: formData.billingCityId,
+        billingCityName: formData.billingCityName,
+        billingAddress: formData.billingAddress,
+        shippingCountry: formData.shippingCountry,
+        shippingState: formData.shippingState,
+        shippingCityId: formData.shippingCityId,
+        shippingCityName: formData.shippingCityName,
+        shippingAddress: formData.shippingAddress,
+      });
+
+      // Validate that city name is set, if not, show error
+      if (!formData.billingCityName || formData.billingCityName.trim() === '') {
+        alert('Por favor, selecione uma cidade no endereço de cobrança');
+        setIsProcessing(false);
+        return;
+      }
+
+      // Validate M-Pesa number
+      if (!formData.mpesaNumber || formData.mpesaNumber.trim() === '') {
+        alert('Por favor, digite o número M-Pesa');
+        setIsProcessing(false);
+        return;
+      }
+
+      // Format M-Pesa number: ensure it's 9 digits starting with 8
+      const cleanMpesaNumber = formData.mpesaNumber.replace(/\D/g, '');
+      if (cleanMpesaNumber.length !== 9 || !cleanMpesaNumber.startsWith('8')) {
+        alert('Número M-Pesa inválido. Use o formato: 8X XXXXXXX');
+        setIsProcessing(false);
+        return;
+      }
+
+      // Calculate total amount
+      const totalAmount = total;
+      
+      // Generate payment reference and transaction ID (shorter format, no hyphens)
+      // Format: CHEL + random alphanumeric (max 20 chars for reference)
+      const randomRef = Math.random().toString(36).substring(2, 10).toUpperCase();
+      const randomTxn = Math.random().toString(36).substring(2, 12).toUpperCase();
+      const paymentReference = `CHEL${randomRef}`.substring(0, 20);
+      const transactionId = `CH${randomTxn}`.substring(0, 100);
+
+      // Process M-Pesa payment FIRST
+      console.log('💳 Processing M-Pesa payment before creating order...');
+      toast.loading('Processando pagamento M-Pesa...', { id: 'mpesa-payment' });
+      
+      try {
+        const paymentResult = await mpesaService.processPayment(
+          cleanMpesaNumber, // Send as 9 digits (8X XXXXXXX)
+          totalAmount,
+          paymentReference,
+          transactionId
+        );
+
+        console.log('💳 M-Pesa payment result:', paymentResult);
+
+        // Check if payment was successful
+        if (!paymentResult.success) {
+          toast.error(paymentResult.message || 'Pagamento M-Pesa falhou. Tente novamente.', { id: 'mpesa-payment' });
+          setIsProcessing(false);
+          return;
+        }
+
+        toast.success('Pagamento M-Pesa processado com sucesso!', { id: 'mpesa-payment' });
+      } catch (paymentError: any) {
+        console.error('❌ M-Pesa payment error:', paymentError);
+        const errorMessage = paymentError?.message || 'Erro ao processar pagamento M-Pesa. Tente novamente.';
+        toast.error(errorMessage, { id: 'mpesa-payment' });
+        setIsProcessing(false);
+        return;
+      }
+
+      // Only create order if payment was successful
+      console.log('✅ Payment successful, creating order...');
+      toast.loading('Criando pedido...', { id: 'order-creation' });
+
       const billingInfo: BillingInfo = {
         billing_postecode: formData.billingPostalCode || formData.postalCode || '0000',
         email: formData.email || 'user@example.com',
-        billing_city: formData.billingCityName || 'Maputo',
+        billing_city: formData.billingCityName, // Remove fallback to 'Maputo'
         lastname: formData.lastName || 'User',
         billing_company_name: '',
         billing_address: formData.billingAddress || formData.address || 'Endereço não informado',
@@ -192,50 +273,57 @@ const Checkout: React.FC = () => {
         firstname: formData.firstName || 'User',
         billing_country: formData.billingCountry || formData.country || '150',
         billing_state: formData.billingState || formData.state || '1',
-        delivery_city: formData.shippingCityName || formData.billingCityName || 'Maputo',
+        delivery_city: formData.shippingCityName || formData.billingCityName, // Remove fallback to 'Maputo'
         delivery_state: formData.shippingState || formData.billingState || '1',
         delivery_postcode: formData.shippingPostalCode || formData.billingPostalCode || '0000',
         delivery_country: formData.shippingCountry || formData.billingCountry || '150',
         delivery_address: formData.shippingAddress || formData.billingAddress || 'Address',
       };
+
+      console.log('📋 Billing info to be sent:', billingInfo);
       
-      const result = await apiService.orderSave({
-        paymentType: paymentMethod === 'mpesa' ? 'cod' : 'card',
-        billingInfo,
-        deliveryId: '1',
-        couponInfo: cartData?.coupon_info || null,
-        methodId: null,
-        customerId: user.id.toString(),
-      });
-      
-      navigate('/checkout-success', {
-        state: {
-          orderId: result.data.order_id,
-          orderData: {
-            subTotal: parseFloat(result.data.subtotal),
-            finalPrice: parseFloat(result.data.final_price),
-            items: items,
-            paymentType: paymentMethod === 'mpesa' ? 'cod' : 'card',
-            billingInfo: result.data.billing_information,
-            deliveryInfo: result.data.delivery_information,
-            products: result.data.product,
-            tax: result.data.tax,
-            deliveryCharge: parseFloat(result.data.delivery_charge),
+      try {
+        const result = await apiService.orderSave({
+          paymentType: 'cod', // Always use COD for M-Pesa
+          billingInfo,
+          deliveryId: '1',
+          couponInfo: cartData?.coupon_info || null,
+          methodId: null,
+          customerId: user.id.toString(),
+        });
+
+        toast.success('Pedido criado com sucesso!', { id: 'order-creation' });
+        
+        navigate('/checkout-success', {
+          state: {
+            orderId: result.data.order_id,
+            orderData: {
+              subTotal: parseFloat(result.data.subtotal),
+              finalPrice: parseFloat(result.data.final_price),
+              items: items,
+              paymentType: 'cod', // Always use COD for M-Pesa
+              billingInfo: result.data.billing_information,
+              deliveryInfo: result.data.delivery_information,
+              products: result.data.product,
+              tax: result.data.tax,
+              deliveryCharge: parseFloat(result.data.delivery_charge),
+              couponInfo: result.data.coupon_info,
+            },
           },
-        },
-      });
+        });
+      } catch (orderError: any) {
+        console.error('❌ Order creation error:', orderError);
+        toast.error('Erro ao criar pedido. Por favor, contacte o suporte.', { id: 'order-creation' });
+        setIsProcessing(false);
+        return;
+      }
       
       setTimeout(() => {
         clearCart();
       }, 100);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Order processing failed:', error);
-      navigate('/checkout-failed', {
-        state: {
-          error: error instanceof Error ? error.message : t.checkout.unknownError,
-        },
-      });
-    } finally {
+      toast.error(error?.message || 'Erro ao processar pedido. Tente novamente.');
       setIsProcessing(false);
     }
   };
@@ -476,6 +564,7 @@ const Checkout: React.FC = () => {
                           onChange={(value) => setFormData(prev => ({ ...prev, phone: value }))}
                           placeholder={t.checkout.phonePlaceholder}
                           required
+                          whatsappOnly
                           label={t.checkout.phone}
                         />
                       </div>
@@ -547,15 +636,28 @@ const Checkout: React.FC = () => {
                               />
                             </div>
                             <CheckoutLocationSelector
+                              initialCountry={formData.billingCountry}
+                              initialState={formData.billingState}
+                              initialCity={formData.billingCityId}
                               onLocationChange={(location) => {
-                                const cityName = getCityNameById(location.city);
-                                setFormData((prev) => ({
-                                  ...prev,
-                                  billingCountry: location.country,
-                                  billingState: location.state,
-                                  billingCityId: location.city,
-                                  billingCityName: cityName,
-                                }));
+                                console.log('📍 Billing location changed:', location);
+                                if (location.city) {
+                                  // Use cityName from location if available, otherwise fallback to getCityNameById
+                                  const cityName = location.cityName || getCityNameById(location.city);
+                                  console.log('📍 Setting billing data:', {
+                                    country: location.country,
+                                    state: location.state,
+                                    city: location.city,
+                                    cityName: cityName
+                                  });
+                                  setFormData((prev) => ({
+                                    ...prev,
+                                    billingCountry: location.country,
+                                    billingState: location.state,
+                                    billingCityId: location.city,
+                                    billingCityName: cityName,
+                                  }));
+                                }
                               }}
                               showLabels={true}
                               required={true}
@@ -613,15 +715,28 @@ const Checkout: React.FC = () => {
                                 />
                               </div>
                               <CheckoutLocationSelector
+                                initialCountry={formData.shippingCountry}
+                                initialState={formData.shippingState}
+                                initialCity={formData.shippingCityId}
                                 onLocationChange={(location) => {
-                                  const cityName = getCityNameById(location.city);
-                                  setFormData((prev) => ({
-                                    ...prev,
-                                    shippingCountry: location.country,
-                                    shippingState: location.state,
-                                    shippingCityId: location.city,
-                                    shippingCityName: cityName,
-                                  }));
+                                  console.log('📍 Shipping location changed:', location);
+                                  if (location.city) {
+                                    // Use cityName from location if available, otherwise fallback to getCityNameById
+                                    const cityName = location.cityName || getCityNameById(location.city);
+                                    console.log('📍 Setting shipping data:', {
+                                      country: location.country,
+                                      state: location.state,
+                                      city: location.city,
+                                      cityName: cityName
+                                    });
+                                    setFormData((prev) => ({
+                                      ...prev,
+                                      shippingCountry: location.country,
+                                      shippingState: location.state,
+                                      shippingCityId: location.city,
+                                      shippingCityName: cityName,
+                                    }));
+                                  }
                                 }}
                                 showLabels={true}
                                 required={true}
@@ -671,61 +786,75 @@ const Checkout: React.FC = () => {
                         <CreditCard className="text-primary" size={20} />
                       </div>
                       <div>
-                        <h2 className="text-2xl font-bold">Método de Pagamento</h2>
-                        <p className="text-sm text-gray-500">Escolha como deseja pagar</p>
+                        <h2 className="text-2xl font-bold">{t.checkout.paymentMethod}</h2>
+                        <p className="text-sm text-gray-500">{t.checkout.mpesaPayment}</p>
                       </div>
                     </div>
 
-                    <div className="space-y-4">
-                      <label className="flex items-center p-4 border-2 rounded-lg cursor-pointer hover:border-primary transition-colors">
-                        <input
-                          type="radio"
-                          name="paymentMethod"
-                          value="mpesa"
-                          checked={paymentMethod === 'mpesa'}
-                          onChange={(e) => setPaymentMethod(e.target.value as 'mpesa')}
-                          className="mr-3"
+                    {/* M-Pesa Payment Section */}
+                    <div className="space-y-6">
+                      {/* M-Pesa Logo */}
+                      <div className="flex items-center justify-center p-6 bg-gray-50 rounded-lg border-2 border-green-200">
+                        <img 
+                          src="https://newwaymoz.com/assets/images/backend/paymentmethod/692538ce2e6681764047054.png" 
+                          alt="M-Pesa" 
+                          className="h-16 object-contain"
+                          onError={(e) => {
+                            // Fallback to icon if image fails to load
+                            (e.target as HTMLImageElement).style.display = 'none';
+                            const parent = (e.target as HTMLImageElement).parentElement;
+                            if (parent) {
+                              parent.innerHTML = '<div class="flex items-center justify-center"><Smartphone class="text-green-600" size={48} /></div>';
+                            }
+                          }}
                         />
-                        <Smartphone className="mr-3 text-green-600" size={20} />
-                        <div>
-                          <div className="font-semibold">M-Pesa</div>
-                          <div className="text-sm text-text-secondary">Pagar com M-Pesa</div>
-                        </div>
-                      </label>
-                      <label className="flex items-center p-4 border-2 rounded-lg cursor-pointer hover:border-primary transition-colors opacity-50">
-                        <input
-                          type="radio"
-                          name="paymentMethod"
-                          value="card"
-                          checked={paymentMethod === 'card'}
-                          onChange={(e) => setPaymentMethod(e.target.value as 'card')}
-                          className="mr-3"
-                          disabled
-                        />
-                        <CreditCard className="mr-3 text-gray-400" size={20} />
-                        <div>
-                          <div className="font-semibold">Cartão de Crédito/Débito</div>
-                          <div className="text-sm text-text-secondary">Em breve</div>
-                        </div>
-                      </label>
-                    </div>
+                      </div>
 
-                    {paymentMethod === 'mpesa' && (
-                      <div className="mt-6 p-4 bg-gray-50 rounded-lg">
-                        <div className="form-group">
-                          <label className="form-label">Número de M-Pesa *</label>
-                          <input
-                            type="tel"
-                            name="mpesaNumber"
-                            value={formData.mpesaNumber}
-                            onChange={handleInputChange}
-                            className="form-input"
-                            placeholder="Número de M-Pesa"
-                            required
-                          />
+                      {/* M-Pesa Instructions */}
+                      <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
+                        <h3 className="font-semibold text-lg mb-4 text-blue-900">
+                          {t.checkout.mpesaInstructions || 'Instruções de Pagamento M-Pesa'}
+                        </h3>
+                        <ol className="space-y-2 text-sm text-blue-800">
+                          <li className="flex items-start">
+                            <span className="font-bold mr-2">1.</span>
+                            <span>{t.checkout.mpesaStep1 || 'Digite o seu número de telefone M-Pesa abaixo (sem +258)'}</span>
+                          </li>
+                          <li className="flex items-start">
+                            <span className="font-bold mr-2">2.</span>
+                            <span>{t.checkout.mpesaStep2 || 'Clique no botão "Pagar com M-Pesa"'}</span>
+                          </li>
+                          <li className="flex items-start">
+                            <span className="font-bold mr-2">3.</span>
+                            <span>{t.checkout.mpesaStep3 || 'Verifique o seu telefone para o prompt M-Pesa'}</span>
+                          </li>
+                          <li className="flex items-start">
+                            <span className="font-bold mr-2">4.</span>
+                            <span>{t.checkout.mpesaStep4 || 'Digite o seu PIN M-Pesa para completar o pagamento'}</span>
+                          </li>
+                          <li className="flex items-start">
+                            <span className="font-bold mr-2">5.</span>
+                            <span>{t.checkout.mpesaStep5 || 'Aguarde a mensagem de confirmação'}</span>
+                          </li>
+                        </ol>
+                        <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded">
+                          <p className="text-sm text-yellow-800">
+                            <strong>📌 {t.checkout.mpesaNote || 'Nota: Você receberá um prompt no seu telefone para confirmar o pagamento. Certifique-se de que a sua conta M-Pesa tem saldo suficiente. Use apenas números de Moçambique (formato: 8X XXXXXXX).'}</strong>
+                          </p>
                         </div>
                       </div>
-                    )}
+
+                      {/* M-Pesa Phone Number Input */}
+                      <div className="p-4 bg-gray-50 rounded-lg border">
+                        <MpesaPhoneInput
+                          value={formData.mpesaNumber}
+                          onChange={(value) => setFormData(prev => ({ ...prev, mpesaNumber: value }))}
+                          placeholder="8X XXXXXXX"
+                          required
+                          label={t.checkout.mpesaPhoneNumber}
+                        />
+                      </div>
+                    </div>
                   </div>
                 )}
 

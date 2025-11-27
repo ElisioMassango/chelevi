@@ -5,6 +5,7 @@ import { logger } from '../utils/logger';
 import { whatsappService } from '../services/whatsappService';
 import { emailService } from '../services/emailService';
 import { ownerNotificationService } from '../services/ownerNotificationService';
+import { formatPhoneForWhatsApp, validateWhatsAppNumber } from '../utils/phoneUtils';
 
 interface User {
   id: string;
@@ -416,8 +417,26 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           }
           
           // Send welcome WhatsApp message to user
-          if (user.phone) {
-            await whatsappService.sendWelcomeMessage(userName, user.phone);
+          if (user.phone && validateWhatsAppNumber(user.phone)) {
+            try {
+              const formattedPhone = formatPhoneForWhatsApp(user.phone);
+              await whatsappService.sendWelcomeMessage(userName, formattedPhone);
+              logger.userAction('Welcome WhatsApp sent to new user', { 
+                userId: user.id, 
+                phone: formattedPhone 
+              });
+            } catch (whatsappError) {
+              logger.error('Failed to send welcome WhatsApp', { 
+                error: whatsappError, 
+                userId: user.id, 
+                phone: user.phone 
+              });
+            }
+          } else if (user.phone) {
+            logger.warn('Phone number format invalid for WhatsApp', { 
+              userId: user.id, 
+              phone: user.phone 
+            });
           }
           
           // Notify owners about new account

@@ -563,11 +563,11 @@ const ProductDetail: React.FC = () => {
             </div>
             {/* Out of Stock Badge */}
             {isOutOfStock && (
-              <div className="mb-4 p-4 bg-orange-50 border border-orange-200 rounded-lg flex items-center gap-3">
-                <Clock className="text-orange-600" size={24} />
+              <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg flex items-center gap-3">
+                <Clock className="text-red-600" size={24} />
                 <div>
-                  <p className="font-semibold text-orange-900">{t.productDetail.availableSoon}</p>
-                  <p className="text-sm text-orange-700">{t.productDetail.availableSoonText}</p>
+                  <p className="font-semibold text-red-900">{t.productDetail.availableSoon}</p>
+                  <p className="text-sm text-red-700">{t.productDetail.availableSoonText}</p>
                 </div>
               </div>
             )}
@@ -577,7 +577,7 @@ const ProductDetail: React.FC = () => {
               {isOutOfStock ? (
                 <button
                   onClick={() => setShowReservationPopup(true)}
-                  className="btn btn-lg flex-1 flex items-center justify-center gap-2 bg-orange-500 hover:bg-orange-600 text-white"
+                  className="btn btn-lg flex-1 flex items-center justify-center gap-2 bg-red-500 hover:bg-red-600 text-white"
                 >
                   <Clock size={20} />
                   {t.productDetail.reserve}

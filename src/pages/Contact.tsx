@@ -2,9 +2,10 @@ import React, { useState } from 'react';
 import { MapPin, Phone, Mail, Send, MessageSquare, Loader2, HelpCircle, ChevronDown, ChevronUp } from 'lucide-react';
 import { emailService } from '../services/emailService';
 import { ownerNotificationService } from '../services/ownerNotificationService';
+import { whatsappService } from '../services/whatsappService';
 import { toastService } from '../utils/toast';
 import PhoneInput from '../components/PhoneInput';
-import { validatePhoneNumber } from '../utils/phoneUtils';
+import { validatePhoneNumber, formatPhoneForWhatsApp, validateWhatsAppNumber } from '../utils/phoneUtils';
 import { useTranslation } from '../contexts/LanguageContext';
 import SEO from '../components/SEO';
 
@@ -41,6 +42,36 @@ const Contact: React.FC = () => {
         return;
       }
       
+      // Save contact form to Supabase via backend
+      try {
+        const backendUrl = import.meta.env.VITE_BACKEND_API_URL || 'http://localhost:3001/api';
+        const response = await fetch(`${backendUrl}/supabase/contact`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            name: formData.name,
+            email: formData.email,
+            phone: formData.phone || null,
+            subject: formData.subject,
+            message: formData.message,
+          })
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          console.warn('Failed to save contact form to Supabase:', errorData);
+          // Continue with notifications even if Supabase save fails
+        } else {
+          const result = await response.json();
+          console.log('Contact form saved to Supabase:', result);
+        }
+      } catch (error) {
+        console.warn('Failed to save contact form to Supabase:', error);
+        // Continue with notifications even if Supabase save fails
+      }
+      
       // Send notifications to owners
       await ownerNotificationService.notifyNewContact(
         formData.name,
@@ -49,6 +80,32 @@ const Contact: React.FC = () => {
         formData.message
       );
 
+      // Send confirmation WhatsApp to user (if phone provided and valid)
+      if (formData.phone && validateWhatsAppNumber(formData.phone)) {
+        try {
+          const formattedPhone = formatPhoneForWhatsApp(formData.phone);
+          const whatsappMessage = `📧 *Mensagem Recebida!*\n\n` +
+            `Olá ${formData.name}! 👋\n\n` +
+            `Recebemos a sua mensagem com sucesso:\n\n` +
+            `📝 *Assunto:* ${formData.subject}\n\n` +
+            `💬 *Sua Mensagem:*\n${formData.message}\n\n` +
+            `📋 *Próximos Passos:*\n` +
+            `• Responderemos o mais breve possível\n` +
+            `• Enviaremos atualizações por WhatsApp\n` +
+            `• Tempo médio de resposta: 24-48h\n\n` +
+            `Obrigado por entrar em contacto com a Chelevi! 💜`;
+          
+          await whatsappService.sendMessage({
+            number: formattedPhone,
+            text: whatsappMessage,
+            delay: 1000,
+            linkPreview: false,
+          });
+        } catch (error) {
+          console.error('Failed to send confirmation WhatsApp:', error);
+        }
+      }
+
       // Send confirmation to user via email (if email provided)
       if (formData.email) {
         try {
@@ -56,56 +113,110 @@ const Contact: React.FC = () => {
             to: formData.email,
             subject: 'Mensagem Recebida - Chelevi',
             html: `
-              <!DOCTYPE html>
-              <html lang="pt-BR">
-              <head>
-                <meta charset="UTF-8">
-                <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <title>Mensagem Recebida - Chelevi</title>
-              </head>
-              <body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f8f9fa;">
-                <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff;">
-                  <div style="background: linear-gradient(135deg, #8B4E6F 0%, #A5697A 100%); padding: 40px 30px; text-align: center;">
-                    <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: 300;">Chelevi</h1>
-                    <p style="color: #f0f0f0; margin: 10px 0 0 0; font-size: 16px;">Mensagem Recebida</p>
-                  </div>
-                  
-                  <div style="padding: 40px 30px;">
-                    <div style="text-align: center; margin-bottom: 30px;">
-                      <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #8B4E6F, #A5697A); border-radius: 50%; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center;">
-                        <span style="color: #ffffff; font-size: 36px;">✅</span>
-                      </div>
-                      <h2 style="color: #2c3e50; margin: 0 0 10px 0; font-size: 24px;">Mensagem Recebida!</h2>
-                      <p style="color: #7f8c8d; margin: 0; font-size: 16px;">Olá ${formData.name}, recebemos a sua mensagem e responderemos em breve!</p>
-                    </div>
-                    
-                    <div style="background-color: #f8f9fa; border-radius: 12px; padding: 25px; margin-bottom: 30px;">
-                      <h3 style="color: #2c3e50; margin: 0 0 15px 0; font-size: 18px;">Resumo da sua mensagem:</h3>
-                      <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-                        <span style="color: #7f8c8d;">Assunto:</span>
-                        <span style="color: #2c3e50; font-weight: 600;">${formData.subject}</span>
-                      </div>
-                      <div style="border-top: 1px solid #e9ecef; padding-top: 15px;">
-                        <span style="color: #7f8c8d; display: block; margin-bottom: 5px;">Mensagem:</span>
-                        <p style="color: #2c3e50; margin: 0; line-height: 1.5;">${formData.message}</p>
-                      </div>
-                    </div>
-                    
-                    <div style="text-align: center; margin-top: 30px;">
-                      <p style="color: #7f8c8d; margin: 0; font-size: 14px;">
-                        Obrigado por entrar em contacto connosco! 💜
-                      </p>
-                    </div>
-                  </div>
-                  
-                  <div style="background-color: #2c3e50; padding: 30px; text-align: center;">
-                    <p style="color: #ffffff; margin: 0; font-size: 14px;">
-                      © 2025 Chelevi. Todos os direitos reservados.
-                    </p>
-                  </div>
-                </div>
-              </body>
-              </html>
+            <!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mensagem Recebida - CheLeVi</title>
+</head>
+
+<body style="margin:0; padding:0; background:#0e1117; font-family:'Segoe UI',sans-serif;">
+
+  <div style="max-width:620px; margin:0 auto;">
+
+    <!-- LOGO -->
+    <div style="padding:45px 0 25px; text-align:center;">
+      <img
+        src="https://chelevi.sparktechnology.cloud/chelevi/Logos/CHE-LEVI-02.png"
+        alt="CheLeVi"
+        style="width:180px; height:auto; opacity:0.95;"
+      />
+    </div>
+
+    <!-- HEADER -->
+    <div style="
+      background:linear-gradient(135deg,#12171f,#1b2433);
+      padding:45px 35px;
+      border-radius:20px 20px 0 0;
+      text-align:center;
+    ">
+      <h1 style="color:#ffffff; margin:0; font-size:26px; font-weight:300; letter-spacing:1px;">
+        Mensagem Recebida
+      </h1>
+      <p style="color:#d5d9e0; margin-top:10px; font-size:15px;">
+        Obrigado por entrar em contacto com a CheLeVi
+      </p>
+    </div>
+
+    <!-- CONTENT CARD -->
+    <div style="background:#ffffff; padding:35px; border-radius:0 0 20px 20px;">
+
+      <!-- ICON -->
+      <div style="text-align:center; margin-bottom:25px;">
+        <div style="
+          width:80px;
+          height:80px;
+          background:#000;
+          border-radius:50%;
+          display:flex;
+          align-items:center;
+          justify-content:center;
+          margin:0 auto 20px;
+        ">
+          <img src="https://chelevi.sparktechnology.cloud/chelevi/Logos/Monogram-bege-BLACK.png" alt="CheLeVi" style="width:100%; height:100%; object-fit:contain;">
+        </div>
+        <div style="color:#ffffff;">
+          <h2 style="color:#1e1e1e; margin:0 0 10px; font-size:22px; font-weight:500;">
+            Obrigado, ${formData.name}!
+          </h2>
+          <p style="color:#1e1e1e; margin:0; font-size:15px;">
+            Recebemos a sua mensagem e responderemos o mais brevemente possível.
+          </p>
+        </div>
+      </div>
+
+      <!-- SUMMARY -->
+      <h3 style="color:#1e1e1e; font-size:17px; margin:0 0 18px;">
+        Resumo da sua mensagem:
+      </h3>
+
+      <table width="100%" cellspacing="0" cellpadding="0" style="margin-bottom:22px;">
+        <tr>
+          <td style="color:#777; font-size:15px;">Assunto:</td>
+          <td style="text-align:right; color:#1e1e1e; font-weight:600;">
+            ${formData.subject}
+          </td>
+        </tr>
+      </table>
+
+      <div style="border-top:1px solid #eee; padding-top:18px;">
+        <span style="color:#777; font-size:15px;">Mensagem:</span>
+
+        <p style="color:#1e1e1e; font-size:15px; line-height:1.6; margin-top:8px;">
+          ${formData.message}
+        </p>
+      </div>
+
+      <p style="text-align:center; margin-top:30px; color:#7a7a7a; font-size:14px;">
+        Agradecemos o seu contacto.  
+        <br>Estamos sempre aqui para ajudar. ✨
+      </p>
+
+    </div>
+
+    <!-- FOOTER -->
+    <div style="padding:30px 10px; text-align:center;">
+      <p style="color:#c9cdd4; font-size:13px; margin:0;">
+        © 2025 CheLeVi — Todos os direitos reservados.
+      </p>
+    </div>
+
+  </div>
+
+</body>
+</html>
+
             `,
             type: 'contact_confirmation'
           });

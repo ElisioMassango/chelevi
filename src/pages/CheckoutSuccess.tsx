@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { CheckCircle, Package, Truck, Heart, ArrowRight, Sparkles, Gift, Mail, Phone, Calendar, CreditCard, Clock } from 'lucide-react';
 import { useTranslation } from '../contexts/LanguageContext';
+import { env } from '../config/environment';
 
 const CheckoutSuccess: React.FC = () => {
   const t = useTranslation();
@@ -15,14 +16,98 @@ const CheckoutSuccess: React.FC = () => {
     setTimeout(() => setShowAnimation(true), 100);
   }, []);
 
+  // Calculate subtotal from products
+  const calculateSubtotal = () => {
+    if (orderData?.products && Array.isArray(orderData.products) && orderData.products.length > 0) {
+      const totalFromProducts = orderData.products.reduce((sum: number, item: any) => {
+        let price = 0;
+        // Try final_price first
+        if (item.final_price && parseFloat(item.final_price) > 0) {
+          price = parseFloat(item.final_price);
+        } 
+        // If final_price is 0 or missing, try total_orignal_price
+        else if (item.total_orignal_price && parseFloat(item.total_orignal_price) > 0) {
+          price = parseFloat(item.total_orignal_price);
+        } 
+        // If both are 0, calculate from orignal_price * qty
+        else if (item.orignal_price && parseFloat(item.orignal_price) > 0) {
+          const qty = parseInt(item.qty) || 1;
+          price = parseFloat(item.orignal_price) * qty;
+        }
+        return sum + price;
+      }, 0);
+      
+      if (totalFromProducts > 0) {
+        return totalFromProducts;
+      }
+    }
+    
+    // Fallback to API subtotal
+    if (orderData?.subTotal && parseFloat(orderData.subTotal.toString()) > 0) {
+      return parseFloat(orderData.subTotal.toString());
+    }
+    
+    return 0;
+  };
+
+  // Calculate total correctly, considering products with variants and coupon discount
+  const calculateTotal = () => {
+    const subtotal = calculateSubtotal();
+    const couponDiscount = orderData?.couponInfo?.discount_amount 
+      ? parseFloat(orderData.couponInfo.discount_amount.toString()) 
+      : 0;
+    const deliveryCharge = orderData?.deliveryCharge ? parseFloat(orderData.deliveryCharge.toString()) : 0;
+    const taxPrice = orderData?.tax?.tax_price ? parseFloat(orderData.tax.tax_price.toString()) : 0;
+    
+    // Calculate: Subtotal - Discount + Delivery + Tax
+    const calculatedTotal = subtotal - couponDiscount + deliveryCharge + taxPrice;
+    
+    // Use calculated total if > 0, otherwise try orderData.finalPrice
+    if (calculatedTotal > 0) {
+      return calculatedTotal;
+    }
+    
+    // Fallback to API finalPrice if available
+    if (orderData?.finalPrice && parseFloat(orderData.finalPrice.toString()) > 0) {
+      return parseFloat(orderData.finalPrice.toString());
+    }
+    
+    return 0;
+  };
+
   const orderDetails = {
     id: orderId ? `#${orderId}` : 'ORD-' + Math.random().toString(36).substr(2, 9).toUpperCase(),
-    total: typeof orderData?.subTotal === 'number' ? orderData.subTotal : (typeof orderData?.finalPrice === 'number' ? orderData.finalPrice : parseFloat(orderData?.subTotal || orderData?.finalPrice || 0)),
-    items: orderData?.items?.length || 0,
+    total: calculateTotal(),
+    subtotal: calculateSubtotal(),
+    items: orderData?.products?.length || orderData?.items?.length || 0,
     estimatedDelivery: '2-3 business days',
     paymentMethod: orderData?.paymentType || 'M-Pesa',
     orderDate: new Date().toLocaleDateString('pt-BR'),
-    orderTime: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
+    orderTime: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+    products: orderData?.products || []
+  };
+
+  // Get API base URL for images
+  const getImageUrl = (imagePath: string) => {
+    if (!imagePath) return '';
+    if (imagePath.startsWith('http')) return imagePath;
+    const apiBaseUrl = env.api.baseUrl.replace('/api', '');
+    return `${apiBaseUrl}/${imagePath}`;
+  };
+
+  // Get product price correctly
+  const getProductPrice = (item: any) => {
+    if (item.final_price && parseFloat(item.final_price) > 0) {
+      return parseFloat(item.final_price);
+    }
+    if (item.total_orignal_price && parseFloat(item.total_orignal_price) > 0) {
+      return parseFloat(item.total_orignal_price);
+    }
+    if (item.orignal_price && parseFloat(item.orignal_price) > 0) {
+      const qty = parseInt(item.qty) || 1;
+      return parseFloat(item.orignal_price) * qty;
+    }
+    return 0;
   };
 
   return (
@@ -126,6 +211,31 @@ const CheckoutSuccess: React.FC = () => {
               </div>
             </div>
 
+            {/* Coupon Information - If Applied */}
+            {orderData?.couponInfo && orderData.couponInfo.status && (
+              <div className="md:col-span-2 mt-4 pt-6 border-t border-gray-200">
+                <div className="p-6 bg-green-50 rounded-2xl border border-green-200">
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                      <Gift className="text-green-600" size={20} />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-sm font-semibold text-green-800 uppercase tracking-wide">Cupom Aplicado</p>
+                      <p className="text-lg font-bold text-green-700">{orderData.couponInfo.code}</p>
+                    </div>
+                  </div>
+                  <div className="mt-3 space-y-1">
+                    <p className="text-sm text-green-700">
+                      {orderData.couponInfo.discount_string || `Desconto de ${orderData.couponInfo.discount}%`}
+                    </p>
+                    <p className="text-base font-semibold text-green-800">
+                      Desconto: -MT{parseFloat(orderData.couponInfo.discount_amount || '0').toFixed(2)}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Total - Premium Highlight */}
             <div className="md:col-span-2 mt-4 pt-6 border-t border-gray-200">
               <div className="flex items-center justify-between p-6 bg-primary/10 rounded-2xl border border-primary/30">
@@ -136,11 +246,75 @@ const CheckoutSuccess: React.FC = () => {
                   <div>
                     <p className="text-sm text-text-secondary/70 uppercase tracking-wide">{t.checkoutSuccess.total}</p>
                     <p className="text-3xl md:text-4xl font-bold text-text-primary">MT{orderDetails.total.toFixed(2)}</p>
+                    {orderData?.couponInfo && orderData.couponInfo.status && (
+                      <p className="text-xs text-text-secondary/60 mt-1 line-through">
+                        MT{calculateSubtotal().toFixed(2)}
+                      </p>
+                    )}
                   </div>
                 </div>
               </div>
             </div>
           </div>
+
+          {/* Products List - New Section */}
+          {orderDetails.products && orderDetails.products.length > 0 && (
+            <div className="mt-8 pt-8 border-t border-gray-200">
+              <h4 className="text-xl font-bold text-text-primary mb-6 flex items-center gap-3">
+                <Package className="text-text-primary" size={24} />
+                {t.checkoutSuccess.productsPurchased}
+              </h4>
+              <div className="space-y-4">
+                {orderDetails.products.map((product: any, index: number) => {
+                  const productPrice = getProductPrice(product);
+                  const variantInfo = product.variant_name && product.variant_name.trim() 
+                    ? ` (${product.variant_name})` 
+                    : '';
+                  
+                  return (
+                    <div 
+                      key={product.cart_id || product.product_id || index}
+                      className="flex items-center gap-4 p-4 bg-gray-50 rounded-xl border border-gray-200 hover:border-primary/30 transition-all"
+                    >
+                      {/* Product Image */}
+                      <div className="flex-shrink-0 w-20 h-20 md:w-24 md:h-24 rounded-lg overflow-hidden bg-white border border-gray-200">
+                        <img 
+                          src={getImageUrl(product.image)} 
+                          alt={product.name}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).src = '/placeholder-product.png';
+                          }}
+                        />
+                      </div>
+                      
+                      {/* Product Details */}
+                      <div className="flex-1 min-w-0">
+                        <h5 className="text-base md:text-lg font-semibold text-text-primary mb-1 truncate">
+                          {product.name}{variantInfo}
+                        </h5>
+                        <div className="flex items-center gap-4 text-sm text-text-secondary">
+                          <span>Qty: {product.qty}</span>
+                          {product.variant_name && product.variant_name.trim() && (
+                            <span className="px-2 py-1 bg-primary/10 rounded text-text-primary text-xs">
+                              {product.variant_name}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      
+                      {/* Product Price */}
+                      <div className="flex-shrink-0 text-right">
+                        <p className="text-lg md:text-xl font-bold text-text-primary">
+                          MT{productPrice.toFixed(2)}
+                        </p>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Next Steps - Premium Cards */}

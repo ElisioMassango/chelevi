@@ -10,6 +10,8 @@ import LanguageSelector from './LanguageSelector';
 import CurrencySelector from './CurrencySelector';
 import { useCategories } from '../hooks/useCategories';
 import { useCurrency } from '../contexts/CurrencyContext';
+import { translateCategoryName } from '../utils/categoryTranslations';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -24,6 +26,7 @@ const Header: React.FC = () => {
   const t = useTranslation();
   const { formatPrice } = useCurrency();
   const { categories, loading: categoriesLoading } = useCategories();
+  const { language } = useLanguage();
   
   // Search functionality
   const { 
@@ -359,6 +362,7 @@ const Header: React.FC = () => {
                           <div className="mt-2 ml-4 space-y-1">
                             {categories.slice(0, 6).map((category: any) => {
                               const routeSlug = category.slug?.split('/').pop()?.toLowerCase() || category.name.toLowerCase();
+                              const translatedName = translateCategoryName(category.id, category.name, language);
                               return (
                                 <Link
                                   key={category.id}
@@ -366,7 +370,7 @@ const Header: React.FC = () => {
                                   className="block py-2 px-3 text-sm text-gray-600 hover:bg-gray-50 hover:text-accent rounded-md transition-colors"
                                   onClick={() => setIsMenuOpen(false)}
                                 >
-                                  {category.name}
+                                  {translatedName}
                                   {category.total_product && (
                                     <span className="text-xs text-gray-400 ml-2">({category.total_product})</span>
                                   )}

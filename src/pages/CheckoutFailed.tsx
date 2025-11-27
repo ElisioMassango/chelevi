@@ -91,7 +91,7 @@ const CheckoutFailed: React.FC = () => {
           </p>
           <div className="space-y-1 text-sm text-blue-800">
             <p>📧 Email: info@chelevi.com</p>
-            <p>📱 WhatsApp: +258 84 12 34 567</p>
+            <p>📱 WhatsApp: +258 85 22 32 423</p>
           </div>
         </div>
 

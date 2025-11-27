@@ -1,8 +1,8 @@
-import { apiService } from './api';
 import { emailService } from './emailService';
 import { ownerNotificationService } from './ownerNotificationService';
 import { whatsappService } from './whatsappService';
 import { logger } from '../utils/logger';
+import { formatPhoneForWhatsApp, validateWhatsAppNumber } from '../utils/phoneUtils';
 
 export interface ReservationData {
   productId: number;
@@ -38,6 +38,37 @@ class ReservationService {
     try {
       logger.userAction('Creating product reservation', { productId: data.productId });
 
+      // Save reservation to Supabase via backend
+      try {
+        const backendUrl = import.meta.env.VITE_BACKEND_API_URL || 'http://localhost:3001/api';
+        const response = await fetch(`${backendUrl}/supabase/reservation`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            productId: data.productId,
+            productName: data.productName,
+            name: data.name,
+            email: data.email,
+            phone: data.phone,
+            quantity: data.quantity,
+            country: data.country || 'mocambique',
+          })
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          throw new Error(errorData.message || 'Failed to save reservation');
+        }
+
+        const result = await response.json();
+        logger.userAction('Reservation saved to Supabase', { reservationId: result.reservationId });
+      } catch (error) {
+        logger.warn('Failed to save reservation to Supabase', { error });
+        // Continue with notifications even if Supabase save fails
+      }
+
       // Send notification to owner
       try {
         await ownerNotificationService.notifyNewReservation(
@@ -65,17 +96,38 @@ class ReservationService {
         logger.warn('Failed to send confirmation email', { error });
       }
 
-      // Send WhatsApp notification to customer (optional)
-      try {
-        const message = `Olá ${data.name}! Sua reserva para ${data.productName} (Quantidade: ${data.quantity}) foi confirmada. Você será notificado(a) assim que o produto estiver disponível. Obrigado!`;
-        await whatsappService.sendMessage({
-          number: data.phone,
-          text: message,
-          delay: 1000,
-          linkPreview: false,
-        });
-      } catch (error) {
-        logger.warn('Failed to send WhatsApp notification', { error });
+      // Send WhatsApp notification to customer
+      if (data.phone && validateWhatsAppNumber(data.phone)) {
+        try {
+          const formattedPhone = formatPhoneForWhatsApp(data.phone);
+          const message = `📦 *Reserva Confirmada!*\n\n` +
+            `Olá ${data.name}! 👋\n\n` +
+            `A sua reserva foi confirmada com sucesso:\n\n` +
+            `🛍️ *Produto:* ${data.productName}\n` +
+            `📊 *Quantidade:* ${data.quantity}\n` +
+            `🌍 *País:* ${data.country === 'portugal' ? '🇵🇹 Portugal' : '🇲🇿 Moçambique'}\n\n` +
+            `📋 *Próximos Passos:*\n` +
+            `• Notificaremos quando o produto estiver disponível\n` +
+            `• Enviaremos atualizações por WhatsApp e Email\n` +
+            `• Entrega estimada após confirmação de disponibilidade\n\n` +
+            `Obrigado por escolher a Chelevi! 💜`;
+          
+          await whatsappService.sendMessage({
+            number: formattedPhone,
+            text: message,
+            delay: 1000,
+            linkPreview: false,
+          });
+          
+          logger.userAction('Reservation WhatsApp sent to customer', { 
+            phone: formattedPhone, 
+            productId: data.productId 
+          });
+        } catch (error) {
+          logger.warn('Failed to send WhatsApp notification', { error, phone: data.phone });
+        }
+      } else if (data.phone) {
+        logger.warn('Phone number format invalid for WhatsApp', { phone: data.phone });
       }
 
       logger.userAction('Reservation created successfully', { productId: data.productId });
@@ -98,71 +150,136 @@ class ReservationService {
    */
   private getReservationConfirmationEmail(data: ReservationData): string {
     return `
-      <!DOCTYPE html>
-      <html lang="pt-BR">
-      <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Reserva Confirmada - Chelevi</title>
-      </head>
-      <body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f8f9fa;">
-        <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff;">
-          <div style="background: linear-gradient(135deg, #8B4E6F 0%, #A5697A 100%); padding: 40px 30px; text-align: center;">
-            <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: 300;">Chelevi</h1>
-            <p style="color: #f0f0f0; margin: 10px 0 0 0; font-size: 16px;">Reserva Confirmada</p>
-          </div>
-          
-          <div style="padding: 40px 30px;">
-            <div style="text-align: center; margin-bottom: 30px;">
-              <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #8B4E6F, #A5697A); border-radius: 50%; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center;">
-                <span style="color: #ffffff; font-size: 36px;">✅</span>
-              </div>
-              <h2 style="color: #2c3e50; margin: 0 0 10px 0; font-size: 24px;">Reserva Confirmada!</h2>
-              <p style="color: #7f8c8d; margin: 0; font-size: 16px;">Olá ${data.name}, sua reserva foi confirmada com sucesso!</p>
-            </div>
-            
-            <div style="background-color: #f8f9fa; border-radius: 12px; padding: 25px; margin-bottom: 30px;">
-              <h3 style="color: #2c3e50; margin: 0 0 15px 0; font-size: 18px;">Detalhes da Reserva:</h3>
-              <div style="margin-bottom: 10px;">
-                <span style="color: #7f8c8d;">Produto:</span>
-                <span style="color: #2c3e50; font-weight: 600; margin-left: 10px;">${data.productName}</span>
-              </div>
-              <div style="margin-bottom: 10px;">
-                <span style="color: #7f8c8d;">Quantidade:</span>
-                <span style="color: #2c3e50; font-weight: 600; margin-left: 10px;">${data.quantity}</span>
-              </div>
-              <div style="margin-bottom: 10px;">
-                <span style="color: #7f8c8d;">País:</span>
-                <span style="color: #2c3e50; font-weight: 600; margin-left: 10px;">${data.country === 'portugal' ? '🇵🇹 Portugal' : '🇲🇿 Moçambique'}</span>
-              </div>
-              <div style="margin-bottom: 10px;">
-                <span style="color: #7f8c8d;">Contato:</span>
-                <span style="color: #2c3e50; font-weight: 600; margin-left: 10px;">${data.phone}</span>
-              </div>
-            </div>
-            
-            <div style="background-color: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin-bottom: 30px; border-radius: 4px;">
-              <p style="color: #856404; margin: 0; font-size: 14px; line-height: 1.5;">
-                <strong>Importante:</strong> Você será notificado(a) assim que o produto estiver disponível. 
-                Fique atento(a) ao seu email e WhatsApp!
-              </p>
-            </div>
-            
-            <div style="text-align: center; margin-top: 30px;">
-              <p style="color: #7f8c8d; margin: 0; font-size: 14px;">
-                Obrigado por escolher Chelevi! 💜
-              </p>
-            </div>
-          </div>
-          
-          <div style="background-color: #2c3e50; padding: 30px; text-align: center;">
-            <p style="color: #ffffff; margin: 0; font-size: 14px;">
-              © 2025 Chelevi. Todos os direitos reservados.
-            </p>
-          </div>
+    <!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reserva Confirmada - CheLeVi</title>
+</head>
+
+<body style="margin:0; padding:0; background:#0e1117; font-family:'Segoe UI',sans-serif;">
+
+  <div style="max-width:620px; margin:0 auto;">
+
+    <!-- LOGO -->
+    <div style="padding:45px 0 25px; text-align:center;">
+      <img
+        src="https://chelevi.sparktechnology.cloud/chelevi/Logos/CHE-LEVI-02.png"
+        alt="CheLeVi"
+        style="width:180px; height:auto; opacity:0.95;"
+      />
+    </div>
+
+    <!-- HEADER -->
+    <div style="
+      background:linear-gradient(135deg,#12171f,#1b2433);
+      padding:45px 35px;
+      border-radius:20px 20px 0 0;
+      text-align:center;
+    ">
+    <div style="color:#ffffff;">
+  <h1 style=" color:#1e1e1e; margin:0; font-size:26px; font-weight:300; letter-spacing:1px;">
+    Reserva Confirmada
+  </h1>
+  <p style=" color:#1e1e1e; margin-top:10px; font-size:15px;">
+    CheLeVi — Moda, Estilo e Exclusividade
+  </p>
+</div>
+
+    </div>
+
+    <!-- CONTENT CARD -->
+    <div style="background:#ffffff; padding:35px; border-radius:0 0 20px 20px;">
+
+      <!-- ICON -->
+      <div style="text-align:center; margin-bottom:25px;">
+        <div style="
+          width:80px;
+          height:80px;
+          background:#000;
+          border-radius:50%;
+          display:flex;
+          align-items:center;
+          justify-content:center;
+          margin:0 auto 20px;
+        ">
+          <img src="https://chelevi.sparktechnology.cloud/chelevi/Logos/Monogram-bege-BLACK.png" alt="CheLeVi" style="width:100%; height:100%; object-fit:contain;">
         </div>
-      </body>
-      </html>
+
+        <h2 style="color:#1e1e1e; margin:0 0 10px; font-size:22px; font-weight:500;">
+          Reserva Confirmada!
+        </h2>
+
+        <p style="color:#7a7a7a; margin:0; font-size:15px;">
+          Olá ${data.name}, recebemos a sua reserva com sucesso.
+        </p>
+      </div>
+
+      <!-- RESERVATION DETAILS -->
+      <h3 style="color:#1e1e1e; font-size:17px; margin:0 0 18px;">Detalhes da Reserva</h3>
+
+      <div style="margin-bottom:12px;">
+        <span style="color:#777; font-size:15px;">Produto:</span>
+        <span style="color:#1e1e1e; font-weight:600; margin-left:10px;">
+          ${data.productName}
+        </span>
+      </div>
+
+      <div style="margin-bottom:12px;">
+        <span style="color:#777; font-size:15px;">Quantidade:</span>
+        <span style="color:#1e1e1e; font-weight:600; margin-left:10px;">
+          ${data.quantity}
+        </span>
+      </div>
+
+      <div style="margin-bottom:12px;">
+        <span style="color:#777; font-size:15px;">País:</span>
+        <span style="color:#1e1e1e; font-weight:600; margin-left:10px;">
+          ${data.country === 'portugal' ? '🇵🇹 Portugal' : '🇲🇿 Moçambique'}
+        </span>
+      </div>
+
+      <div style="margin-bottom:12px;">
+        <span style="color:#777; font-size:15px;">Contacto:</span>
+        <span style="color:#1e1e1e; font-weight:600; margin-left:10px;">
+          ${data.phone}
+        </span>
+      </div>
+
+      <!-- WARNING -->
+      <div style="
+        background:#fff8e6;
+        border-left:4px solid #f7c948;
+        padding:18px;
+        border-radius:10px;
+        margin-top:25px;
+      ">
+        <p style="color:#8a6c22; margin:0; font-size:14px; line-height:1.6;">
+          <strong>Atenção:</strong> Assim que o produto estiver disponível,
+          notificaremos por email e WhatsApp.  
+          Mantenha-se atento — a CheLeVi entrará em contacto consigo.
+        </p>
+      </div>
+
+      <p style="text-align:center; margin-top:30px; color:#7a7a7a; font-size:14px;">
+        Obrigado por confiar na CheLeVi. ✨  
+      </p>
+
+    </div>
+
+    <!-- FOOTER -->
+    <div style="padding:30px 10px; text-align:center;">
+      <p style="color:#c9cdd4; font-size:13px; margin:0;">
+        © 2025 CheLeVi — Todos os direitos reservados.
+      </p>
+    </div>
+
+  </div>
+
+</body>
+</html>
+
     `;
   }
 }

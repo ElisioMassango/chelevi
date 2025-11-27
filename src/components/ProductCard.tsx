@@ -124,7 +124,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, variantPriceInfo }) 
           {/* Out of Stock Badge */}
           {isOutOfStock && (
             <div className="absolute top-3 left-3">
-              <span className="bg-orange-500 text-white px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide flex items-center gap-1">
+              <span className="bg-red-500 text-white px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide flex items-center gap-1">
                 <Clock size={12} />
                 {t.productCard.availableSoon}
               </span>
@@ -153,7 +153,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, variantPriceInfo }) 
             {isOutOfStock ? (
               <button
                 onClick={handleReserve}
-                className="w-full bg-orange-500 text-white py-2 rounded-md font-medium uppercase tracking-wide text-sm hover:bg-orange-600 transition-colors duration-300 flex items-center justify-center gap-2"
+                className="w-full bg-red-500 text-white py-2 rounded-md font-medium uppercase tracking-wide text-sm hover:bg-red-600 transition-colors duration-300 flex items-center justify-center gap-2"
               >
                 <Clock size={16} />
                 {t.productCard.reserve}

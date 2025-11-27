@@ -1,11 +1,5 @@
 {
-    "functions": {
-      "api/whatsapp-proxy.js": { "maxDuration": 30 },
-      "api/email-proxy.js": { "maxDuration": 30 }
-    },
     "rewrites": [
-      { "source": "/api/whatsapp-proxy/(.*)", "destination": "/api/whatsapp-proxy" },
-      { "source": "/api/email-proxy/(.*)", "destination": "/api/email-proxy" },
       { "source": "/(.*)", "destination": "/index.html" }
     ],
     "headers": [

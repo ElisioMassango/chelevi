@@ -9,6 +9,11 @@ interface EnvironmentConfig {
     themeId: string;
   };
   
+  // Backend API Configuration
+  backend: {
+    baseUrl: string;
+  };
+  
   // WhatsApp Configuration
   whatsapp: {
     baseUrl: string;
@@ -20,6 +25,11 @@ interface EnvironmentConfig {
   email: {
     baseUrl: string;
     apiKey: string;
+  };
+  
+  // M-Pesa Configuration
+  mpesa: {
+    baseUrl: string;
   };
   
   // App Configuration
@@ -51,17 +61,27 @@ export const env: EnvironmentConfig = {
     themeId: getEnvVar('VITE_THEME_ID', 'stylique'),
   },
   
+  // Backend API Configuration
+  backend: {
+    baseUrl: getEnvVar('VITE_BACKEND_API_URL', 'http://localhost:3001/api'),
+  },
+  
   // WhatsApp Configuration
   whatsapp: {
-    baseUrl: getEnvVar('VITE_WHATSAPP_API_URL', '/api/whatsapp-proxy'),
+    baseUrl: getEnvVar('VITE_WHATSAPP_API_URL', 'http://localhost:3001/api/whatsapp'),
     apiKey: getEnvVar('VITE_WHATSAPP_API_KEY', 'F4109AF2899E-4319-B037-ED42DDDE93E9'),
     instance: getEnvVar('VITE_WHATSAPP_INSTANCE', 'Chelevi'),
   },
   
   // Email Configuration
   email: {
-    baseUrl: getEnvVar('VITE_EMAIL_API_URL', '/api/email-proxy'),
+    baseUrl: getEnvVar('VITE_EMAIL_API_URL', 'http://localhost:3001/api/email'),
     apiKey: getEnvVar('VITE_EMAIL_API_KEY', 'your-email-api-key'),
+  },
+  
+  // M-Pesa Configuration
+  mpesa: {
+    baseUrl: getEnvVar('VITE_MPESA_API_URL', 'http://localhost:3001/api/mpesa'),
   },
   
   // App Configuration
@@ -103,6 +123,9 @@ if (isDevelopment) {
       storeSlug: env.api.storeSlug,
       themeId: env.api.themeId,
     },
+    backend: {
+      baseUrl: env.backend.baseUrl,
+    },
     whatsapp: {
       baseUrl: env.whatsapp.baseUrl,
       instance: env.whatsapp.instance,
@@ -110,5 +133,16 @@ if (isDevelopment) {
     email: {
       baseUrl: env.email.baseUrl,
     },
+    mpesa: {
+      baseUrl: env.mpesa.baseUrl,
+    },
   });
+  
+  // Warn if still using proxy URLs
+  if (env.whatsapp.baseUrl.includes('whatsapp-proxy') || env.email.baseUrl.includes('email-proxy')) {
+    console.warn('⚠️ WARNING: Services are still configured to use proxy URLs!');
+    console.warn('Please update your .env file with:');
+    console.warn('VITE_WHATSAPP_API_URL=http://localhost:3001/api/whatsapp');
+    console.warn('VITE_EMAIL_API_URL=http://localhost:3001/api/email');
+  }
 }
