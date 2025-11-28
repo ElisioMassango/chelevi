@@ -164,7 +164,10 @@ const LaunchCountdown = ({ onLaunch }: LaunchCountdownProps) => {
             Em Breve
           </h2>
           <p className="text-base sm:text-lg md:text-xl lg:text-2xl font-light px-2" style={{ fontFamily: 'Inter, sans-serif', color: 'var(--color-text-secondary)' }}>
-            Estamos preparando algo extraordinário para si
+            Estamos a preparar algo extraordinário para si
+          </p>
+          <p className="text-base sm:text-lg md:text-xl lg:text-2xl font-light px-2" style={{ fontFamily: 'Inter, sans-serif', color: 'var(--color-text-secondary)' }}>
+           Cada ves mais longe. Cada vez maiores. Estas pronta? 
           </p>
         </div>
 
