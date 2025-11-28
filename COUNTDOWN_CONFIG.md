@@ -63,3 +63,4 @@ O sistema usa automaticamente o horário de Moçambique (CAT - Central Africa Ti
 - Se a data já passou e o countdown está ativo, o site ficará bloqueado até você desativar manualmente
 - Recomenda-se desativar o countdown após o lançamento para evitar problemas
 
+

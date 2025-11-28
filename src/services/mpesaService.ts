@@ -41,7 +41,7 @@ class MpesaService {
         },
         body: JSON.stringify({
           customerNumber,
-          amount: 5, // Send as number, not string
+          amount: amountNumber, // Send as number, not string
           reference,
           transaction,
         })

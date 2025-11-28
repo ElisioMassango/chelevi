@@ -353,8 +353,8 @@ const EMAIL_TEMPLATES = {
 const OWNERS = [
   {
     name: 'Chelevi Team',
-    email: 'zeincanto13@gmail.com',
-    phone: '+258 85 2232423'
+    email: 'chelevib@gmail.com',
+    phone: '+258823693986'
   }
 ];
 

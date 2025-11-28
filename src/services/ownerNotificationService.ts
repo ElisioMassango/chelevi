@@ -7,8 +7,8 @@ import { emailService } from './emailService';
 const OWNERS = [
   {
     name: 'Chelevi Team',
-    email: 'elisiomassango12@gmail.com',
-    phone: '+258845376645'
+    email: 'chelevib@gmail.com',
+    phone: '+258823693986'
   }
 ];
 
