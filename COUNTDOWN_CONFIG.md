@@ -64,3 +64,6 @@ O sistema usa automaticamente o horário de Moçambique (CAT - Central Africa Ti
 - Recomenda-se desativar o countdown após o lançamento para evitar problemas
 
 
+
+
+

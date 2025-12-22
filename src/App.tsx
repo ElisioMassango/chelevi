@@ -31,6 +31,7 @@ import PrivacyPolicy from './pages/PrivacyPolicy';
 import TermsOfUse from './pages/TermsOfUse';
 import ShippingInfo from './pages/ShippingInfo';
 import LocationDemo from './pages/LocationDemo';
+import AdminNewsletter from './pages/AdminNewsletter';
 import LGPDPopup from './components/LGPDPopup';
 import WelcomeManager from './components/WelcomeManager';
 import NewsletterPopup from './components/NewsletterPopup';
@@ -120,6 +121,7 @@ function App() {
                           <Route path="/location-demo" element={<LocationDemo />} />
                           <Route path="/login" element={<Login />} />
                           <Route path="/wishlist" element={<Wishlist />} />
+                          <Route path="/admin/newsletter" element={<AdminNewsletter />} />
                         </Routes>
                       </main>
                       <Footer />

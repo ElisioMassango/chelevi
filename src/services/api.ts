@@ -861,13 +861,41 @@ class ApiService {
 
   // Newsletter subscription
   async subscribeNewsletter(email: string): Promise<ApiResponse<{ message: string }>> {
-    return this.request('/subscribe', {
-      method: 'POST',
-      body: JSON.stringify({
-        theme_id: API_CONFIG.themeId,
-        email: email,
-      }),
-    });
+    // Use backend API to save to Supabase
+    try {
+      const backendUrl = import.meta.env.VITE_BACKEND_API_URL || 'http://localhost:3001/api';
+      const response = await fetch(`${backendUrl}/supabase/newsletter/subscribe`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: email,
+          source: 'website',
+        }),
+      });
+
+      const data = await response.json();
+      
+      if (data.success) {
+        return {
+          status: 1,
+          message: data.message || 'Inscrição realizada com sucesso!',
+          data: data.data,
+        };
+      } else {
+        return {
+          status: 0,
+          message: data.error || 'Falha ao inscrever na newsletter',
+        };
+      }
+    } catch (error) {
+      console.error('Newsletter subscription error:', error);
+      return {
+        status: 0,
+        message: 'Falha ao inscrever na newsletter. Tente novamente.',
+      };
+    }
   }
 
   // Get user details
